@@ -11,7 +11,8 @@ from pathlib import Path
 from botocore.config import Config
 from threading import Lock
 
-BEDROCK_MODEL = 'us.anthropic.claude-sonnet-4-20250514-v1:0'
+# saju-sonnet-4 application inference profile (Sonnet 4) — Bedrock 비용 태깅 Service=SAJU. docs/bedrock-saju-tagging.md
+BEDROCK_MODEL = 'arn:aws:bedrock:us-east-1:887078546492:application-inference-profile/cybevkpbbz32'
 BEDROCK_REGION = 'us-east-1'
 OUTPUT_FILE = Path(__file__).parent.parent / 'frontend-next' / 'public' / 'saju-cache' / 'today-parts.json'
 
