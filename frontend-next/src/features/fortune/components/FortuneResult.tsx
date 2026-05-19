@@ -428,19 +428,19 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
     const wolji = pillars[2].j;
     if (!ilji || !wolji) return;
     const key = `${ilgan}_${ilji}_${wolji}`;
-    fetch('/saju-cache/chongun.json')
+    fetch(lang === 'en' ? '/saju-cache/chongun-en.json' : '/saju-cache/chongun.json')
       .then(r => r.ok ? r.json() : null)
       .then(all => { if (all && all[key]) setChongunCache(all[key]); })
       .catch(() => setChongunCache(null));
-  }, [ilgan, pillars]);
+  }, [ilgan, pillars, lang]);
 
-  // 오늘의 운세 파트별 리라이팅 JSON (한번만 로드)
+  // 오늘의 운세 파트별 리라이팅 JSON (언어별 로드)
   useEffect(() => {
-    fetch('/saju-cache/today-parts.json')
+    fetch(lang === 'en' ? '/saju-cache/today-parts-en.json' : '/saju-cache/today-parts.json')
       .then(r => r.ok ? r.json() : null)
       .then(d => setTodayParts(d))
       .catch(() => setTodayParts(null));
-  }, []);
+  }, [lang]);
 
   const structure = buildStructureAnalysis(pillars);
   const dayHapChung = todayFortune?.dayPillarHanja ? detectDayHapChung(pillars, todayFortune.dayPillarHanja) : [];

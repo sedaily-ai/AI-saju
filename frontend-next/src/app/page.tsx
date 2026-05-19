@@ -1,6 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import {
+  ScrollText, Sun, Coins, Briefcase, Heart, Users, Rabbit, Newspaper,
+  type LucideIcon,
+} from 'lucide-react';
 import { ScrollReveal } from '@/shared/ui/ScrollReveal';
 import { useLang } from '@/shared/lib/LangContext';
 import { LangToggle } from '@/shared/lib/LangToggle';
@@ -29,6 +33,28 @@ const LANDING_FAQ = [
   },
 ];
 
+// 오행 5색 — SajuTable.tsx 의 EL_COLORS 팔레트와 동일 기준
+const OH_TILE: Record<string, { box: string; icon: string; hoverBox: string }> = {
+  목: { box: 'bg-green-50',  icon: 'text-green-600',  hoverBox: 'group-hover:bg-green-600' },
+  화: { box: 'bg-red-50',    icon: 'text-red-500',    hoverBox: 'group-hover:bg-red-500' },
+  토: { box: 'bg-yellow-50', icon: 'text-yellow-600', hoverBox: 'group-hover:bg-yellow-500' },
+  금: { box: 'bg-gray-100',  icon: 'text-gray-500',   hoverBox: 'group-hover:bg-gray-500' },
+  수: { box: 'bg-blue-50',   icon: 'text-blue-600',   hoverBox: 'group-hover:bg-blue-600' },
+};
+
+const SERVICES: {
+  href: string; ko: string; en: string; descKo: string; descEn: string; Icon: LucideIcon; oh: keyof typeof OH_TILE;
+}[] = [
+  { href: '/saju',          ko: '내 사주',     en: 'My Saju',      descKo: '원국·오행·십성 한눈에',   descEn: 'Your full chart at a glance', Icon: ScrollText, oh: '목' },
+  { href: '/today',         ko: '오늘의 운세', en: "Today's Saju", descKo: '오늘 하루의 기운 흐름',   descEn: "Today's energy flow",         Icon: Sun,        oh: '화' },
+  { href: '/chaeun',        ko: '재운',        en: 'Wealth',       descKo: '돈의 흐름과 타이밍',     descEn: 'Money flow & timing',         Icon: Coins,      oh: '토' },
+  { href: '/career',        ko: '커리어',      en: 'Career',       descKo: '직업 적성과 관운',       descEn: 'Career fit & timing',         Icon: Briefcase,  oh: '금' },
+  { href: '/compatibility', ko: '이상형',      en: 'Ideal Match',  descKo: '내게 맞는 상대 역산',     descEn: 'Reverse-engineer your match', Icon: Heart,      oh: '수' },
+  { href: '/couple',        ko: '커플 궁합',   en: 'Couple Match', descKo: '두 사람의 궁합 점수',     descEn: 'Two-person compatibility',    Icon: Users,      oh: '수' },
+  { href: '/zodiac',        ko: '띠별 운세',   en: 'Zodiac',       descKo: '12지신 오늘의 운세',     descEn: "Today's 12 zodiac signs",     Icon: Rabbit,     oh: '목' },
+  { href: '/blog',          ko: '블로그',      en: 'Blog',         descKo: '운세 이야기와 가이드',     descEn: 'Fortune stories & guides',    Icon: Newspaper,  oh: '금' },
+];
+
 export default function LandingPage() {
   const { t, localePath } = useLang();
 
@@ -36,52 +62,54 @@ export default function LandingPage() {
     <main className="min-h-screen bg-slate-50 text-slate-900 antialiased">
       <JsonLd data={faqSchema(LANDING_FAQ)} />
 
-      {/* Top-right language toggle */}
-      <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50">
-        <LangToggle />
-      </div>
+      {/* Header */}
+      <header className="bg-white border-b border-slate-200">
+        <div className="max-w-[780px] mx-auto px-6 sm:px-8 py-4 flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <div className="text-[17px] font-bold tracking-[-0.01em] text-slate-900">
+              {t('사주매칭', 'SajuMatch')}
+            </div>
+            <div className="text-[11.5px] text-slate-500 truncate">
+              {t('생년월일 하나로 푸는 데이터 사주', 'Data-driven Saju from one birth date')}
+            </div>
+          </div>
+          <LangToggle />
+        </div>
+      </header>
 
-      {/* Hero */}
+      {/* Service launcher */}
       <section className="border-b border-slate-200">
-        <div className="max-w-[780px] mx-auto px-6 sm:px-8 pt-16 sm:pt-24 pb-14 sm:pb-20">
+        <div className="max-w-[780px] mx-auto px-6 sm:px-8 py-10 sm:py-14">
           <ScrollReveal>
-            <p className="text-[12px] sm:text-[13px] font-semibold tracking-[0.12em] text-slate-500 uppercase mb-6">
-              {t('An independent data project', 'An independent data project')}
+            <p className="text-[12px] sm:text-[13px] font-semibold tracking-[0.12em] text-slate-500 uppercase mb-1.5">
+              {t('데이터로 푸는 명리학', 'Data-driven Korean astrology')}
             </p>
-          </ScrollReveal>
-          <ScrollReveal delay={80}>
-            <h1 className="text-[32px] sm:text-[48px] font-bold leading-[1.15] tracking-[-0.02em] mb-5">
-              {t('사주는 오래됐습니다.', 'Korean astrology is old.')}
-              <br />
-              <span className="text-slate-400">
-                {t('해석만 낡았어요.', 'Only the interpretation is stale.')}
-              </span>
+            <h1 className="text-[22px] sm:text-[26px] font-bold tracking-[-0.01em] mb-6">
+              {t('무엇을 볼까요?', 'What would you like to read?')}
             </h1>
           </ScrollReveal>
-          <ScrollReveal delay={180}>
-            <p className="text-[17px] sm:text-[19px] leading-[1.6] text-slate-700 max-w-[620px]">
-              {t(
-                '천 년간 쌓인 명리학을, 오늘의 데이터로 다시 씁니다. 생년월일 하나로 — 원국·대운·오늘의 흐름·재운·커리어·궁합까지, 한 화면에서.',
-                'A thousand years of Korean astrology, rewritten in today’s data. One date of birth — your chart, luck cycles, today’s flow, wealth, career, and match — on a single screen.'
-              )}
-            </p>
-          </ScrollReveal>
-          <ScrollReveal delay={280}>
-            <div className="mt-10 flex flex-wrap items-center gap-3">
-              <Link
-                href={localePath('/saju')}
-                className="inline-flex items-center justify-center h-11 px-5 rounded-full bg-slate-900 text-white text-[14px] font-semibold hover:bg-slate-800 transition-colors"
-              >
-                {t('내 사주 보기', 'Read my chart')}
-              </Link>
-              <Link
-                href={localePath('/compatibility')}
-                className="inline-flex items-center justify-center h-11 px-5 rounded-full bg-white text-slate-900 text-[14px] font-semibold border border-slate-300 hover:bg-slate-100 transition-colors"
-              >
-                {t('궁합 추천 보기 →', 'See ideal match →')}
-              </Link>
-            </div>
-          </ScrollReveal>
+          <ul className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {SERVICES.map(({ href, ko, en, descKo, descEn, Icon, oh }, i) => (
+              <ScrollReveal key={href} delay={i * 60}>
+                <li className="h-full">
+                  <Link
+                    href={localePath(href)}
+                    className="group flex flex-col h-full rounded-2xl border border-slate-200 bg-white p-4 hover:border-slate-300 hover:shadow-sm transition-all"
+                  >
+                    <span className={`inline-flex items-center justify-center w-11 h-11 rounded-xl mb-3 transition-colors group-hover:text-white ${OH_TILE[oh].box} ${OH_TILE[oh].icon} ${OH_TILE[oh].hoverBox}`}>
+                      <Icon size={20} strokeWidth={2} aria-hidden="true" />
+                    </span>
+                    <span className="text-[15px] font-bold text-slate-900 leading-tight">
+                      {t(ko, en)}
+                    </span>
+                    <span className="mt-1 text-[12px] leading-[1.45] text-slate-500">
+                      {t(descKo, descEn)}
+                    </span>
+                  </Link>
+                </li>
+              </ScrollReveal>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -114,69 +142,6 @@ export default function LandingPage() {
               )}
             </p>
           </ScrollReveal>
-        </div>
-      </section>
-
-      {/* What we do */}
-      <section className="border-b border-slate-200">
-        <div className="max-w-[780px] mx-auto px-6 sm:px-8 py-14 sm:py-20">
-          <ScrollReveal>
-            <p className="text-[12px] sm:text-[13px] font-semibold tracking-[0.12em] text-slate-500 uppercase mb-8">
-              {t('What we do', 'What we do')}
-            </p>
-          </ScrollReveal>
-          <ul className="divide-y divide-slate-200">
-            <ScrollReveal delay={0}>
-              <Row
-                ko={t('사주', 'Korean Astrology')}
-                en="Korean Astrology"
-                body={t(
-                  '생년월일·시를 천간·지지로 환산해, 원국의 팔자와 오행 밸런스, 십성 배치를 한 장에 보여드립니다. 경도 보정과 양력·음력 변환도 포함되어 있어요.',
-                  'We convert your birth date and time into Heavenly Stems and Earthly Branches, and lay out the Eight Characters, Five Element balance, and Ten Gods on a single page. Longitude correction and solar–lunar conversion included.'
-                )}
-              />
-            </ScrollReveal>
-            <ScrollReveal delay={120}>
-              <Row
-                ko={t('재운 · 커리어', 'Wealth · Career')}
-                en="Wealth · Career"
-                body={t(
-                  '재성·식상·관성을 중심으로 돈의 흐름과 직업 적성을 풀어드립니다.',
-                  'Reading money flow and career fit through the Wealth, Output, and Authority stars.'
-                )}
-              />
-            </ScrollReveal>
-            <ScrollReveal delay={240}>
-              <Row
-                ko={t('오늘의 흐름', 'Today')}
-                en="Today"
-                body={t(
-                  '일진과 내 원국의 충·합·형을 계산해, 오늘 하루의 에너지를 짧게 요약해드립니다.',
-                  'Today’s day pillar meets your chart — we calculate clashes, unions, and harms, and hand back a short read on the day’s energy.'
-                )}
-              />
-            </ScrollReveal>
-            <ScrollReveal delay={360}>
-              <Row
-                ko={t('이상형 역산', 'Ideal Match')}
-                en="Ideal Match"
-                body={t(
-                  '내 사주의 결핍과 과잉을 보완하는 이상적인 상대의 원국을 역산해드립니다. 성별·나이·태어난 달까지요.',
-                  'We work backwards from what your chart lacks and what it has too much of, and describe the ideal partner’s chart — down to gender, age, and birth month.'
-                )}
-              />
-            </ScrollReveal>
-            <ScrollReveal delay={480}>
-              <Row
-                ko={t('커플 궁합', 'Couple Match')}
-                en="Couple Match"
-                body={t(
-                  '두 사람의 생년월일시를 모두 입력하면 일간 관계·일지 합충·오행 보완·배우자궁 일치·연령차까지 종합한 실제 궁합 점수를 근거와 함께 보여드립니다.',
-                  'Enter both birth dates and we score the actual match — day stem relation, branch harmony/clash, element fill, spouse star, and age gap — with the reasoning behind every point.'
-                )}
-              />
-            </ScrollReveal>
-          </ul>
         </div>
       </section>
 
@@ -299,18 +264,6 @@ export default function LandingPage() {
         </div>
       </section>
     </main>
-  );
-}
-
-function Row({ ko, en, body }: { ko: string; en: string; body: string }) {
-  return (
-    <li className="py-5 grid sm:grid-cols-[160px_1fr] gap-2 sm:gap-6">
-      <div>
-        <div className="text-[16px] sm:text-[17px] font-semibold text-slate-900">{ko}</div>
-        <div className="text-[12px] font-medium tracking-[0.08em] text-slate-400 uppercase">{en}</div>
-      </div>
-      <p className="text-[15px] leading-[1.65] text-slate-700">{body}</p>
-    </li>
   );
 }
 
