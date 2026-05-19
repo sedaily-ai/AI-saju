@@ -3,10 +3,7 @@
 import { useEffect, useState } from 'react';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
 import { CoupleMatchSection, type PersonInput } from '@/features/couple-match';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
-import { FeatureTabs } from '@/widgets';
 
 type Step = 'me' | 'partner' | 'result';
 
@@ -81,8 +78,6 @@ export default function CouplePage() {
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
-      <FeatureTabs />
-
       {/* 헤더 */}
       <div className="bg-white dark:bg-gray-900 w-full">
         <div className="max-w-[480px] lg:max-w-[720px] mx-auto relative overflow-hidden" style={{ padding: '20px 20px 18px' }}>
@@ -95,10 +90,6 @@ export default function CouplePage() {
                     ? d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
                     : `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
                 })()}
-              </div>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <ThemeToggle />
               </div>
             </div>
             <h1 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">

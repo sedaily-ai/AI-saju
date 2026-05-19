@@ -26,7 +26,7 @@ const US_MEANING: Record<string, string> = {
 const DOWS_KO = ['일', '월', '화', '수', '목', '금', '토'];
 const DOWS_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-interface Props { ilgan: string; }
+interface Props { ilgan: string; collapsible?: boolean; defaultOpen?: boolean; }
 
 interface DayInfo {
   day: number; dow: number;
@@ -36,9 +36,10 @@ interface DayInfo {
   isToday: boolean;
 }
 
-export function DailyCalendar({ ilgan }: Props) {
+export function DailyCalendar({ ilgan, collapsible = false, defaultOpen = true }: Props) {
   const { t, lang } = useLang();
   const DOWS = lang === 'en' ? DOWS_EN : DOWS_KO;
+  const [open, setOpen] = useState(defaultOpen);
   const now = new Date();
   const todayY = now.getFullYear();
   const todayM = now.getMonth() + 1;
@@ -89,10 +90,25 @@ export function DailyCalendar({ ilgan }: Props) {
     <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] p-5 mb-4">
       {/* 헤더: 타이틀 + 토글 pill */}
       <div className="flex items-start justify-between mb-3">
-        <div className="flex-1 min-w-0">
-          <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('일진 달력', 'Daily Pillar Calendar')}</div>
+        <div
+          className={`flex-1 min-w-0 ${collapsible ? 'cursor-pointer select-none' : ''}`}
+          onClick={collapsible ? () => setOpen(v => !v) : undefined}
+        >
+          <div className="flex items-center gap-1.5">
+            <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('일진 달력', 'Daily Pillar Calendar')}</div>
+            {collapsible && (
+              <svg
+                className={`text-gray-400 dark:text-gray-300 transition-transform ${open ? 'rotate-180' : ''}`}
+                width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            )}
+          </div>
           <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">{lang === 'en' ? `${viewY}. ${viewM}` : `${viewY}년 ${viewM}월`}</div>
         </div>
+        {(!collapsible || open) && (
         <div className="flex gap-1">
           <button
             type="button"
@@ -119,8 +135,10 @@ export function DailyCalendar({ ilgan }: Props) {
             {t('운성', 'Stage')}
           </button>
         </div>
+        )}
       </div>
 
+      {(!collapsible || open) && (<>
       {/* 월 네비 */}
       <div className="flex items-center justify-between mb-2.5">
         <button
@@ -245,6 +263,7 @@ export function DailyCalendar({ ilgan }: Props) {
           </div>
         </div>
       )}
+      </>)}
     </div>
   );
 }

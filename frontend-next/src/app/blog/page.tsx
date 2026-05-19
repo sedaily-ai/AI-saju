@@ -1,11 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
 import { Spinner } from '@/shared/ui/Spinner';
-import { FeatureTabs } from '@/widgets';
 
 interface IndexEntry {
   slug: string;
@@ -297,7 +294,6 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
       {!isSajuHost && <TopNav activeId="fortune" />}
-      <FeatureTabs />
 
       {/* 헤더 */}
       <div className="bg-white dark:bg-gray-900 w-full">
@@ -317,10 +313,6 @@ export default function BlogPage() {
             <div className="flex items-center justify-between mb-1">
               <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">
                 {formatDate(new Date().toISOString(), lang as 'ko' | 'en')}
-              </div>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <ThemeToggle />
               </div>
             </div>
             <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">

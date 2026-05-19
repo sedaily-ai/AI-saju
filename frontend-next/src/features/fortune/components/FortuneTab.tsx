@@ -4,8 +4,6 @@ import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { lunarToSolar } from '@fullstackfamily/manseryeok';
 import { trackEvent } from '@/shared/lib/trackEvent';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
 import {
   calculateSaju, parsePillar, sipsung, unsung, elClass,
@@ -18,6 +16,8 @@ import { SajuTable } from './SajuTable';
 import { FortuneResult } from './FortuneResult';
 import { CitySelect } from './CitySelect';
 import { formatIlganLabel } from '../lib/formatIlgan';
+import { FluentEmoji } from '@/shared/ui/FluentEmoji';
+import { PrimaryCTA } from '@/shared/ui/PrimaryCTA';
 
 interface SajuData {
   pillars: Pillar[];
@@ -221,60 +221,76 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full' }: Fortu
     : `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
 
   return (
-    <div className="-my-6 w-full bg-[#F8F9FA] dark:bg-gray-950" style={{ minHeight: 'calc(100vh + 48px)' }}>
-      {/* 흰색 헤더 블록 — 전폭 */}
-      <div className="bg-white dark:bg-gray-900 w-full">
-        <div className="max-w-[480px] lg:max-w-[720px] mx-auto relative overflow-hidden" style={{ padding: '20px 20px 18px' }}>
-          {/* 배경 마스코트 — 우하단 살짝 크롭, 텍스트 뒤 */}
-          <img
-            src="/fortune-mascot.png"
-            alt=""
-            aria-hidden="true"
-            className="absolute pointer-events-none select-none dark:hidden"
-            style={{
-              right: 0,
-              bottom: 0,
-              width: 88,
-              height: 88,
-              opacity: 0.12,
-              objectFit: 'contain',
-              zIndex: 0,
-            }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-          />
-          <div className="relative z-10">
-          {/* 날짜 + 테마/언어 토글 */}
-          <div className="flex items-center justify-between mb-1">
-            <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">{todayLabel}</div>
-            <div className="flex items-center gap-2">
-              <LangToggle />
-              <ThemeToggle />
-            </div>
-          </div>
-          {/* 타이틀 */}
-          <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
-            {mode === 'today'
-              ? t('오늘의 사주', "Today's Saju")
-              : t('내 사주', 'My Saju')}
-          </h2>
-          {/* 크레덴셜 — 모드별 분기 */}
-          <div className="text-[10.5px] sm:text-[11.5px] text-gray-500 dark:text-gray-300 leading-[1.55] mb-3">
-            {mode === 'today' ? (
-              <>
-                <div>{t('오늘 일진과 내 사주의 상호작용을 분석합니다', "Analyzes today's energy interaction with your chart")}</div>
-                <div>{t('십성 · 12운성 · 분야별 운세 한눈에', 'Ten Gods · 12 Stages · Fortune by category at a glance')}</div>
-                <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('매일 달라지는 나의 하루 흐름.', 'Your daily flow, refreshed every day.')}</div>
-              </>
-            ) : (
-              <>
-                <div>{t('궁통보감·삼명통회·자평진전 3대 고전 기반', 'Based on the 3 classical Saju texts (Gungtongbogam · Sammyeongtonghoe · Japyeongjinjeon)')}</div>
-                <div>{t('16종 신살 자동 탐지 · KASI 만세력 연동', '16 Sinsal auto-detection · KASI ephemeris integration')}</div>
-                <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('고전 명리를 데이터로 구현했습니다.', 'Classical Myeongri, rebuilt as data.')}</div>
-              </>
-            )}
+    <div className="-my-6 w-full bg-[#FFFFFF] dark:bg-gray-950" style={{ minHeight: 'calc(100vh + 48px)' }}>
+      {/* ── 헤더: Wrtn 톤 그라데이션 카드 ── */}
+      <div className="w-full">
+        <div className="max-w-[480px] lg:max-w-[720px] mx-auto px-4 sm:px-5 pt-5 pb-4">
+          {/* 상단 메타 — 날짜 (토글은 layout 의 fixed top-right) */}
+          <div
+            className="text-[11px] font-bold tracking-[0.16em] uppercase mb-3"
+            style={{ color: '#6B7280' }}
+          >
+            {todayLabel}
           </div>
 
-          </div>
+          {/* 그라데이션 Hero 카드 */}
+          <section
+            className="relative overflow-hidden rounded-[24px] px-5 py-6"
+            style={{
+              background: mode === 'today'
+                ? 'linear-gradient(135deg, #FFD9F1 0%, #DCD6FF 100%)'
+                : 'linear-gradient(135deg, #DCD6FF 0%, #D6E4FF 100%)',
+              color: '#111111',
+            }}
+          >
+            <div
+              aria-hidden
+              className="absolute pointer-events-none select-none"
+              style={{ right: -8, bottom: -10 }}
+            >
+              <FluentEmoji
+                name={mode === 'today' ? 'sun' : 'crystalBall'}
+                size={120}
+                alt=""
+                className="opacity-95"
+              />
+            </div>
+            <div className="relative">
+              <div
+                className="text-[10.5px] font-bold tracking-[0.18em] uppercase mb-2"
+                style={{ color: '#6B7280' }}
+              >
+                {mode === 'today' ? t('Today · Saju', 'Today · Saju') : t('My Saju · Free', 'My Saju · Free')}
+              </div>
+              <h2 className="text-[24px] font-extrabold leading-[1.2] tracking-[-0.02em] mb-2">
+                {mode === 'today'
+                  ? t('오늘의 사주', "Today's Saju")
+                  : t('내 사주', 'My Saju')}
+              </h2>
+              <div
+                className="text-[12px] leading-[1.65] max-w-[320px]"
+                style={{ color: '#3F3F46' }}
+              >
+                {mode === 'today' ? (
+                  <>
+                    <div>{t('오늘 일진과 내 사주의 상호작용을 분석합니다', "Analyzes today's energy interaction with your chart")}</div>
+                    <div>{t('십성 · 12운성 · 분야별 운세 한눈에', 'Ten Gods · 12 Stages · Fortune by category at a glance')}</div>
+                    <div className="font-semibold mt-1" style={{ color: '#111' }}>
+                      {t('매일 달라지는 나의 하루 흐름.', 'Your daily flow, refreshed every day.')}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>{t('궁통보감·삼명통회·자평진전 3대 고전 기반', 'Based on the 3 classical Saju texts (Gungtongbogam · Sammyeongtonghoe · Japyeongjinjeon)')}</div>
+                    <div>{t('16종 신살 자동 탐지 · KASI 만세력 연동', '16 Sinsal auto-detection · KASI ephemeris integration')}</div>
+                    <div className="font-semibold mt-1" style={{ color: '#111' }}>
+                      {t('고전 명리를 데이터로 구현했습니다.', 'Classical Myeongri, rebuilt as data.')}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
         </div>
       </div>
 
@@ -283,7 +299,10 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full' }: Fortu
       <div className="px-3 sm:px-[14px] pt-[14px] pb-10">
       {/* 입력 폼 — 결과가 있으면 접힘 */}
       {showForm ? (
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] p-5 mb-4">
+        <div
+          className="rounded-[20px] p-5 mb-4 border"
+          style={{ background: '#FFFFFF', borderColor: '#EEF0F3' }}
+        >
           {/* 성별 */}
           <div className="mb-6">
             <label className="block text-[13px] font-semibold text-gray-800 dark:text-gray-200 mb-2">
@@ -357,12 +376,24 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full' }: Fortu
             <CitySelect value={region} onChange={setRegion} />
           </div>
 
-          {/* 버튼 */}
-          <button onClick={handleCalculate}
-            className={`w-full py-3.5 text-[15px] font-semibold rounded-xl transition-all ${isDateValid ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 cursor-pointer' : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-300 cursor-not-allowed'}`}
-            disabled={!isDateValid}>
-            {t('운세 보러가기', 'See My Fortune')}
-          </button>
+          {/* 버튼 — Wrtn 톤 PrimaryCTA */}
+          {isDateValid ? (
+            <PrimaryCTA
+              icon="sparkles"
+              onClick={handleCalculate}
+              className="w-full"
+            >
+              {t('운세 보러가기', 'See My Fortune')}
+            </PrimaryCTA>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="w-full py-3.5 text-[15px] font-semibold rounded-full bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-300 cursor-not-allowed"
+            >
+              {t('생년월일을 입력해주세요', 'Enter your birth date')}
+            </button>
+          )}
         </div>
       ) : result ? (() => {
         const EL_BG: Record<string, string> = {
@@ -398,21 +429,21 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full' }: Fortu
         const subtitle = [genderLabel, regionLabel].filter(Boolean).join(' · ') + offsetLabel;
 
         return (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] p-4 mb-4">
+          <div className="rounded-[20px] p-4 mb-4" style={{ background: '#F4F5F7' }}>
             <div className="flex items-center gap-3">
-              <div className={`w-9 h-9 rounded-[10px] flex items-center justify-center text-[16px] font-bold shrink-0 ${EL_BG[ilganOh] || 'bg-gray-50 dark:bg-gray-900 text-gray-400 dark:text-gray-300'}`}>
+              <div className={`w-11 h-11 rounded-[14px] flex items-center justify-center text-[18px] font-extrabold shrink-0 ${EL_BG[ilganOh] || 'bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-300'}`}>
                 {result.ilgan || '—'}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-[13px] font-bold text-gray-900 dark:text-gray-100 truncate">
+                <div className="text-[13px] font-extrabold text-gray-900 dark:text-gray-100 truncate">
                   {dateLabel}{!noTime && timeInput && ` ${timeLabel}`}
                 </div>
-                <div className="text-[11px] text-gray-400 dark:text-gray-300 truncate">{subtitle}</div>
+                <div className="text-[11px] text-gray-500 dark:text-gray-300 truncate">{subtitle}</div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowForm(true)}
-                className="shrink-0 border-none rounded-lg cursor-pointer px-3 py-1.5 text-[12px] font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                className="shrink-0 border-none rounded-full cursor-pointer px-3.5 py-1.5 text-[12px] font-bold text-white bg-gray-900 dark:bg-gray-100 dark:text-gray-900 hover:opacity-90 transition-opacity"
               >
                 {t('다시 입력', 'Re-enter')}
               </button>

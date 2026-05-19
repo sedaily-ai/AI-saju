@@ -3,7 +3,6 @@ import { isBeforeLichun, getSajuMonth } from '@fullstackfamily/manseryeok';
 import { CG_OH, JJ_OH, OH_HJ, JJG, sipsung, unsung, buildStructureAnalysis, detectDayHapChung, evaluateForYongsin, generateDailyInsights, type Pillar, type ChongunResult, type TodayFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry, type YongsinRating } from '../lib/engine';
 import { OHAENG_SETS, V3_TOKENS, type Ohaeng } from '../lib/ohaeng';
 import { SajuTable } from './SajuTable';
-import { DailyCalendar } from './DailyCalendar';
 import { useLang } from '@/shared/lib/LangContext';
 
 type MbtiGroup = 'NT' | 'NF' | 'ST' | 'SF';
@@ -35,11 +34,42 @@ interface Props {
   mode?: 'full' | 'today';
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children, collapsible = false, defaultOpen = true }: {
+  title: string;
+  children: React.ReactNode;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  if (!collapsible) {
+    return (
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4 break-words">
+        <h3 className="text-[15px] font-bold text-gray-900 dark:text-gray-100 mb-3">{title}</h3>
+        <div className="text-[14px] text-gray-600 dark:text-gray-100 leading-relaxed">{children}</div>
+      </div>
+    );
+  }
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4 break-words">
-      <h3 className="text-[15px] font-bold text-gray-900 dark:text-gray-100 mb-3">{title}</h3>
-      <div className="text-[14px] text-gray-600 dark:text-gray-100 leading-relaxed">{children}</div>
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl mb-4 overflow-hidden break-words">
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="w-full flex items-center justify-between px-4 sm:px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+      >
+        <h3 className="text-[15px] font-bold text-gray-900 dark:text-gray-100 text-left">{title}</h3>
+        <svg
+          className={`text-gray-400 dark:text-gray-300 transition-transform shrink-0 ${open ? 'rotate-180' : ''}`}
+          width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+        >
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+      {open && (
+        <div className="px-4 sm:px-5 pb-5 text-[14px] text-gray-600 dark:text-gray-100 leading-relaxed border-t border-gray-100 dark:border-gray-800 pt-4">
+          {children}
+        </div>
+      )}
     </div>
   );
 }
@@ -240,7 +270,7 @@ type UnVariant = 'daeun' | 'yeonun' | 'wolun';
 
 interface UnCol { c: string; j: string; ck: string; jk: string; label: string }
 
-function UnCard({ title, subtitle, cols, ilgan, activeCheck, variant, yongsinOh }: {
+function UnCard({ title, subtitle, cols, ilgan, activeCheck, variant, yongsinOh, collapsible = false, defaultOpen = true }: {
   title: string;
   subtitle?: string;
   cols: UnCol[];
@@ -248,9 +278,12 @@ function UnCard({ title, subtitle, cols, ilgan, activeCheck, variant, yongsinOh 
   activeCheck?: (col: UnCol) => boolean;
   variant: UnVariant;
   yongsinOh?: string;
+  collapsible?: boolean;
+  defaultOpen?: boolean;
 }) {
   const { t } = useLang();
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const [open, setOpen] = useState(defaultOpen);
   const periodName = variant === 'daeun' ? t('10년', '10 yrs') : variant === 'yeonun' ? t('1년', '1 yr') : t('1개월', '1 mo');
 
   // 스크린샷 규격: 대운 넓게, 연운 중간, 월운 좁게
@@ -259,11 +292,35 @@ function UnCard({ title, subtitle, cols, ilgan, activeCheck, variant, yongsinOh 
   const showSipsung = variant !== 'wolun'; // 월운은 하단 십성 생략 (스크린샷 기준)
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] p-5 mb-4">
-      <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{title}</div>
-      {subtitle && <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5 mb-3">{subtitle}</div>}
-      {!subtitle && <div className="mb-3" />}
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] mb-4 overflow-hidden">
+      {collapsible ? (
+        <button
+          type="button"
+          onClick={() => setOpen(v => !v)}
+          className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        >
+          <div className="text-left">
+            <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{title}</div>
+            {subtitle && <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">{subtitle}</div>}
+          </div>
+          <svg
+            className={`text-gray-400 dark:text-gray-300 transition-transform shrink-0 ${open ? 'rotate-180' : ''}`}
+            width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+      ) : (
+        <div className="p-5 pb-0">
+          <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{title}</div>
+          {subtitle && <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5 mb-3">{subtitle}</div>}
+          {!subtitle && <div className="mb-3" />}
+        </div>
+      )}
 
+      {(!collapsible || open) && (
+      <div className={collapsible ? 'px-5 pb-5 border-t border-gray-100 dark:border-gray-800 pt-4' : 'px-5 pb-5'}>
       <div className="overflow-x-auto -mx-1 px-1">
         <div className="flex gap-2 min-w-max pb-1">
           {cols.map((col, i) => {
@@ -400,6 +457,8 @@ function UnCard({ title, subtitle, cols, ilgan, activeCheck, variant, yongsinOh 
           </div>
         );
       })()}
+      </div>
+      )}
     </div>
   );
 }
@@ -484,9 +543,18 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
   const ilganOh = (oh || '금') as Ohaeng;
   const ilganPhrase = `${pillars[1].ck || ''}${oh || ''}`;
 
+  const tableSummary = {
+    gender: data.gender,
+    birth: `${data.year}.${String(data.month).padStart(2, '0')}.${String(data.day).padStart(2, '0')}`,
+    time: data.correctedTime
+      ? `${String(data.correctedTime.hour).padStart(2, '0')}:${String(data.correctedTime.minute).padStart(2, '0')}`
+      : '',
+    calendar: 'solar' as const,
+  };
+
   return (
     <div className="mt-8">
-      <SajuTable pillars={pillars} ilgan={ilgan} />
+      <SajuTable pillars={pillars} ilgan={ilgan} summary={tableSummary} />
 
       {/* 일간 + 진태양시 */}
       <div className="bg-white dark:bg-gray-900 rounded-[16px] mb-3" style={{ padding: '16px 18px' }}>
@@ -540,7 +608,6 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
           </div>
           <div className="flex gap-1">
             {([
-              { id: 'NT' as const, ko: '분석', en: 'Analytic' },
               { id: 'NF' as const, ko: '이야기', en: 'Narrative' },
               { id: 'ST' as const, ko: '실용', en: 'Practical' },
               { id: 'SF' as const, ko: '다정', en: 'Warm' },
@@ -642,7 +709,7 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
 
       {/* [섹션 1] 오늘의 운세 — 설명 */}
       {todayFortune && (
-        <Section title={t('오늘의 운세', "Today's Fortune")}>
+        <Section title={t('오늘의 운세', "Today's Fortune")} collapsible={mode === 'full'}>
           {ssReadingText && <p className="mb-3">{ssReadingText}</p>}
           <p className={todayFortune.sinsal.length || dailyInsights.complements.length || dayHapChung.length ? 'mb-3' : ''}>
             {t('12운성', '12 Stages')} <strong>{todayFortune.us}</strong>
@@ -753,7 +820,7 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
 
       {/* [섹션 3] 분야별 운세 */}
       {todayFortune && todayFortune.categories && todayFortune.categories.length > 0 && (
-        <Section title={t('분야별 운세', 'Fortune by Category')}>
+        <Section title={t('분야별 운세', 'Fortune by Category')} collapsible={mode === 'full'}>
           {/* 십성 → 주 영역 테마 요약 (정인일 = 학업 등 맥락 연결) */}
           {(() => {
             const domain = SS_DOMAIN_MAP[todayFortune.ss];
@@ -860,7 +927,7 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
 
       {/* ── 이하 full 모드에서만 표시 ── */}
       {mode === 'full' && chongun && (
-        <Section title={t('총운', 'Overall Fortune')}>
+        <Section title={t('총운', 'Overall Fortune')} collapsible={mode === 'full'}>
           {chongunText ? (
             <div>{renderMarkdown(chongunText)}</div>
           ) : (
@@ -888,7 +955,7 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
 
       {/* 상세 해석 — 총운 캐시가 있으면 숨김 (캐시에 포함됨) */}
       {mode === 'full' && !chongunText && chongun?.detail && (
-        <Section title={t('상세 해석', 'Detailed Interpretation')}>
+        <Section title={t('상세 해석', 'Detailed Interpretation')} collapsible={mode === 'full'} defaultOpen={false}>
           <p className="mb-3">{chongun.detail.summary}</p>
           <div className="mb-3">
             <div className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('표현/행동 양식', 'Behavior Style')}</div>
@@ -934,7 +1001,7 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
 
       {/* 일지 상세 — 총운 캐시가 있으면 숨김 */}
       {mode === 'full' && !chongunText && chongun?.iljiDetail && (
-        <Section title={t('일지(日支) 해석', 'Day Branch Interpretation')}>
+        <Section title={t('일지(日支) 해석', 'Day Branch Interpretation')} collapsible={mode === 'full'} defaultOpen={false}>
           <p className="mb-3">{chongun.iljiDetail.summary}</p>
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
@@ -966,6 +1033,8 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
             const age = (col as unknown as DaeunEntry).age;
             return currentAge >= age && currentAge < age + 10;
           }}
+          collapsible
+          defaultOpen
         />
       )}
 
@@ -978,6 +1047,8 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
           cols={yeonuns.map(x => ({ ...x, label: `${x.year}` }))}
           ilgan={ilgan}
           activeCheck={col => (col as unknown as YeonunEntry).year === sajuYear}
+          collapsible
+          defaultOpen
         />
       )}
 
@@ -992,6 +1063,8 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
             ilgan={ilgan}
             yongsinOh={structure?.yongsin?.primary}
             activeCheck={col => (col as unknown as WolunEntry).month === wolunActiveMonth}
+            collapsible
+            defaultOpen
           />
           {structure?.yongsin && (
             <div className="-mt-3 mb-4 px-5 text-[11px] text-gray-500 dark:text-gray-100 dark:text-gray-300">
@@ -1002,9 +1075,6 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
           )}
         </>
       )}
-
-      {/* 일진 달력 */}
-      {mode === 'full' && ilgan && <DailyCalendar ilgan={ilgan} />}
 
       {/* 사주 구조 진단 — V3 디자인 */}
       {mode === 'full' && structure && (
