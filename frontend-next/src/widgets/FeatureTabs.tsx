@@ -48,6 +48,13 @@ export function FeatureTabs() {
         <ul className="flex gap-2 overflow-x-auto py-2.5 scrollbar-hide">
           {TABS.map(tab => {
             const isActive = active === tab.id;
+            const isPink = tab.id === 'compatibility';
+            const activeClass = isPink
+              ? 'bg-pink-500 text-white border-pink-500 dark:bg-pink-400 dark:text-gray-900 dark:border-pink-400'
+              : 'bg-gray-900 text-white border-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:border-gray-100';
+            const inactiveClass = isPink
+              ? 'bg-pink-50 text-pink-600 border-pink-200 hover:bg-pink-100 dark:bg-pink-950/40 dark:text-pink-300 dark:border-pink-900 dark:hover:bg-pink-950/60'
+              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800';
             return (
               <li key={tab.id} className="shrink-0">
                 <Link
@@ -55,9 +62,7 @@ export function FeatureTabs() {
                   aria-current={isActive ? 'page' : undefined}
                   className={[
                     'inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-colors border',
-                    isActive
-                      ? 'bg-gray-900 text-white border-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:border-gray-100'
-                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-800',
+                    isActive ? activeClass : inactiveClass,
                   ].join(' ')}
                 >
                   <span>{t(tab.ko, tab.en)}</span>

@@ -3,6 +3,9 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { GoogleAnalytics } from "@/shared/lib/GoogleAnalytics";
 import { ClarityAnalytics } from "@/shared/lib/ClarityAnalytics";
+import { LangToggle } from "@/shared/lib/LangToggle";
+import { ThemeToggle } from "@/shared/lib/ThemeToggle";
+import { BackButton } from "@/shared/ui/BackButton";
 import {
   JsonLd,
   siteWebSiteSchema,
@@ -95,6 +98,22 @@ export default function RootLayout({
           <a href="#main-content" className="skip-link">
             본문 바로가기
           </a>
+          {/* 모든 페이지 공통 — 좌상단 뒤로가기 (랜딩 제외) */}
+          <BackButton />
+          {/* 모든 페이지 공통 — 우상단 고정 토글 바 */}
+          <div
+            className="fixed top-3 right-3 sm:top-4 sm:right-4 z-50 flex items-center gap-2 rounded-full px-2 py-1.5"
+            style={{
+              background: 'rgba(255,255,255,0.85)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+              boxShadow: '0 6px 18px -8px rgba(17,17,17,0.18)',
+              border: '1px solid rgba(17,17,17,0.06)',
+            }}
+          >
+            <LangToggle />
+            <ThemeToggle />
+          </div>
           {children}
           <footer className="mt-auto py-4 text-center text-[11px] text-gray-400 dark:text-gray-500 font-medium">
             Copyright ⓒ Sedaily, All right reserved

@@ -18,10 +18,7 @@ import {
 } from '@/features/fortune/lib/engine-chaeun';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
 import { CareerNewsSection, SaveProfileButton } from '@/features/fortune';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
-import { FeatureTabs } from '@/widgets';
 
 interface CurrentSaju {
   year: number;
@@ -449,6 +446,16 @@ export default function CareerPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [isSajuHost, setIsSajuHost] = useState(false);
 
+  // 토글 상태 — 기본은 펼침, 닫힌 카드만 set에 포함
+  const [closed, setClosed] = useState<Set<string>>(() => new Set(['c-shine', 'c-timeline']));
+  const isOpen = (id: string) => !closed.has(id);
+  const toggle = (id: string) => setClosed(prev => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    return next;
+  });
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem('saju_current');
@@ -500,7 +507,6 @@ export default function CareerPage() {
   return (
     <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
       {!isSajuHost && <TopNav activeId="fortune" />}
-      <FeatureTabs />
 
       {/* 헤더 — /saju 와 동일한 구조 */}
       <div className="bg-white dark:bg-gray-900 w-full">
@@ -522,10 +528,6 @@ export default function CareerPage() {
                     ? d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
                     : `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
                 })()}
-              </div>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <ThemeToggle />
               </div>
             </div>
             <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
@@ -620,9 +622,26 @@ export default function CareerPage() {
             })()}
 
             {/* 커리어 프로파일 */}
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
-              <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('내 커리어 기운의 성격', 'Your Career Energy')}</h3>
-              <p className="text-[11px] text-gray-400 dark:text-gray-300 mb-3">{t('관성(官) · 식상(食傷) · 인성(印) 축으로 본 커리어 체질', 'Career constitution via Authority · Output · Resource axes')}</p>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl mb-4 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => toggle('c-profile')}
+                className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
+              >
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('내 커리어 기운의 성격', 'Your Career Energy')}</h3>
+                  <p className="text-[11px] text-gray-400 dark:text-gray-300 mt-1">{t('관성(官) · 식상(食傷) · 인성(印) 축으로 본 커리어 체질', 'Career constitution via Authority · Output · Resource axes')}</p>
+                </div>
+                <svg
+                  className={`text-gray-400 dark:text-gray-300 transition-transform shrink-0 ml-2 ${isOpen('c-profile') ? 'rotate-180' : ''}`}
+                  width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              {isOpen('c-profile') && (
+              <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-100 dark:border-gray-800 pt-4">
 
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <span
@@ -722,6 +741,8 @@ export default function CareerPage() {
                   ))}
                 </ul>
               </div>
+              </div>
+              )}
             </div>
 
             {/* 빛나는 일의 성격 — 일간 오행 × 커리어 타입 적성 */}
@@ -732,11 +753,28 @@ export default function CareerPage() {
               const traits = TRAITS_BY_TYPE[profileType.type];
               if (!aptitude || !tips || !traits) return null;
               return (
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
-                  <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('내가 빛나는 일의 성격', 'The Kind of Work That Makes You Shine')}</h3>
-                  <p className="text-[11px] text-gray-400 dark:text-gray-300 mb-3">
-                    {t('일간', 'Day Stem')} <b className="text-gray-600 dark:text-gray-100 dark:text-gray-300">{ilganOh}</b> · <b className="text-gray-600 dark:text-gray-100 dark:text-gray-300">{profileType.type}</b> {t('조합', 'combo')}
-                  </p>
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl mb-4 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggle('c-shine')}
+                    className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('내가 빛나는 일의 성격', 'The Kind of Work That Makes You Shine')}</h3>
+                      <p className="text-[11px] text-gray-400 dark:text-gray-300 mt-1">
+                        {t('일간', 'Day Stem')} <b className="text-gray-600 dark:text-gray-100 dark:text-gray-300">{ilganOh}</b> · <b className="text-gray-600 dark:text-gray-100 dark:text-gray-300">{profileType.type}</b> {t('조합', 'combo')}
+                      </p>
+                    </div>
+                    <svg
+                      className={`text-gray-400 dark:text-gray-300 transition-transform shrink-0 ml-2 ${isOpen('c-shine') ? 'rotate-180' : ''}`}
+                      width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  {isOpen('c-shine') && (
+                  <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-100 dark:border-gray-800 pt-4">
 
                   {/* 본질 */}
                   <div className="rounded-r-xl p-3 mb-3" style={{ background: 'var(--accent-blue-bg)', borderLeft: '3px solid var(--accent-blue-border)' }}>
@@ -804,6 +842,8 @@ export default function CareerPage() {
                       <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-relaxed">{tips.transition}</p>
                     </div>
                   </div>
+                  </div>
+                  )}
                 </div>
               );
             })()}
@@ -879,11 +919,28 @@ export default function CareerPage() {
                 t === 'good' ? 'var(--tone-positive-fg)' : t === 'neutral' ? 'var(--tone-neutral-fg)' : 'var(--tone-caution-fg)';
 
               return (
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
-                  <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('시기별 커리어 흐름', 'Career Flow by Period')}</h3>
-                  <p className="text-[11px] text-gray-400 dark:text-gray-300 mb-3 leading-snug">
-                    {t('올해(세운) · 이번 달(월운) · 오늘(일진) 간지가 내 일간에 가져오는 커리어 영향', 'Career influence this year · this month · today brings to your Day Stem')}
-                  </p>
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl mb-4 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggle('c-flow')}
+                    className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('시기별 커리어 흐름', 'Career Flow by Period')}</h3>
+                      <p className="text-[11px] text-gray-400 dark:text-gray-300 mt-1 leading-snug">
+                        {t('올해(세운) · 이번 달(월운) · 오늘(일진) 간지가 내 일간에 가져오는 커리어 영향', 'Career influence this year · this month · today brings to your Day Stem')}
+                      </p>
+                    </div>
+                    <svg
+                      className={`text-gray-400 dark:text-gray-300 transition-transform shrink-0 ml-2 ${isOpen('c-flow') ? 'rotate-180' : ''}`}
+                      width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </button>
+                  {isOpen('c-flow') && (
+                  <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-100 dark:border-gray-800 pt-4">
                   <div className="space-y-3">
                     {rows.map((r, idx) => (
                       <div
@@ -956,6 +1013,8 @@ export default function CareerPage() {
                       </div>
                     ))}
                   </div>
+                  </div>
+                  )}
                 </div>
               );
             })()}
@@ -989,11 +1048,25 @@ export default function CareerPage() {
               const dotColor = (tone: 'good' | 'neutral' | 'caution') =>
                 tone === 'good' ? '#10B981' : tone === 'neutral' ? '#94A3B8' : '#F59E0B';
               return (
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
-                  <div className="flex items-baseline justify-between gap-2 mb-1">
-                    <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('올해 월별 커리어 타임라인', 'Monthly Career Timeline')}</h3>
-                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-300 tabular-nums">{min}~{max}</span>
+                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl mb-4 overflow-hidden">
+                  <div
+                    className="flex items-center justify-between gap-2 p-4 sm:p-5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                    onClick={() => toggle('c-timeline')}
+                  >
+                    <div className="flex items-baseline gap-2 min-w-0 flex-1">
+                      <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('올해 월별 커리어 타임라인', 'Monthly Career Timeline')}</h3>
+                      <span className="text-[10px] font-bold text-gray-400 dark:text-gray-300 tabular-nums">{min}~{max}</span>
+                    </div>
+                    <svg
+                      className={`text-gray-400 dark:text-gray-300 transition-transform shrink-0 ml-2 ${isOpen('c-timeline') ? 'rotate-180' : ''}`}
+                      width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
                   </div>
+                  {isOpen('c-timeline') && (
+                  <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-100 dark:border-gray-800 pt-4">
                   <p className="text-[11px] text-gray-400 dark:text-gray-300 mb-3 leading-snug">
                     {t('정점', 'Peak')} <b className="text-emerald-700">{lang === 'en' ? `M${best.month} (${best.score})` : `${best.month}월(${best.score})`}</b>
                     {best.themeLine && best.themeLine !== '—' && <span> · {best.themeLine}</span>}
@@ -1069,6 +1142,8 @@ export default function CareerPage() {
                       </span>
                     </div>
                   </div>
+                  </div>
+                  )}
                 </div>
               );
             })()}

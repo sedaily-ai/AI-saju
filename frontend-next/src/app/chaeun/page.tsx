@@ -20,10 +20,7 @@ import {
 } from '@/features/fortune/lib/engine-chaeun';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
 import { WealthNewsSection, SaveProfileButton } from '@/features/fortune';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
-import { FeatureTabs } from '@/widgets';
 
 interface CurrentSaju {
   year: number;
@@ -113,6 +110,16 @@ export default function ChaeunPage() {
   const [isSajuHost, setIsSajuHost] = useState(false);
   const timelineScrollRef = useRef<HTMLDivElement | null>(null);
 
+  // 토글 상태 — 기본은 펼침, 닫힌 카드만 set에 포함
+  const [closed, setClosed] = useState<Set<string>>(() => new Set(['lottery', 'timeline', 'paths', 'character']));
+  const isOpen = (id: string) => !closed.has(id);
+  const toggle = (id: string) => setClosed(prev => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    return next;
+  });
+
   useEffect(() => {
     try {
       const raw = localStorage.getItem('saju_current');
@@ -183,7 +190,6 @@ export default function ChaeunPage() {
   return (
     <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
       {!isSajuHost && <TopNav activeId="fortune" />}
-      <FeatureTabs />
 
       {/* 헤더 — /saju 와 동일한 구조: 날짜·토글 → 타이틀 → 3줄 크레덴셜 */}
       <div className="bg-white dark:bg-gray-900 w-full">
@@ -206,10 +212,6 @@ export default function ChaeunPage() {
                     ? d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
                     : `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
                 })()}
-              </div>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <ThemeToggle />
               </div>
             </div>
             {/* 타이틀 */}
@@ -395,7 +397,23 @@ export default function ChaeunPage() {
             day: { bg: 'var(--period-row-3-bg)', border: 'var(--period-row-3-border)' },
           };
           return (
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] p-4 sm:p-5 mb-3">
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => toggle('flow')}
+                className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
+              >
+                <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('시기별 재운 흐름', 'Wealth Flow by Period')}</div>
+                <svg
+                  className={`text-gray-400 dark:text-gray-300 transition-transform shrink-0 ml-2 ${isOpen('flow') ? 'rotate-180' : ''}`}
+                  width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              {isOpen('flow') && (
+              <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-100 dark:border-gray-800 pt-4">
               {(() => {
                 const missingAxes: Array<{ key: '재성' | '관성'; label: string }> = [];
                 if (chaeseong!.totalCount === 0) missingAxes.push({ key: '재성', label: t('원국 재성 없음', 'No Wealth axis in chart') });
@@ -637,6 +655,8 @@ export default function ChaeunPage() {
                 })}
                 </div>
               </div>
+              </div>
+              )}
             </div>
           );
         })()}
@@ -652,12 +672,26 @@ export default function ChaeunPage() {
             </span>
           );
           return (
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] p-4 sm:p-5 mb-3 relative overflow-hidden">
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] mb-3 relative overflow-hidden">
               <div className="relative z-10">
-                <div className="flex items-center justify-between gap-2 mb-1">
+                <div
+                  className="flex items-center justify-between gap-2 p-4 sm:p-5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                  onClick={() => toggle('lottery')}
+                >
                   <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('오늘의 로또·횡재 운', "Today's Lottery & Luck")}</div>
-                  <span className="text-[10px] text-gray-400 dark:text-gray-300 font-medium">{periodChaeun.iljin.dateLabel}</span>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-[10px] text-gray-400 dark:text-gray-300 font-medium">{periodChaeun.iljin.dateLabel}</span>
+                    <svg
+                      className={`text-gray-400 dark:text-gray-300 transition-transform ${isOpen('lottery') ? 'rotate-180' : ''}`}
+                      width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </div>
                 </div>
+                {isOpen('lottery') && (
+                <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-100 dark:border-gray-800 pt-4">
                 <div className="text-[11px] text-gray-500 dark:text-gray-100 dark:text-gray-300 mb-4 leading-relaxed">
                   {t("오늘 일진이 내 일간에게 건네는 횡재·복권 적합도예요. 재미로 참고하세요.", "How today's Day Fortune fits lottery/windfall luck for your Day Stem. Just for fun.")}
                 </div>
@@ -693,6 +727,8 @@ export default function ChaeunPage() {
                 <p className="text-[10px] text-slate-400 dark:text-slate-400 leading-snug italic">
                   ※ {lotto.disclaimer}
                 </p>
+                </div>
+                )}
               </div>
             </div>
           );
@@ -725,9 +761,26 @@ export default function ChaeunPage() {
           const polylinePoints = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
           const currentPt = pts.find(p => p.isCurrent);
           return (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] p-4 sm:p-5 mb-3">
-            <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('대운 재물 타임라인', 'Life Cycle Wealth Timeline')}</div>
-            <div className="text-[11px] text-gray-400 dark:text-gray-300 mb-5">{t('10년 주기로 보는 평생 재물 흐름', 'Lifetime wealth flow in 10-year cycles')}</div>
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggle('timeline')}
+              className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('대운 재물 타임라인', 'Life Cycle Wealth Timeline')}</div>
+                <div className="text-[11px] text-gray-400 dark:text-gray-300">{t('10년 주기로 보는 평생 재물 흐름', 'Lifetime wealth flow in 10-year cycles')}</div>
+              </div>
+              <svg
+                className={`text-gray-400 dark:text-gray-300 transition-transform shrink-0 ml-2 ${isOpen('timeline') ? 'rotate-180' : ''}`}
+                width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </button>
+            {isOpen('timeline') && (
+            <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-100 dark:border-gray-800 pt-5">
 
             {/* 미니 라인 차트 (평생 흐름 한눈에) */}
             <div className="mb-5 rounded-xl bg-slate-50 dark:bg-gray-900 border border-slate-200 dark:border-slate-800 p-2">
@@ -901,6 +954,8 @@ export default function ChaeunPage() {
                 );
               })}
             </div>
+            </div>
+            )}
           </div>
           );
         })()}
@@ -925,8 +980,23 @@ export default function ChaeunPage() {
             { text: t('재성 없음', 'No Wealth axis'), bg: 'var(--tone-neutral-bg)', color: 'var(--tone-neutral-fg)' };
 
           return (
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] p-4 sm:p-5 mb-3">
-              <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('유형 진단', 'Type Diagnosis')}</div>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => toggle('type')}
+                className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
+              >
+                <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('유형 진단', 'Type Diagnosis')}</div>
+                <svg
+                  className={`text-gray-400 dark:text-gray-300 transition-transform shrink-0 ml-2 ${isOpen('type') ? 'rotate-180' : ''}`}
+                  width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              {isOpen('type') && (
+              <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-100 dark:border-gray-800 pt-4">
               <div className="text-[11px] text-gray-500 dark:text-gray-100 dark:text-gray-300 mb-3 leading-relaxed">
                 {t('두 축을 교차해 6가지 유형 중 하나로 진단해요.', 'Two axes intersect to diagnose one of six types.')}
               </div>
@@ -1079,6 +1149,8 @@ export default function ChaeunPage() {
                   ))}
                 </ul>
               </div>
+              </div>
+              )}
             </div>
           );
         })()}
@@ -1088,8 +1160,23 @@ export default function ChaeunPage() {
           const maxStrength = Math.max(...wealthPaths.paths.map(p => p.strength), 1);
           const dom = wealthPaths.dominant;
           return (
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] p-4 sm:p-5 mb-3">
-              <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('돈이 들어오는 5가지 경로', 'Five Paths Money Comes Through')}</div>
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => toggle('paths')}
+                className="w-full flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-left"
+              >
+                <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('돈이 들어오는 5가지 경로', 'Five Paths Money Comes Through')}</div>
+                <svg
+                  className={`text-gray-400 dark:text-gray-300 transition-transform shrink-0 ml-2 ${isOpen('paths') ? 'rotate-180' : ''}`}
+                  width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              {isOpen('paths') && (
+              <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-100 dark:border-gray-800 pt-4">
               <div className="text-[11px] text-gray-500 dark:text-gray-100 dark:text-gray-300 mb-2 leading-relaxed">
                 {t('재물이 내 사주로 흘러 들어오는 방식은 한 가지가 아니에요. 아래 5경로 중 가장 강한 쪽이 나의 주 수익 채널이 됩니다.', 'Money flows into your chart through more than one channel. The strongest of the five paths below is your main income channel.')}
               </div>
@@ -1259,23 +1346,42 @@ export default function ChaeunPage() {
                   </p>
                 </div>
               )}
+              </div>
+              )}
             </div>
           );
         })()}
 
         {/* 3) 돈 쓰는 성격 (적극형 ↔ 안정형) */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] p-4 sm:p-5 mb-3">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
+          <div
+            className="flex items-center justify-between gap-2 p-4 sm:p-5 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+            onClick={() => toggle('character')}
+          >
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('내 돈 기운의 성격', 'Your Money Energy')}</div>
+              {chaeseong!.totalCount === 0 && (
+                <span
+                  className="shrink-0 inline-block rounded-full px-2 py-0.5 text-[9.5px] font-bold border"
+                  style={{ background: 'var(--pane-neutral-bg)', color: 'var(--pane-neutral-sub)', borderColor: 'var(--pane-neutral-border)' }}
+                  title={t('원국 천간·지지에 재성(편재·정재)이 하나도 없는 구조', 'Chart has no Wealth axis (no Indirect/Direct Wealth in stems or branches)')}
+                >
+                  {t('원국 재성 없음', 'No Wealth axis in chart')}
+                </span>
+              )}
+            </div>
+            <svg
+              className={`text-gray-400 dark:text-gray-300 transition-transform shrink-0 ml-2 ${isOpen('character') ? 'rotate-180' : ''}`}
+              width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+          {isOpen('character') && (
+          <div className="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-100 dark:border-gray-800 pt-4">
           <div className="flex items-center justify-between gap-2 mb-1">
-            <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('내 돈 기운의 성격', 'Your Money Energy')}</div>
-            {chaeseong!.totalCount === 0 && (
-              <span
-                className="shrink-0 inline-block rounded-full px-2 py-0.5 text-[9.5px] font-bold border"
-                style={{ background: 'var(--pane-neutral-bg)', color: 'var(--pane-neutral-sub)', borderColor: 'var(--pane-neutral-border)' }}
-                title={t('원국 천간·지지에 재성(편재·정재)이 하나도 없는 구조', 'Chart has no Wealth axis (no Indirect/Direct Wealth in stems or branches)')}
-              >
-                {t('원국 재성 없음', 'No Wealth axis in chart')}
-              </span>
-            )}
+            <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100 sr-only">{t('내 돈 기운의 성격', 'Your Money Energy')}</div>
           </div>
 
           {chaeseong!.totalCount > 0 ? (
@@ -1348,6 +1454,8 @@ export default function ChaeunPage() {
                 </p>
               </div>
             </>
+          )}
+          </div>
           )}
         </div>
 

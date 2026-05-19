@@ -1,32 +1,31 @@
 'use client';
 
 import { useState } from 'react';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
-import { FeatureTabs } from '@/widgets';
+import { ZODIAC_ICONS } from '@/shared/ui/ZodiacIcons';
+
+type ZodiacId = keyof typeof ZODIAC_ICONS;
 
 interface ZodiacEntry {
-  id: string;
-  emoji: string;
+  id: ZodiacId;
   ko: string;
   en: string;
   years: string;
 }
 
 const ZODIAC_ANIMALS: ZodiacEntry[] = [
-  { id: 'rat',     emoji: '🐀', ko: '쥐띠',   en: 'Rat',     years: '1960, 1972, 1984, 1996, 2008, 2020' },
-  { id: 'ox',      emoji: '🐂', ko: '소띠',   en: 'Ox',      years: '1961, 1973, 1985, 1997, 2009, 2021' },
-  { id: 'tiger',   emoji: '🐅', ko: '호랑이띠', en: 'Tiger',   years: '1962, 1974, 1986, 1998, 2010, 2022' },
-  { id: 'rabbit',  emoji: '🐇', ko: '토끼띠',  en: 'Rabbit',  years: '1963, 1975, 1987, 1999, 2011, 2023' },
-  { id: 'dragon',  emoji: '🐉', ko: '용띠',   en: 'Dragon',  years: '1964, 1976, 1988, 2000, 2012, 2024' },
-  { id: 'snake',   emoji: '🐍', ko: '뱀띠',   en: 'Snake',   years: '1965, 1977, 1989, 2001, 2013, 2025' },
-  { id: 'horse',   emoji: '🐎', ko: '말띠',   en: 'Horse',   years: '1966, 1978, 1990, 2002, 2014, 2026' },
-  { id: 'goat',    emoji: '🐐', ko: '양띠',   en: 'Goat',    years: '1967, 1979, 1991, 2003, 2015, 2027' },
-  { id: 'monkey',  emoji: '🐒', ko: '원숭이띠', en: 'Monkey',  years: '1968, 1980, 1992, 2004, 2016, 2028' },
-  { id: 'rooster', emoji: '🐓', ko: '닭띠',   en: 'Rooster', years: '1969, 1981, 1993, 2005, 2017, 2029' },
-  { id: 'dog',     emoji: '🐕', ko: '개띠',   en: 'Dog',     years: '1970, 1982, 1994, 2006, 2018, 2030' },
-  { id: 'pig',     emoji: '🐖', ko: '돼지띠',  en: 'Pig',     years: '1971, 1983, 1995, 2007, 2019, 2031' },
+  { id: 'rat',     ko: '쥐띠',     en: 'Rat',     years: '1960, 1972, 1984, 1996, 2008, 2020' },
+  { id: 'ox',      ko: '소띠',     en: 'Ox',      years: '1961, 1973, 1985, 1997, 2009, 2021' },
+  { id: 'tiger',   ko: '호랑이띠', en: 'Tiger',   years: '1962, 1974, 1986, 1998, 2010, 2022' },
+  { id: 'rabbit',  ko: '토끼띠',   en: 'Rabbit',  years: '1963, 1975, 1987, 1999, 2011, 2023' },
+  { id: 'dragon',  ko: '용띠',     en: 'Dragon',  years: '1964, 1976, 1988, 2000, 2012, 2024' },
+  { id: 'snake',   ko: '뱀띠',     en: 'Snake',   years: '1965, 1977, 1989, 2001, 2013, 2025' },
+  { id: 'horse',   ko: '말띠',     en: 'Horse',   years: '1966, 1978, 1990, 2002, 2014, 2026' },
+  { id: 'goat',    ko: '양띠',     en: 'Goat',    years: '1967, 1979, 1991, 2003, 2015, 2027' },
+  { id: 'monkey',  ko: '원숭이띠', en: 'Monkey',  years: '1968, 1980, 1992, 2004, 2016, 2028' },
+  { id: 'rooster', ko: '닭띠',     en: 'Rooster', years: '1969, 1981, 1993, 2005, 2017, 2029' },
+  { id: 'dog',     ko: '개띠',     en: 'Dog',     years: '1970, 1982, 1994, 2006, 2018, 2030' },
+  { id: 'pig',     ko: '돼지띠',   en: 'Pig',     years: '1971, 1983, 1995, 2007, 2019, 2031' },
 ];
 
 const MOCK_FORTUNES: Record<string, { ko: string; en: string }> = {
@@ -51,17 +50,34 @@ function formatToday(lang: 'ko' | 'en'): string {
     : `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
 }
 
+/** 출생연도 → 12지신 인덱스 (쥐=0, 소=1, …, 돼지=11) */
+function zodiacIndexFromYear(year: number): number {
+  return ((year - 4) % 12 + 12) % 12;
+}
+
 export default function ZodiacPage() {
   const { t, lang } = useLang();
   const [selected, setSelected] = useState<string | null>(null);
+  const [yearInput, setYearInput] = useState('');
+  const [yearError, setYearError] = useState<string | null>(null);
 
   const selectedAnimal = ZODIAC_ANIMALS.find(a => a.id === selected);
   const fortune = selected ? MOCK_FORTUNES[selected] : null;
 
+  const handleYearSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const y = parseInt(yearInput.trim(), 10);
+    if (!Number.isFinite(y) || y < 1900 || y > 2100) {
+      setYearError(t('1900 ~ 2100 사이의 연도를 입력해주세요.', 'Enter a year between 1900 and 2100.'));
+      return;
+    }
+    setYearError(null);
+    const idx = zodiacIndexFromYear(y);
+    setSelected(ZODIAC_ANIMALS[idx].id);
+  };
+
   return (
     <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
-      <FeatureTabs />
-
       {/* 헤더 */}
       <div className="bg-white dark:bg-gray-900 w-full">
         <div
@@ -81,10 +97,6 @@ export default function ZodiacPage() {
               <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">
                 {formatToday(lang as 'ko' | 'en')}
               </div>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <ThemeToggle />
-              </div>
             </div>
             <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
               {t('띠별 운세', 'Zodiac Fortune')}
@@ -92,7 +104,7 @@ export default function ZodiacPage() {
             <div className="text-[10.5px] sm:text-[11.5px] text-gray-500 dark:text-gray-300 leading-[1.55] mb-3">
               <div>{t('12지신 기반 오늘의 띠별 운세', "Today's fortune based on the 12 Chinese Zodiac animals")}</div>
               <div>{t('태어난 해의 지지로 보는 하루 흐름', 'Daily flow based on your birth year branch')}</div>
-              <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('나의 띠를 선택해보세요.', 'Select your zodiac animal.')}</div>
+              <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('태어난 연도를 입력하거나 띠를 선택해보세요.', 'Enter your birth year or pick your zodiac.')}</div>
             </div>
           </div>
         </div>
@@ -105,7 +117,7 @@ export default function ZodiacPage() {
             <button
               type="button"
               onClick={() => setSelected(null)}
-              className="mb-3 inline-flex items-center gap-1 text-[12px] font-semibold text-blue-600 hover:text-blue-700 bg-transparent border-none cursor-pointer p-0"
+              className="mb-3 inline-flex items-center gap-1 text-[12px] font-semibold text-gray-900 dark:text-gray-100 hover:text-gray-700 dark:hover:text-gray-300 bg-transparent border-none cursor-pointer p-0"
             >
               &larr; {t('목록으로', 'Back to list')}
             </button>
@@ -118,13 +130,35 @@ export default function ZodiacPage() {
                 <span>·</span>
                 <span>{formatToday(lang as 'ko' | 'en')}</span>
               </div>
-              <h1 className="text-[22px] font-extrabold text-gray-900 dark:text-gray-100 tracking-tight mb-4 leading-[1.3]">
-                {selectedAnimal.emoji} {t(selectedAnimal.ko, selectedAnimal.en)} {t('오늘의 운세', "Today's Fortune")}
-              </h1>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="shrink-0 w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 flex items-center justify-center">
+                  {(() => {
+                    const Icon = ZODIAC_ICONS[selectedAnimal.id];
+                    return <Icon size={28} />;
+                  })()}
+                </div>
+                <h1 className="text-[22px] font-extrabold text-gray-900 dark:text-gray-100 tracking-tight leading-[1.3]">
+                  {t(selectedAnimal.ko, selectedAnimal.en)} {t('오늘의 운세', "Today's Fortune")}
+                </h1>
+              </div>
 
-              <div className="mb-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
-                <div className="text-[11px] text-gray-400 dark:text-gray-300 mb-1">{t('해당 연도', 'Birth Years')}</div>
-                <div className="text-[13px] text-gray-700 dark:text-gray-200 font-medium">{selectedAnimal.years}</div>
+              <div className="mb-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-[11px] text-gray-400 dark:text-gray-300">
+                    {t('해당 연도', 'Birth Years')}
+                  </span>
+                  <span className="flex-1 h-px bg-gray-100 dark:bg-gray-800" />
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedAnimal.years.split(',').map(s => s.trim()).filter(Boolean).map(year => (
+                    <span
+                      key={year}
+                      className="inline-flex items-center px-2.5 py-1 rounded-md border border-gray-200 dark:border-gray-700 text-[13px] text-gray-700 dark:text-gray-200 font-medium"
+                    >
+                      {year}
+                    </span>
+                  ))}
+                </div>
               </div>
 
               <div className="text-[14px] leading-[1.75] text-gray-700 dark:text-gray-200">
@@ -146,31 +180,63 @@ export default function ZodiacPage() {
           </div>
         ) : (
           /* 목록 보기 */
-          <ul className="space-y-3">
-            {ZODIAC_ANIMALS.map((animal) => (
+          <>
+            <form
+              onSubmit={handleYearSubmit}
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] p-5 mb-4"
+            >
+              <div className="flex items-stretch gap-2">
+                <input
+                  id="zodiac-year-input"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={4}
+                  value={yearInput}
+                  onChange={(e) => setYearInput(e.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder={t('태어난 연도 4자리 입력', 'Birth year — 4 digits (e.g. 1995)')}
+                  className="flex-1 min-w-0 px-3 py-3 text-[15px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 placeholder:text-gray-300"
+                />
+                <button
+                  type="submit"
+                  className="shrink-0 px-5 text-[15px] font-semibold rounded-xl bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 transition-all border-none cursor-pointer"
+                >
+                  {t('확인', 'Check')}
+                </button>
+              </div>
+              {yearError && (
+                <p className="mt-3 text-center text-[13px] text-red-500">{yearError}</p>
+              )}
+            </form>
+
+            <ul className="space-y-3">
+            {ZODIAC_ANIMALS.map((animal) => {
+              const Icon = ZODIAC_ICONS[animal.id];
+              return (
               <li key={animal.id}>
                 <button
                   type="button"
                   onClick={() => setSelected(animal.id)}
                   className="w-full text-left bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer"
                 >
-                  <div className="flex items-center gap-2 mb-1 text-[10.5px] text-gray-400 dark:text-gray-400">
-                    <span className="font-semibold text-gray-500 dark:text-gray-300">
-                      {t('오늘의 띠별 운세', "Today's Zodiac Fortune")}
-                    </span>
-                    <span>·</span>
-                    <span>{formatToday(lang as 'ko' | 'en')}</span>
+                  <div className="flex items-start gap-3">
+                    <div className="shrink-0 w-11 h-11 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 flex items-center justify-center">
+                      <Icon size={26} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[15px] font-extrabold text-gray-900 dark:text-gray-100 leading-snug mb-1.5">
+                        {t(animal.ko, animal.en)}
+                      </div>
+                      <p className="text-[12.5px] text-gray-500 dark:text-gray-300 leading-relaxed line-clamp-2">
+                        {lang === 'en' ? MOCK_FORTUNES[animal.id].en : MOCK_FORTUNES[animal.id].ko}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-[15px] font-extrabold text-gray-900 dark:text-gray-100 leading-snug mb-1.5">
-                    {animal.emoji} {t(animal.ko, animal.en)}
-                  </div>
-                  <p className="text-[12.5px] text-gray-500 dark:text-gray-300 leading-relaxed line-clamp-2">
-                    {lang === 'en' ? MOCK_FORTUNES[animal.id].en : MOCK_FORTUNES[animal.id].ko}
-                  </p>
                 </button>
               </li>
-            ))}
-          </ul>
+              );
+            })}
+            </ul>
+          </>
         )}
       </div>
     </div>

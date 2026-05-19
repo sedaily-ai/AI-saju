@@ -5,9 +5,6 @@
 
 import { useEffect, useState } from 'react';
 import { useLang } from '@/shared/lib/LangContext';
-import { LangToggle } from '@/shared/lib/LangToggle';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { FeatureTabs } from '@/widgets';
 
 const MAIN_TABS = [
   { id: 'question', name: '오늘의 질문' },
@@ -69,12 +66,7 @@ export default function NewsPage() {
   return (
     <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
       {!isSajuHost && <TopNav activeId="fortune" />}
-      <FeatureTabs />
       <div className="max-w-[480px] lg:max-w-[720px] mx-auto px-4 pt-6 pb-10">
-        <div className="flex items-center justify-end gap-2 mb-4">
-          <LangToggle />
-          <ThemeToggle />
-        </div>
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-8 text-center">
           <h2 className="text-[18px] font-bold text-gray-900 dark:text-gray-100 mb-2">
             {t('뉴스 서비스 점검 중', 'News service under maintenance')}
