@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
-import { FeatureTabs } from '@/widgets';
+import { PageShell } from '@/shared/ui/PageShell';
+import { PageHeader } from '@/shared/ui/PageHeader';
+import { BottomNav } from '@/shared/ui/BottomNav';
 
 interface ZodiacEntry {
   id: string;
@@ -59,46 +59,15 @@ export default function ZodiacPage() {
   const fortune = selected ? MOCK_FORTUNES[selected] : null;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
-      <FeatureTabs />
+    <PageShell hanjaRight="寅" hanjaLeft="獸">
+      <PageHeader
+        title={t('띠별 운세', 'Zodiac')}
+        titleAccent={t('세', 'ac')}
+        sub={t('12지신 기반 오늘의 띠별 운세 · 나의 띠를 선택해보세요',
+              "Today's fortune by 12 zodiac animals · pick yours")}
+      />
 
-      {/* 헤더 */}
-      <div className="bg-white dark:bg-gray-900 w-full">
-        <div
-          className="max-w-[480px] lg:max-w-[720px] mx-auto relative overflow-hidden"
-          style={{ padding: '20px 20px 18px' }}
-        >
-          <img
-            src="/fortune-mascot.png"
-            alt=""
-            aria-hidden="true"
-            className="absolute pointer-events-none select-none dark:hidden"
-            style={{ right: 0, bottom: 0, width: 88, height: 88, opacity: 0.12, objectFit: 'contain', zIndex: 0 }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-          />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">
-                {formatToday(lang as 'ko' | 'en')}
-              </div>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <ThemeToggle />
-              </div>
-            </div>
-            <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
-              {t('띠별 운세', 'Zodiac Fortune')}
-            </h2>
-            <div className="text-[10.5px] sm:text-[11.5px] text-gray-500 dark:text-gray-300 leading-[1.55] mb-3">
-              <div>{t('12지신 기반 오늘의 띠별 운세', "Today's fortune based on the 12 Chinese Zodiac animals")}</div>
-              <div>{t('태어난 해의 지지로 보는 하루 흐름', 'Daily flow based on your birth year branch')}</div>
-              <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('나의 띠를 선택해보세요.', 'Select your zodiac animal.')}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-[480px] lg:max-w-[720px] mx-auto px-3 sm:px-[14px] pt-4 pb-10">
+      <div className="relative z-10 px-3 pt-1">
         {/* 선택 상태: 결과 보기 */}
         {selected && selectedAnimal && fortune ? (
           <div>
@@ -173,6 +142,8 @@ export default function ZodiacPage() {
           </ul>
         )}
       </div>
-    </div>
+
+      <BottomNav />
+    </PageShell>
   );
 }

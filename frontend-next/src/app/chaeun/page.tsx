@@ -20,10 +20,10 @@ import {
 } from '@/features/fortune/lib/engine-chaeun';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
 import { WealthNewsSection, SaveProfileButton } from '@/features/fortune';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
+import { PageShell } from '@/shared/ui/PageShell';
+import { PageHeader } from '@/shared/ui/PageHeader';
+import { BottomNav } from '@/shared/ui/BottomNav';
 import { useLang } from '@/shared/lib/LangContext';
-import { FeatureTabs } from '@/widgets';
 
 interface CurrentSaju {
   year: number;
@@ -181,50 +181,14 @@ export default function ChaeunPage() {
   const jeongPct = chaeseong ? (chaeseong.jeongJae / total) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
-      {!isSajuHost && <TopNav activeId="fortune" />}
-      <FeatureTabs />
+    <PageShell hanjaRight="財" hanjaLeft="富" maxWidth={720}>
+      <PageHeader
+        title={t('재운', 'Wealth')}
+        titleAccent={t('운', 'lth')}
+        sub={t('5경로 재성 분석 · 12운성 대운 타임라인 · 세운·월운·일진 삼중 흐름',
+              '5-path Wealth · 12 stages timeline · year/month/day luck layered')}
+      />
 
-      {/* 헤더 — /saju 와 동일한 구조: 날짜·토글 → 타이틀 → 3줄 크레덴셜 */}
-      <div className="bg-white dark:bg-gray-900 w-full">
-        <div className="max-w-[480px] lg:max-w-[720px] mx-auto relative overflow-hidden" style={{ padding: '20px 20px 18px' }}>
-          <img
-            src="/fortune-mascot.png"
-            alt=""
-            aria-hidden="true"
-            className="absolute pointer-events-none select-none dark:hidden"
-            style={{ right: 0, bottom: 0, width: 88, height: 88, opacity: 0.12, objectFit: 'contain', zIndex: 0 }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-          />
-          <div className="relative z-10">
-            {/* 날짜 + 테마/언어 토글 */}
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">
-                {(() => {
-                  const d = new Date();
-                  return lang === 'en'
-                    ? d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                    : `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
-                })()}
-              </div>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <ThemeToggle />
-              </div>
-            </div>
-            {/* 타이틀 */}
-            <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
-              {t('재운 흐름 보기', 'Wealth Flow')}
-            </h2>
-            {/* 크레덴셜 3줄 */}
-            <div className="text-[10.5px] sm:text-[11.5px] text-gray-500 dark:text-gray-300 leading-[1.55] mb-3">
-              <div>{t('5경로 재성 분석 · 12운성 대운 타임라인', 'Five-path Wealth analysis · Twelve Life Stages decade timeline')}</div>
-              <div>{t('세운·월운·일진 삼중 흐름 · 횡재 점수 자동 산출', 'Year · month · day luck layered · windfall score auto-scored')}</div>
-              <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('재운 심화 — 고전 명리 데이터 기반.', 'Wealth Deep Dive — powered by classical Myeongri data.')}</div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div className="max-w-[480px] lg:max-w-[720px] mx-auto px-3 sm:px-[14px] pt-4 pb-10">
         {/* saju 없으면: 안내 + 입력 폼 + 저장 목록 */}
@@ -1387,6 +1351,8 @@ export default function ChaeunPage() {
         </button>
         </>)}
       </div>
-    </div>
+
+      <BottomNav />
+    </PageShell>
   );
 }

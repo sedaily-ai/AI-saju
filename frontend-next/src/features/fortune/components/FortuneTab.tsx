@@ -45,9 +45,15 @@ interface FortuneTabProps {
   selectedGroup?: 'NT' | 'NF' | 'ST' | 'SF';
   onMbtiChange?: (group: 'NT' | 'NF' | 'ST' | 'SF') => void;
   mode?: 'full' | 'today';
+  /**
+   * phase-04 (2026-05-24): 자체 헤더(흰 헤더 블록 + 날짜 + LangToggle/ThemeToggle + 큰 타이틀 +
+   * 크레덴셜 + 마스코트 + 회색 wrapper bg) 를 숨김.
+   * 페이지에서 PageShell + PageHeader 로 외곽을 직접 구성할 때 true.
+   */
+  hideOwnHeader?: boolean;
 }
 
-export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full' }: FortuneTabProps = {}) {
+export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwnHeader = false }: FortuneTabProps = {}) {
   const router = useRouter();
   const { t, g, lang, localePath } = useLang();
   const [birthdate, setBirthdate] = useState('');
@@ -221,64 +227,69 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full' }: Fortu
     : `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
 
   return (
-    <div className="-my-6 w-full bg-[#F8F9FA] dark:bg-gray-950" style={{ minHeight: 'calc(100vh + 48px)' }}>
-      {/* 흰색 헤더 블록 — 전폭 */}
-      <div className="bg-white dark:bg-gray-900 w-full">
-        <div className="max-w-[480px] lg:max-w-[720px] mx-auto relative overflow-hidden" style={{ padding: '20px 20px 18px' }}>
-          {/* 배경 마스코트 — 우하단 살짝 크롭, 텍스트 뒤 */}
-          <img
-            src="/fortune-mascot.png"
-            alt=""
-            aria-hidden="true"
-            className="absolute pointer-events-none select-none dark:hidden"
-            style={{
-              right: 0,
-              bottom: 0,
-              width: 88,
-              height: 88,
-              opacity: 0.12,
-              objectFit: 'contain',
-              zIndex: 0,
-            }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-          />
-          <div className="relative z-10">
-          {/* 날짜 + 테마/언어 토글 */}
-          <div className="flex items-center justify-between mb-1">
-            <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">{todayLabel}</div>
-            <div className="flex items-center gap-2">
-              <LangToggle />
-              <ThemeToggle />
+    <div
+      className={hideOwnHeader ? 'w-full' : '-my-6 w-full bg-[#F8F9FA] dark:bg-gray-950'}
+      style={hideOwnHeader ? undefined : { minHeight: 'calc(100vh + 48px)' }}
+    >
+      {/* 흰색 헤더 블록 — phase-04: hideOwnHeader 시 숨김 (페이지에서 PageHeader 사용) */}
+      {!hideOwnHeader && (
+        <div className="bg-white dark:bg-gray-900 w-full">
+          <div className="max-w-[480px] lg:max-w-[720px] mx-auto relative overflow-hidden" style={{ padding: '20px 20px 18px' }}>
+            {/* 배경 마스코트 — 우하단 살짝 크롭, 텍스트 뒤 */}
+            <img
+              src="/fortune-mascot.png"
+              alt=""
+              aria-hidden="true"
+              className="absolute pointer-events-none select-none dark:hidden"
+              style={{
+                right: 0,
+                bottom: 0,
+                width: 88,
+                height: 88,
+                opacity: 0.12,
+                objectFit: 'contain',
+                zIndex: 0,
+              }}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+            />
+            <div className="relative z-10">
+            {/* 날짜 + 테마/언어 토글 */}
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">{todayLabel}</div>
+              <div className="flex items-center gap-2">
+                <LangToggle />
+                <ThemeToggle />
+              </div>
+            </div>
+            {/* 타이틀 */}
+            <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
+              {mode === 'today'
+                ? t('오늘의 사주', "Today's Saju")
+                : t('내 사주', 'My Saju')}
+            </h2>
+            {/* 크레덴셜 — 모드별 분기 */}
+            <div className="text-[10.5px] sm:text-[11.5px] text-gray-500 dark:text-gray-300 leading-[1.55] mb-3">
+              {mode === 'today' ? (
+                <>
+                  <div>{t('오늘 일진과 내 사주의 상호작용을 분석합니다', "Analyzes today's energy interaction with your chart")}</div>
+                  <div>{t('십성 · 12운성 · 분야별 운세 한눈에', 'Ten Gods · 12 Stages · Fortune by category at a glance')}</div>
+                  <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('매일 달라지는 나의 하루 흐름.', 'Your daily flow, refreshed every day.')}</div>
+                </>
+              ) : (
+                <>
+                  <div>{t('궁통보감·삼명통회·자평진전 3대 고전 기반', 'Based on the 3 classical Saju texts (Gungtongbogam · Sammyeongtonghoe · Japyeongjinjeon)')}</div>
+                  <div>{t('16종 신살 자동 탐지 · KASI 만세력 연동', '16 Sinsal auto-detection · KASI ephemeris integration')}</div>
+                  <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('고전 명리를 데이터로 구현했습니다.', 'Classical Myeongri, rebuilt as data.')}</div>
+                </>
+              )}
+            </div>
+
             </div>
           </div>
-          {/* 타이틀 */}
-          <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
-            {mode === 'today'
-              ? t('오늘의 사주', "Today's Saju")
-              : t('내 사주', 'My Saju')}
-          </h2>
-          {/* 크레덴셜 — 모드별 분기 */}
-          <div className="text-[10.5px] sm:text-[11.5px] text-gray-500 dark:text-gray-300 leading-[1.55] mb-3">
-            {mode === 'today' ? (
-              <>
-                <div>{t('오늘 일진과 내 사주의 상호작용을 분석합니다', "Analyzes today's energy interaction with your chart")}</div>
-                <div>{t('십성 · 12운성 · 분야별 운세 한눈에', 'Ten Gods · 12 Stages · Fortune by category at a glance')}</div>
-                <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('매일 달라지는 나의 하루 흐름.', 'Your daily flow, refreshed every day.')}</div>
-              </>
-            ) : (
-              <>
-                <div>{t('궁통보감·삼명통회·자평진전 3대 고전 기반', 'Based on the 3 classical Saju texts (Gungtongbogam · Sammyeongtonghoe · Japyeongjinjeon)')}</div>
-                <div>{t('16종 신살 자동 탐지 · KASI 만세력 연동', '16 Sinsal auto-detection · KASI ephemeris integration')}</div>
-                <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('고전 명리를 데이터로 구현했습니다.', 'Classical Myeongri, rebuilt as data.')}</div>
-              </>
-            )}
-          </div>
-
-          </div>
         </div>
-      </div>
+      )}
 
-      <div className="max-w-[480px] lg:max-w-[720px] mx-auto">
+      <div className={hideOwnHeader ? 'w-full' : 'max-w-[480px] lg:max-w-[720px] mx-auto'}>
       {/* 회색 콘텐츠 영역 */}
       <div className="px-3 sm:px-[14px] pt-[14px] pb-10">
       {/* 입력 폼 — 결과가 있으면 접힘 */}
@@ -297,7 +308,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full' }: Fortu
                 <button key={gv || 'none'} onClick={() => setGender(gv)}
                   className={`flex-1 py-3 text-[15px] transition-all relative ${gender === gv ? 'font-semibold text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:text-gray-400'}`}>
                   {gv === '남' ? t('남', 'Male') : gv === '여' ? t('여', 'Female') : t('선택 안함', 'None')}
-                  {gender === gv && <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-gray-900 dark:bg-gray-100 rounded" />}
+                  {gender === gv && <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-[#D9651E] rounded" />}
                 </button>
               ))}
             </div>
@@ -310,7 +321,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full' }: Fortu
               <div className="shrink-0 inline-flex border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900">
                 {(['solar', 'lunar'] as const).map(c => (
                   <button key={c} type="button" onClick={() => setCalendar(c)}
-                    className={`px-3 text-[13px] font-medium transition-all ${calendar === c ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}>
+                    className={`px-3 text-[13px] font-medium transition-all ${calendar === c ? 'bg-[#D9651E] text-white' : 'text-gray-500 hover:text-gray-700'}`}>
                     {c === 'solar' ? t('양력', 'Solar') : t('음력', 'Lunar')}
                   </button>
                 ))}
@@ -359,7 +370,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full' }: Fortu
 
           {/* 버튼 */}
           <button onClick={handleCalculate}
-            className={`w-full py-3.5 text-[15px] font-semibold rounded-xl transition-all ${isDateValid ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 cursor-pointer' : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-300 cursor-not-allowed'}`}
+            className={`w-full py-3.5 text-[15px] font-semibold rounded-xl transition-all ${isDateValid ? 'bg-[#D9651E] text-white hover:bg-[#C25517] cursor-pointer' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
             disabled={!isDateValid}>
             {t('운세 보러가기', 'See My Fortune')}
           </button>
@@ -550,204 +561,46 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full' }: Fortu
       })()}
 
       {/* 저장된 만세력 ↔ 배너 사이 구분선 */}
-      {mode === 'full' && <div className="mt-6 mb-5 border-t border-gray-200 dark:border-gray-800" />}
+      {mode === 'full' && <div className="mt-6 mb-5 border-t" style={{ borderColor: '#EFEAE3' }} />}
 
-      {/* 재운 흐름 보기 배너 — full 모드에서만 노출 */}
+      {/* phase-04 (2026-05-24): cross-link 카드 3종 — 메인 진입 카드 결 (아이콘박스+텍스트+›) */}
       {mode === 'full' && (<>
-      <button
-        type="button"
-        onClick={() => {
+      <CrossLinkCard
+        href={localePath('/chaeun')}
+        bg="#FFF6E8" iconBg="#FFD8A0" iconFg="#8A5800"
+        title={t('재운 흐름 보기', 'Wealth Flow')}
+        sub={t('대운·세운·월운 한 흐름으로', 'Dae · Se · Wol cycle in one flow')}
+        icon="coins"
+        beforeClick={() => {
           trackEvent('chaeun_banner_click', { has_result: !!result });
-          // 메인에서 현재 활성 결과가 없으면 stale saju_current를 비워 /chaeun이 빈 상태로 열리게 한다
-          if (!result) {
-            try { localStorage.removeItem('saju_current'); } catch {}
-          }
-          router.push(localePath('/chaeun'));
+          if (!result) { try { localStorage.removeItem('saju_current'); } catch {} }
         }}
-        className="w-full rounded-[16px] relative overflow-hidden cursor-pointer border-none text-left"
-        style={{
-          background: 'linear-gradient(145deg, #1B2432 0%, #191F28 60%)',
-          padding: '20px 22px',
-          color: '#fff',
-        }}
-      >
-        {/* 우상단 블루 글로우 */}
-        <div
-          style={{
-            position: 'absolute', top: -40, right: -40,
-            width: 220, height: 220, borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(49,130,246,0.55) 0%, rgba(49,130,246,0.2) 40%, transparent 75%)',
-            filter: 'blur(4px)',
-          }}
-        />
-        {/* 배경 sin 파형 — 흐름 은유 */}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 400 80"
-          preserveAspectRatio="none"
-          style={{
-            position: 'absolute', left: 0, right: 0, bottom: 0,
-            width: '100%', height: 80,
-            pointerEvents: 'none',
-          }}
-        >
-          <path
-            d="M 0 50 Q 50 20, 100 50 T 200 50 T 300 50 T 400 50"
-            fill="none"
-            stroke="rgba(96,165,250,0.25)"
-            strokeWidth="1.5"
-          />
-          <path
-            d="M 0 60 Q 50 35, 100 60 T 200 60 T 300 60 T 400 60"
-            fill="none"
-            stroke="rgba(96,165,250,0.15)"
-            strokeWidth="1.2"
-          />
-        </svg>
-        <div className="relative flex items-center justify-between gap-3">
-          <div>
-            <div style={{ fontSize: 11, color: '#8B95A1', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 4 }}>
-              NEW
-            </div>
-            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>
-              {t('재운 흐름 보기', 'Wealth Flow')}
-            </div>
-          </div>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </div>
-      </button>
-
-      {/* 커리어 흐름 보기 배너 */}
-      <button
-        type="button"
-        onClick={() => {
+        router={router}
+      />
+      <CrossLinkCard
+        href={localePath('/career')}
+        bg="#DBF1E8" iconBg="#86D4B5" iconFg="#1B5B45"
+        title={t('커리어 흐름 보기', 'Career Flow')}
+        sub={t('관성 진입과 직업 적성', 'Officer entries & career fit')}
+        icon="briefcase"
+        beforeClick={() => {
           trackEvent('career_banner_click', { has_result: !!result });
-          if (!result) {
-            try { localStorage.removeItem('saju_current'); } catch {}
-          }
-          router.push(localePath('/career'));
+          if (!result) { try { localStorage.removeItem('saju_current'); } catch {} }
         }}
-        className="w-full rounded-[16px] mt-3 relative overflow-hidden cursor-pointer border-none text-left"
-        style={{
-          background: 'linear-gradient(145deg, #0F3D2E 0%, #0B2D22 60%)',
-          padding: '20px 22px',
-          color: '#fff',
-        }}
-      >
-        {/* 우상단 그린 글로우 */}
-        <div
-          style={{
-            position: 'absolute', top: -40, right: -40,
-            width: 220, height: 220, borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(52,211,153,0.55) 0%, rgba(52,211,153,0.2) 40%, transparent 75%)',
-            filter: 'blur(4px)',
-          }}
-        />
-        {/* 배경 라인 — 상승 사다리 은유 */}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 400 80"
-          preserveAspectRatio="none"
-          style={{
-            position: 'absolute', left: 0, right: 0, bottom: 0,
-            width: '100%', height: 80,
-            pointerEvents: 'none',
-          }}
-        >
-          <path
-            d="M 0 70 L 80 55 L 160 60 L 240 40 L 320 45 L 400 25"
-            fill="none"
-            stroke="rgba(52,211,153,0.30)"
-            strokeWidth="1.5"
-          />
-          <path
-            d="M 0 75 L 80 65 L 160 68 L 240 52 L 320 55 L 400 38"
-            fill="none"
-            stroke="rgba(52,211,153,0.18)"
-            strokeWidth="1.2"
-          />
-        </svg>
-        <div className="relative flex items-center justify-between gap-3">
-          <div>
-            <div style={{ fontSize: 11, color: '#8B95A1', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 4 }}>
-              NEW
-            </div>
-            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>
-              {t('커리어 흐름 보기', 'Career Flow')}
-            </div>
-          </div>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </div>
-      </button>
-
-      {/* 궁합 추천 보기 배너 */}
-      <button
-        type="button"
-        onClick={() => {
+        router={router}
+      />
+      <CrossLinkCard
+        href="/compatibility"
+        bg="#FFE2DE" iconBg="#F3A296" iconFg="#7E2618"
+        title={t('궁합 추천 보기', 'Ideal Match')}
+        sub={t('상대 없이 내게 맞는 사주', 'Your match, even without one')}
+        icon="heart"
+        beforeClick={() => {
           trackEvent('compatibility_banner_click', { has_result: !!result });
-          if (!result) {
-            try { localStorage.removeItem('saju_current'); } catch {}
-          }
-          router.push('/compatibility');
+          if (!result) { try { localStorage.removeItem('saju_current'); } catch {} }
         }}
-        className="w-full rounded-[16px] mt-3 relative overflow-hidden cursor-pointer border-none text-left"
-        style={{
-          background: 'linear-gradient(145deg, #3D1B3D 0%, #2D132D 60%)',
-          padding: '20px 22px',
-          color: '#fff',
-        }}
-      >
-        {/* 우상단 핑크 글로우 */}
-        <div
-          style={{
-            position: 'absolute', top: -40, right: -40,
-            width: 220, height: 220, borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(236,72,153,0.55) 0%, rgba(236,72,153,0.2) 40%, transparent 75%)',
-            filter: 'blur(4px)',
-          }}
-        />
-        {/* 배경 하트 파형 */}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 400 80"
-          preserveAspectRatio="none"
-          style={{
-            position: 'absolute', left: 0, right: 0, bottom: 0,
-            width: '100%', height: 80,
-            pointerEvents: 'none',
-          }}
-        >
-          <path
-            d="M 0 55 Q 60 30, 120 55 T 240 55 T 360 55 L 400 55"
-            fill="none"
-            stroke="rgba(244,114,182,0.28)"
-            strokeWidth="1.5"
-          />
-          <path
-            d="M 0 65 Q 60 42, 120 65 T 240 65 T 360 65 L 400 65"
-            fill="none"
-            stroke="rgba(244,114,182,0.16)"
-            strokeWidth="1.2"
-          />
-        </svg>
-        <div className="relative flex items-center justify-between gap-3">
-          <div>
-            <div style={{ fontSize: 11, color: '#8B95A1', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 4 }}>
-              NEW
-            </div>
-            <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.02em' }}>
-              {t('궁합 추천 보기', 'Ideal Match')}
-            </div>
-          </div>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        </div>
-      </button>
+        router={router}
+      />
       </>)}
       </div>
       </div>
@@ -793,4 +646,69 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full' }: Fortu
     const list = getSaved().filter(x => x.id !== id);
     setSaved(list); setSavedList(list);
   }
+}
+
+/**
+ * CrossLinkCard — 점신 결 단순 박스 카드 (phase-04, 2026-05-24)
+ * 메인 페이지의 진입 카드(/today, /blog) 와 동일 구조.
+ * 컬러 박스 + 작은 아이콘 박스 + 제목·부제목 + ›.
+ * SVG 배경·글로우 같은 잡스러운 그래픽 없음.
+ */
+function CrossLinkCard({
+  href, bg, iconBg, iconFg, title, sub, icon, beforeClick, router,
+}: {
+  href: string;
+  bg: string;
+  iconBg: string;
+  iconFg: string;
+  title: string;
+  sub: string;
+  icon: 'coins' | 'briefcase' | 'heart';
+  beforeClick: () => void;
+  router: ReturnType<typeof useRouter>;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => { beforeClick(); router.push(href); }}
+      className="w-full flex items-center gap-4 rounded-2xl p-4 mt-3 first:mt-0 transition-transform active:scale-[0.99] border-none cursor-pointer text-left"
+      style={{ background: bg }}
+    >
+      <span
+        className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+        style={{ background: iconBg, color: iconFg }}
+      >
+        <CrossLinkIcon name={icon} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[14.5px] font-bold leading-tight tracking-tight" style={{ color: '#1A1A1A' }}>{title}</p>
+        <p className="text-[12.5px] mt-1" style={{ color: '#4F4F58' }}>{sub}</p>
+      </div>
+      <span className="text-[20px] shrink-0" style={{ color: '#A0A0A8' }} aria-hidden>›</span>
+    </button>
+  );
+}
+
+function CrossLinkIcon({ name }: { name: 'coins' | 'briefcase' | 'heart' }) {
+  const common = { width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2.2, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  if (name === 'coins') return (
+    <svg {...common}>
+      <circle cx="8" cy="8" r="6" />
+      <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+      <path d="M7 6h1v4" />
+      <path d="m16.71 13.88.7.71-2.82 2.82" />
+    </svg>
+  );
+  if (name === 'briefcase') return (
+    <svg {...common}>
+      <rect width="20" height="14" x="2" y="7" rx="2" ry="2" />
+      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    </svg>
+  );
+  // heart
+  return (
+    <svg {...common}>
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
 }

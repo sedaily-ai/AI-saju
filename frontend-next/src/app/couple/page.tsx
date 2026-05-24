@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
 import { CoupleMatchSection, type PersonInput } from '@/features/couple-match';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
-import { FeatureTabs } from '@/widgets';
+import { PageShell } from '@/shared/ui/PageShell';
+import { PageHeader } from '@/shared/ui/PageHeader';
+import { BottomNav } from '@/shared/ui/BottomNav';
 
 type Step = 'me' | 'partner' | 'result';
 
@@ -80,51 +80,24 @@ export default function CouplePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
-      <FeatureTabs />
+    <PageShell hanjaRight="緣" hanjaLeft="合">
+      <PageHeader
+        title={t('커플 궁합', 'Couple Match')}
+        titleAccent={t('합', 'ch')}
+        sub={t('두 사람 생년월일시로 보는 실제 궁합 · 합·충·오행 보완',
+              'Real compatibility from both charts · harmony/clash/element')}
+      />
 
-      {/* 헤더 */}
-      <div className="bg-white dark:bg-gray-900 w-full">
-        <div className="max-w-[480px] lg:max-w-[720px] mx-auto relative overflow-hidden" style={{ padding: '20px 20px 18px' }}>
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">
-                {(() => {
-                  const d = new Date();
-                  return lang === 'en'
-                    ? d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                    : `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
-                })()}
-              </div>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <ThemeToggle />
-              </div>
-            </div>
-            <h1 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
-              {t('커플 궁합 — 두 사람 사주로 보는 실제 궁합', 'Couple Match — Real compatibility from both birth charts')}
-            </h1>
-            <div className="text-[10.5px] sm:text-[11.5px] text-gray-500 dark:text-gray-300 leading-[1.55] mb-3">
-              <div>{t('두 사람 생년월일시로 계산하는 실제 궁합', 'Real couple match from both birth charts')}</div>
-              <div>{t('일간 관계 · 일지 합충 · 오행 보완 · 배우자궁', 'Stem relation · branch harmony/clash · element fill · spouse star')}</div>
-              <div className="text-gray-700 dark:text-gray-100 font-semibold">
-                {t('서로의 원국이 어떻게 맞물리는지 근거와 함께 보여드려요.', 'See how your two charts actually interlock — with the reasoning.')}
-              </div>
-            </div>
-
-            {/* Step indicator */}
-            <div className="flex items-center gap-1.5 mt-3">
-              <StepDot active={step === 'me'} done={step !== 'me'} label={t('나', '1')} />
-              <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-              <StepDot active={step === 'partner'} done={step === 'result'} label={t('상대', '2')} />
-              <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-              <StepDot active={step === 'result'} done={false} label={t('결과', '3')} />
-            </div>
-          </div>
-        </div>
+      {/* Step indicator */}
+      <div className="relative z-10 px-5 mt-1 mb-3 flex items-center gap-1.5">
+        <StepDot active={step === 'me'} done={step !== 'me'} label={t('나', '1')} />
+        <div className="flex-1 h-px" style={{ background: '#EFEAE3' }} />
+        <StepDot active={step === 'partner'} done={step === 'result'} label={t('상대', '2')} />
+        <div className="flex-1 h-px" style={{ background: '#EFEAE3' }} />
+        <StepDot active={step === 'result'} done={false} label={t('결과', '3')} />
       </div>
 
-      <div className="max-w-[480px] lg:max-w-[720px] mx-auto px-3 sm:px-[14px] pt-4 pb-10">
+      <div className="relative z-10 px-3 pt-2">
         {step === 'me' && (
           <>
             <p className="mb-3 text-center text-[13px] text-gray-500 dark:text-gray-300 leading-relaxed">
@@ -175,20 +148,20 @@ export default function CouplePage() {
           <CoupleMatchSection a={me} b={partner} onReset={reset} />
         )}
       </div>
-    </div>
+
+      <BottomNav active="couple" />
+    </PageShell>
   );
 }
 
 function StepDot({ active, done, label }: { active: boolean; done: boolean; label: string }) {
   return (
     <div
-      className={`flex items-center justify-center h-6 min-w-[28px] px-2 rounded-full text-[10.5px] font-bold transition-colors ${
-        active
-          ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
-          : done
-            ? 'bg-pink-100 dark:bg-pink-950/50 text-pink-700 dark:text-pink-300'
-            : 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500'
-      }`}
+      className="flex items-center justify-center h-6 min-w-[28px] px-2 rounded-full text-[10.5px] font-bold transition-colors"
+      style={{
+        background: active ? '#D9651E' : done ? '#FFE2DE' : '#F0E9DC',
+        color: active ? '#FFFFFF' : done ? '#C8513F' : '#A0A0A8',
+      }}
     >
       {label}
     </div>

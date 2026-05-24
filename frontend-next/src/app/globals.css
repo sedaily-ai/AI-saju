@@ -160,6 +160,35 @@
   color-scheme: dark;
 }
 
+/* ─── 점신 톤 (phase-03, 2026-05-24) ─── */
+/* 새 디자인 표준. 기존 토큰 모두 보존, --saju-* 네임스페이스로 분리. */
+:root {
+  --saju-paper:      #FAF6F0;
+  --saju-paper-soft: #FBF8F1;
+  --saju-card:       #FFFFFF;
+  --saju-ink:        #1A1A1A;
+  --saju-ink-soft:   #4F4F58;
+  --saju-ink-sub:    #A0A0A8;
+  --saju-line:       #EFEAE3;
+  --saju-warm:       #FF8A4C;
+  --saju-warm-soft:  #FFE9D6;
+  --saju-warm-deep:  #D9651E;
+  --saju-cream:      #FFF6E8;
+  --saju-rose:       #FFE2DE;
+  --saju-rose-deep:  #C8513F;
+  --saju-lilac:      #EFE7FF;
+  --saju-lilac-deep: #7A5BE0;
+  --saju-mint:       #DBF1E8;
+  --saju-mint-deep:  #338A6A;
+}
+
+/* 점신 톤은 라이트 단일. 다크 모드 클릭 시도해도 시각 변화 없도록 강제. */
+.dark, .dark body {
+  background: var(--saju-paper);
+  color: var(--saju-ink);
+  color-scheme: light;
+}
+
 html, body {
   color-scheme: light;
 }

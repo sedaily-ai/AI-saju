@@ -75,20 +75,30 @@ export default function RootLayout({
     <html lang="ko" className="antialiased" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-        {/* FOUC 방지: 페이지 렌더 전에 테마 즉시 적용 */}
+        {/* phase-03 (2026-05-24): 점신 톤 라이트 단일.
+            dark 클래스 절대 추가하지 않음. localStorage 의 옛 'theme=dark' 도 정리.
+            (ThemeToggle UI 는 phase-04 에서 제거 예정 — 일단 클릭해도 시각 변화 없음) */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               (function(){try{
-                var t=localStorage.getItem('theme');
-                if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
-                if(t==='dark'){document.documentElement.classList.add('dark');}
+                document.documentElement.classList.remove('dark');
+                if(localStorage.getItem('theme')==='dark'){
+                  localStorage.removeItem('theme');
+                }
               }catch(e){}})();
             `,
           }}
         />
       </head>
-      <body className="min-h-screen flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+      <body
+        className="min-h-screen flex flex-col"
+        style={{
+          background: 'var(--saju-paper)',
+          color: 'var(--saju-ink)',
+          colorScheme: 'light',
+        }}
+      >
         <JsonLd data={siteWebSiteSchema()} />
         <JsonLd data={siteOrganizationSchema()} />
         <Providers>

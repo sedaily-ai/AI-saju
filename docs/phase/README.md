@@ -25,4 +25,6 @@ URL 기준: `localhost:3007/...`
 |-------|------|------|
 | 00 | [Baseline (현재 상태 스냅샷)](./phase-00-baseline.md) | — |
 | 01 | [톤: 사주 방 (Saju Room)](./phase-01-tone-saju-room.md) | 폐기 — phase-02 로 대체 |
-| 02 | [점신 결 모바일 랜딩](./phase-02-jeomsin-mobile.md) | 구현 중 |
+| 02 | [점신 결 모바일 랜딩](./phase-02-jeomsin-mobile.md) | 배포 완료 (saju.sedaily.ai) |
+| 03 | [점신 토큰 글로벌 승격 + 페이지 외곽 통일](./phase-03-paper-tokens.md) | 완료 (로컬) |
+| 04 | [shared/ui 추출 + /saju 외곽 시범 적용](./phase-04-pageshell-extract.md) | 진행 중 |

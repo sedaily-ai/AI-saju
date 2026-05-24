@@ -18,10 +18,10 @@ import {
 } from '@/features/fortune/lib/engine-chaeun';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
 import { CareerNewsSection, SaveProfileButton } from '@/features/fortune';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
-import { FeatureTabs } from '@/widgets';
+import { PageShell } from '@/shared/ui/PageShell';
+import { PageHeader } from '@/shared/ui/PageHeader';
+import { BottomNav } from '@/shared/ui/BottomNav';
 
 interface CurrentSaju {
   year: number;
@@ -498,47 +498,13 @@ export default function CareerPage() {
   if (!loaded) return null;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
-      {!isSajuHost && <TopNav activeId="fortune" />}
-      <FeatureTabs />
-
-      {/* 헤더 — /saju 와 동일한 구조 */}
-      <div className="bg-white dark:bg-gray-900 w-full">
-        <div className="max-w-[480px] lg:max-w-[720px] mx-auto relative overflow-hidden" style={{ padding: '20px 20px 18px' }}>
-          <img
-            src="/fortune-mascot.png"
-            alt=""
-            aria-hidden="true"
-            className="absolute pointer-events-none select-none dark:hidden"
-            style={{ right: 0, bottom: 0, width: 88, height: 88, opacity: 0.12, objectFit: 'contain', zIndex: 0 }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-          />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">
-                {(() => {
-                  const d = new Date();
-                  return lang === 'en'
-                    ? d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                    : `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
-                })()}
-              </div>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <ThemeToggle />
-              </div>
-            </div>
-            <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
-              {t('커리어 흐름 보기', 'Career Flow')}
-            </h2>
-            <div className="text-[10.5px] sm:text-[11.5px] text-gray-500 dark:text-gray-300 leading-[1.55] mb-3">
-              <div>{t('관·식·인 3축 분석 · 대운 커리어 타임라인', 'Officer · Output · Resource 3-axis · decade career timeline')}</div>
-              <div>{t('조직형·전문가형·학문형·유연형 유형 자동 진단', 'Organization · Specialist · Academic · Flexible auto-typing')}</div>
-              <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('커리어 심화 — 고전 명리 데이터 기반.', 'Career Deep Dive — powered by classical Myeongri data.')}</div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <PageShell hanjaRight="官" hanjaLeft="職" maxWidth={720}>
+      <PageHeader
+        title={t('커리어 운', 'Career')}
+        titleAccent={t('운', 'er')}
+        sub={t('관·식·인 3축 · 대운 커리어 타임라인 · 4유형 자동 진단',
+              'Officer · Output · Resource · 4-type auto-typing')}
+      />
 
       <div className="max-w-[480px] lg:max-w-[720px] mx-auto px-3 sm:px-[14px] pt-4 pb-10">
         {!saju && (
@@ -1108,6 +1074,8 @@ export default function CareerPage() {
           </>
         )}
       </div>
-    </div>
+
+      <BottomNav />
+    </PageShell>
   );
 }

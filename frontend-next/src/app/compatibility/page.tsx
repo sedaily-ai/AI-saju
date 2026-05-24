@@ -9,10 +9,10 @@ import {
 } from '@/features/fortune/lib/engine';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
 import { IdealMatchSection } from '@/features/ideal-match';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
-import { FeatureTabs } from '@/widgets';
+import { PageShell } from '@/shared/ui/PageShell';
+import { PageHeader } from '@/shared/ui/PageHeader';
+import { BottomNav } from '@/shared/ui/BottomNav';
 
 interface CurrentSaju {
   year: number;
@@ -125,48 +125,15 @@ export default function CompatibilityPage() {
   const pillars = saju?.pillars ?? [];
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
-      <FeatureTabs />
+    <PageShell hanjaRight="緣" hanjaLeft="求">
+      <PageHeader
+        title={t('이상형 역산', 'Ideal Match')}
+        titleAccent={t('산', 'ch')}
+        sub={t('오행 보완 · 천간합 · 배우자궁(관성·재성) 가중',
+              'Element fill · stem harmony · spouse star weighted')}
+      />
 
-      {/* 헤더 */}
-      <div className="bg-white dark:bg-gray-900 w-full">
-        <div className="max-w-[480px] lg:max-w-[720px] mx-auto relative overflow-hidden" style={{ padding: '20px 20px 18px' }}>
-          <img
-            src="/fortune-mascot.png"
-            alt=""
-            aria-hidden="true"
-            className="absolute pointer-events-none select-none dark:hidden"
-            style={{ right: 0, bottom: 0, width: 88, height: 88, opacity: 0.12, objectFit: 'contain', zIndex: 0 }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-          />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">
-                {(() => {
-                  const d = new Date();
-                  return lang === 'en'
-                    ? d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                    : `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`;
-                })()}
-              </div>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <ThemeToggle />
-              </div>
-            </div>
-            <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
-              {t('궁합 추천', 'Ideal Match')}
-            </h2>
-            <div className="text-[10.5px] sm:text-[11.5px] text-gray-500 dark:text-gray-300 leading-[1.55] mb-3">
-              <div>{t('오행 보완 · 천간합 · 지지 삼합/육합 종합 해석', 'Element balance · stem harmony · branch compatibility')}</div>
-              <div>{t('배우자궁(관성·재성) 가중치 반영', 'Spouse star (Gwan/Jae) weighted')}</div>
-              <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('당신과 잘 맞는 사람의 사주를 역산해드려요.', 'Reverse-engineer your ideal partner\'s Saju.')}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-[480px] lg:max-w-[720px] mx-auto px-3 sm:px-[14px] pt-4 pb-10">
+      <div className="relative z-10 px-3 pt-2">
         {/* saju 없음: 예시 블러 카드 + 입력 폼 */}
         {!saju && (
           <>
@@ -274,6 +241,8 @@ export default function CompatibilityPage() {
           </>
         )}
       </div>
-    </div>
+
+      <BottomNav />
+    </PageShell>
   );
 }

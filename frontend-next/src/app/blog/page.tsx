@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
 import { Spinner } from '@/shared/ui/Spinner';
-import { FeatureTabs } from '@/widgets';
+import { PageShell } from '@/shared/ui/PageShell';
+import { PageHeader } from '@/shared/ui/PageHeader';
+import { BottomNav } from '@/shared/ui/BottomNav';
 
 interface IndexEntry {
   slug: string;
@@ -295,47 +295,15 @@ export default function BlogPage() {
   }, [post]);
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950">
-      {!isSajuHost && <TopNav activeId="fortune" />}
-      <FeatureTabs />
+    <PageShell hanjaRight="道" hanjaLeft="筆">
+      <PageHeader
+        title={t('블로그', 'Blog')}
+        titleAccent={t('그', 'og')}
+        sub={t('매일 아침 AI가 쓰는 별자리·사주 콘텐츠',
+              'Daily zodiac & Saju notes written by AI')}
+      />
 
-      {/* 헤더 */}
-      <div className="bg-white dark:bg-gray-900 w-full">
-        <div
-          className="max-w-[480px] lg:max-w-[720px] mx-auto relative overflow-hidden"
-          style={{ padding: '20px 20px 18px' }}
-        >
-          <img
-            src="/fortune-mascot.png"
-            alt=""
-            aria-hidden="true"
-            className="absolute pointer-events-none select-none dark:hidden"
-            style={{ right: 0, bottom: 0, width: 88, height: 88, opacity: 0.12, objectFit: 'contain', zIndex: 0 }}
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-          />
-          <div className="relative z-10">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">
-                {formatDate(new Date().toISOString(), lang as 'ko' | 'en')}
-              </div>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <ThemeToggle />
-              </div>
-            </div>
-            <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
-              {t('오라클 블로그', 'Oracle Blog')}
-            </h2>
-            <div className="text-[10.5px] sm:text-[11.5px] text-gray-500 dark:text-gray-300 leading-[1.55] mb-3">
-              <div>{t('매일 아침 AI 가 쓰는 별자리·사주 콘텐츠', 'Daily zodiac & Saju notes written by AI')}</div>
-              <div>{t('데일리 운세 · 주간 흐름 · 명리 상식', 'Daily readings · weekly flow · Myeongri notes')}</div>
-              <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('Bedrock Claude 기반 콘텐츠 — 참고용.', 'Powered by Bedrock Claude — for reference.')}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-[480px] lg:max-w-[720px] mx-auto px-3 sm:px-[14px] pt-4 pb-10">
+      <div className="relative z-10 px-3 pt-2">
         {slug ? (
           <article className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5">
             <button
@@ -445,6 +413,8 @@ export default function BlogPage() {
           </>
         )}
       </div>
-    </div>
+
+      <BottomNav active="blog" />
+    </PageShell>
   );
 }

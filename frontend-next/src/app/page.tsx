@@ -113,9 +113,9 @@ const BANNERS = [
 ];
 
 const BANNER_ACCENTS: Record<'warm' | 'lilac' | 'rose', { bg: string; chip: string; orb: string; orbSoft: string }> = {
-  warm:  { bg: C.warmSoft, chip: C.ink,      orb: C.warm,      orbSoft: '#FFC195' },
-  lilac: { bg: C.lilac,    chip: C.ink,      orb: C.lilacDeep, orbSoft: '#B7A2EE' },
-  rose:  { bg: C.rose,     chip: C.ink,      orb: C.roseDeep,  orbSoft: '#F3A296' },
+  warm:  { bg: C.warmSoft, chip: C.warmDeep,  orb: C.warm,      orbSoft: '#FFC195' },
+  lilac: { bg: C.lilac,    chip: C.lilacDeep, orb: C.lilacDeep, orbSoft: '#B7A2EE' },
+  rose:  { bg: C.rose,     chip: C.roseDeep,  orb: C.roseDeep,  orbSoft: '#F3A296' },
 };
 
 export default function LandingPage() {
@@ -150,12 +150,11 @@ export default function LandingPage() {
       style={{ background: C.paper, colorScheme: 'light' }}
       className="min-h-screen w-full relative overflow-hidden"
     >
-      {/* 다크모드 차단 + 한지 노이즈 깔개 */}
+      {/* 한지 노이즈 깔개 (다크 차단은 layout body level 에서 처리됨, phase-03) */}
       <div
         aria-hidden
         className="fixed inset-0 -z-10"
         style={{
-          background: C.paper,
           backgroundImage: HANJI_NOISE,
           backgroundRepeat: 'repeat',
         }}
@@ -339,7 +338,7 @@ export default function LandingPage() {
               <Moon size={18} className="absolute bottom-[112px] right-[60px]" style={{ color: '#FFFFFF', opacity: 0.9 }} />
             </div>
 
-            {/* dots */}
+            {/* dots — 활성은 배너 accent 색으로 톤 매칭 */}
             <div className="absolute left-6 bottom-5 flex gap-1.5">
               {BANNERS.map((_, i) => (
                 <span
@@ -347,7 +346,7 @@ export default function LandingPage() {
                   className="block h-1.5 rounded-full transition-all"
                   style={{
                     width: i === bannerIdx ? 20 : 6,
-                    background: i === bannerIdx ? C.ink : 'rgba(26,26,26,0.22)',
+                    background: i === bannerIdx ? accent.orb : 'rgba(26,26,26,0.18)',
                   }}
                 />
               ))}
@@ -580,7 +579,7 @@ function BottomTab({
     <Link
       href={href}
       className="flex flex-col items-center gap-1 py-2 px-2 flex-1 transition-all hover:opacity-80 active:scale-95"
-      style={{ color: active ? C.ink : C.inkSub }}
+      style={{ color: active ? C.warmDeep : C.inkSub }}
     >
       <Icon size={21} strokeWidth={active ? 2.5 : 2} />
       <span className="text-[10.5px] font-bold tracking-tight">{label}</span>
@@ -588,7 +587,7 @@ function BottomTab({
   );
 }
 
-// 페이지 톤(페이퍼·잉크·워밍)에 맞춘 자체 KO/EN 토글 — shared LangToggle 무수정
+// 페이지 톤(페이퍼·워밍)에 맞춘 자체 KO/EN 토글 — shared LangToggle 무수정
 function InlineLangToggle() {
   const { lang, setLang } = useLang();
   const isEn = lang === 'en';
@@ -615,9 +614,9 @@ function InlineLangToggle() {
           height: 22,
           top: 3,
           left: 3,
-          background: C.ink,
+          background: C.warmDeep,
           transform: isEn ? 'translateX(28px)' : 'translateX(0)',
-          boxShadow: '0 1px 2px rgba(0,0,0,0.12)',
+          boxShadow: '0 1px 2px rgba(217,101,30,0.25)',
         }}
       />
       <span

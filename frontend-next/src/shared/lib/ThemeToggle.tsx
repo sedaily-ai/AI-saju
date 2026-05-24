@@ -6,10 +6,10 @@ export type Theme = 'light' | 'dark';
 
 const STORAGE_KEY = 'theme';
 
-function applyTheme(theme: Theme) {
-  const root = document.documentElement;
-  if (theme === 'dark') root.classList.add('dark');
-  else root.classList.remove('dark');
+function applyTheme(_theme: Theme) {
+  // phase-03 (2026-05-24): 점신 톤 라이트 단일. dark 클래스 절대 추가 안 함.
+  // UI 토글은 살아있으나 시각 효과 없음. ThemeToggle 자체 제거는 phase-04 예정.
+  document.documentElement.classList.remove('dark');
 }
 
 function getSavedTheme(): Theme | null {
