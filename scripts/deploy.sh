@@ -71,8 +71,9 @@ deploy_saju() {
   local TMP="out-saju"
   rm -rf "$TMP"
   cp -r out "$TMP"
-  # 루트(/)는 랜딩 페이지(/about)로 서빙 (trailingSlash: true → about/index.html 사용)
-  cp "$TMP/about/index.html" "$TMP/index.html"
+  # 루트(/)는 src/app/page.tsx 의 빌드 결과(out/index.html)를 그대로 서빙.
+  # (2026-05-24) 과거에는 about/index.html 을 root 로 덮어썼으나, /about 이 단순
+  # redirect wrapper 로 바뀐 뒤 의도가 어긋나(루프 위험) 제거. 새 랜딩이 / 에 깔림.
   aws s3 sync "$TMP/" "s3://${SAJU_BUCKET}/" \
     --region "$SAJU_REGION" --delete
   echo "🧹 CloudFront 무효화 (${SAJU_DIST})..."
