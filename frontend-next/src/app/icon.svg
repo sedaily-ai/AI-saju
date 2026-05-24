@@ -1,8 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#0f172a"/>
-  <!-- 사주 = 四柱 — 4 pillars: 年 月 日 時. 3rd (일간) 강조 -->
-  <rect x="5.5" y="10" width="3" height="12" rx="1.5" fill="#fff" opacity="0.55"/>
-  <rect x="11" y="8" width="3" height="16" rx="1.5" fill="#fff" opacity="0.8"/>
-  <rect x="16.5" y="6" width="3" height="20" rx="1.5" fill="#fff"/>
-  <rect x="22" y="10" width="3" height="12" rx="1.5" fill="#fff" opacity="0.55"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 점신/사주매칭 파비콘 (phase-05+, 2026-05-24)
+       도장(낙관) 결 — 워밍 딥 사각 + 명조 한자 占
+       fallback chain: 한국 Noto Serif KR / Nanum Myeongjo /
+                       애플 SD 명조 / 일본 Yu Mincho / 중국 SimSun → serif -->
+  <rect width="64" height="64" rx="13" fill="#D9651E"/>
+  <text
+    x="32" y="50"
+    font-family='"Noto Serif KR","Nanum Myeongjo","Apple SD Gothic Neo","Yu Mincho","MS Mincho","SimSun",serif'
+    font-weight="900"
+    font-size="46"
+    text-anchor="middle"
+    fill="#FAF6F0"
+    letter-spacing="-0.02em"
+  >占</text>
 </svg>

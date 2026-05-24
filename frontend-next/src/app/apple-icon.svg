@@ -1,8 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
-  <rect width="180" height="180" rx="40" fill="#0f172a"/>
-  <!-- 四柱 - 4 pillars, 3rd emphasized -->
-  <rect x="31" y="57" width="17" height="66" rx="8" fill="#fff" opacity="0.55"/>
-  <rect x="62" y="46" width="17" height="88" rx="8" fill="#fff" opacity="0.8"/>
-  <rect x="93" y="34" width="17" height="112" rx="8" fill="#fff"/>
-  <rect x="124" y="57" width="17" height="66" rx="8" fill="#fff" opacity="0.55"/>
+  <!-- 점신/사주매칭 Apple Touch Icon (phase-05+, 2026-05-24)
+       도장(낙관) 결 — 워밍 딥 사각 + 명조 한자 占 -->
+  <rect width="180" height="180" rx="36" fill="#D9651E"/>
+  <text
+    x="90" y="140"
+    font-family='"Noto Serif KR","Nanum Myeongjo","Apple SD Gothic Neo","Yu Mincho","MS Mincho","SimSun",serif'
+    font-weight="900"
+    font-size="128"
+    text-anchor="middle"
+    fill="#FAF6F0"
+    letter-spacing="-0.02em"
+  >占</text>
 </svg>
