@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import {
   ScrollText, Sun, Coins, Briefcase, Heart, Users, Rabbit, Newspaper,
+  Search, Sparkles, BookOpen, Home, Moon, Star,
   type LucideIcon,
 } from 'lucide-react';
-import { ScrollReveal } from '@/shared/ui/ScrollReveal';
 import { useLang } from '@/shared/lib/LangContext';
 import { LangToggle } from '@/shared/lib/LangToggle';
 import { JsonLd, faqSchema } from '@/shared/lib/jsonLd';
@@ -20,259 +21,445 @@ const LANDING_FAQ = [
     a: '공개 프리뷰 기간 동안 모든 기능을 무료로 이용하실 수 있습니다. 별도 회원가입도 필요하지 않습니다.',
   },
   {
-    q: '궁합 추천은 어떻게 계산되나요?',
-    a: '내 사주의 결핍·과잉 오행을 보완하는 상대의 원국을 역산합니다. 부족한 오행 +4, 과한 오행의 통제자 +2, 천간합 파트너 +3, 성별별 배우자궁(남자는 재성, 여자는 관성) 가중 +2를 합산해 추천 천간·지지·태어난 해·달까지 제시합니다.',
-  },
-  {
     q: '태어난 시간을 모르면 어떻게 하나요?',
-    a: '시간 입력란의 "시간 모름" 옵션을 체크하시면 시주를 제외한 年·月·日 세 기둥으로 해석해드립니다. 해석의 정밀도는 떨어지지만 핵심 흐름은 충분히 파악할 수 있습니다.',
-  },
-  {
-    q: '해석을 판단 근거로 써도 되나요?',
-    a: '아니요. 이 사이트의 해석은 고전 명리학 문헌을 참고한 데이터 기반 콘텐츠로, 오락·참고 목적의 정보이며 의료·법률·재무·진로 등 어떠한 판단·결정의 근거로도 사용할 수 없습니다.',
+    a: '시간 입력란의 "시간 모름" 옵션을 체크하시면 시주를 제외한 年·月·日 세 기둥으로 해석해드립니다.',
   },
 ];
 
-// 오행 5색 — SajuTable.tsx 의 EL_COLORS 팔레트와 동일 기준
-const OH_TILE: Record<string, { box: string; icon: string; hoverBox: string }> = {
-  목: { box: 'bg-green-50',  icon: 'text-green-600',  hoverBox: 'group-hover:bg-green-600' },
-  화: { box: 'bg-red-50',    icon: 'text-red-500',    hoverBox: 'group-hover:bg-red-500' },
-  토: { box: 'bg-yellow-50', icon: 'text-yellow-600', hoverBox: 'group-hover:bg-yellow-500' },
-  금: { box: 'bg-gray-100',  icon: 'text-gray-500',   hoverBox: 'group-hover:bg-gray-500' },
-  수: { box: 'bg-blue-50',   icon: 'text-blue-600',   hoverBox: 'group-hover:bg-blue-600' },
+// 점신 결 — 톤 통일. 메인 워밍 오렌지 + 4 보조톤만.
+const C = {
+  paper: '#FAF6F0',     // 페이지 배경 (약간 따뜻한 오프화이트)
+  card: '#FFFFFF',
+  ink: '#1A1A1A',
+  inkSub: '#A0A0A8',
+  inkSoft: '#4F4F58',
+  line: '#EFEAE3',
+  warm: '#FF8A4C',
+  warmSoft: '#FFE9D6',
+  warmDeep: '#D9651E',
+  cream: '#FFF6E8',
+  rose: '#FFE2DE',
+  roseDeep: '#C8513F',
+  lilac: '#EFE7FF',
+  lilacDeep: '#7A5BE0',
+  mint: '#DBF1E8',
+  mintDeep: '#338A6A',
 };
 
-const SERVICES: {
-  href: string; ko: string; en: string; descKo: string; descEn: string; Icon: LucideIcon; oh: keyof typeof OH_TILE;
-}[] = [
-  { href: '/saju',          ko: '내 사주',     en: 'My Saju',      descKo: '원국·오행·십성 한눈에',   descEn: 'Your full chart at a glance', Icon: ScrollText, oh: '목' },
-  { href: '/today',         ko: '오늘의 운세', en: "Today's Saju", descKo: '오늘 하루의 기운 흐름',   descEn: "Today's energy flow",         Icon: Sun,        oh: '화' },
-  { href: '/chaeun',        ko: '재운',        en: 'Wealth',       descKo: '돈의 흐름과 타이밍',     descEn: 'Money flow & timing',         Icon: Coins,      oh: '토' },
-  { href: '/career',        ko: '커리어',      en: 'Career',       descKo: '직업 적성과 관운',       descEn: 'Career fit & timing',         Icon: Briefcase,  oh: '금' },
-  { href: '/compatibility', ko: '이상형',      en: 'Ideal Match',  descKo: '내게 맞는 상대 역산',     descEn: 'Reverse-engineer your match', Icon: Heart,      oh: '수' },
-  { href: '/couple',        ko: '커플 궁합',   en: 'Couple Match', descKo: '두 사람의 궁합 점수',     descEn: 'Two-person compatibility',    Icon: Users,      oh: '수' },
-  { href: '/zodiac',        ko: '띠별 운세',   en: 'Zodiac',       descKo: '12지신 오늘의 운세',     descEn: "Today's 12 zodiac signs",     Icon: Rabbit,     oh: '목' },
-  { href: '/blog',          ko: '블로그',      en: 'Blog',         descKo: '운세 이야기와 가이드',     descEn: 'Fortune stories & guides',    Icon: Newspaper,  oh: '금' },
+type Tile = {
+  href: string;
+  ko: string;
+  en: string;
+  Icon: LucideIcon;
+  group: 'core' | 'wealth' | 'love' | 'info';
+};
+
+// 4톤 그룹화 — 사탕색 8색 폐기
+const PRIMARY_GRID: Tile[] = [
+  { href: '/saju',          ko: '내 사주',     en: 'My Saju',         Icon: ScrollText, group: 'core'   },
+  { href: '/today',         ko: '오늘 운세',   en: "Today",           Icon: Sun,        group: 'core'   },
+  { href: '/zodiac',        ko: '띠별 운세',   en: 'Zodiac',          Icon: Rabbit,     group: 'core'   },
+  { href: '/chaeun',        ko: '재운',        en: 'Wealth',          Icon: Coins,      group: 'wealth' },
+  { href: '/career',        ko: '커리어',      en: 'Career',          Icon: Briefcase,  group: 'wealth' },
+  { href: '/compatibility', ko: '이상형',      en: 'Ideal',           Icon: Heart,      group: 'love'   },
+  { href: '/couple',        ko: '커플 궁합',   en: 'Couple',          Icon: Users,      group: 'love'   },
+  { href: '/news',          ko: '경제 뉴스',   en: 'News',            Icon: Newspaper,  group: 'info'   },
 ];
 
+const GROUP_TONE: Record<Tile['group'], { bg: string; fg: string }> = {
+  core:   { bg: C.warmSoft, fg: C.warmDeep   },
+  wealth: { bg: C.cream,    fg: '#9A6B0F'    },
+  love:   { bg: C.rose,     fg: C.roseDeep   },
+  info:   { bg: C.lilac,    fg: C.lilacDeep  },
+};
+
+const BANNERS = [
+  {
+    eyebrowKo: '공개 프리뷰',
+    eyebrowEn: 'Open Preview',
+    titleKo: '오늘의 일진,\n한 줄로 받기',
+    titleEn: "Today's reading\nin a single line",
+    subKo: '생년월일 하나면 끝. 회원가입도 필요 없어요.',
+    subEn: 'One birth date. No sign-up.',
+    href: '/today',
+    accent: 'warm' as const,
+  },
+  {
+    eyebrowKo: '데이터 명리학',
+    eyebrowEn: 'Data Saju',
+    titleKo: '근거가 보이는\n사주 해석',
+    titleEn: 'Saju with the\nsources attached',
+    subKo: 'KASI 만세력 + 궁통보감·삼명통회·자평진전.',
+    subEn: 'KASI calendar + 3 classical texts.',
+    href: '/saju',
+    accent: 'lilac' as const,
+  },
+  {
+    eyebrowKo: '커플',
+    eyebrowEn: 'Couple',
+    titleKo: '둘의 인연을\n점수로',
+    titleEn: 'Two of you,\nscored',
+    subKo: '천간합·지지합·오행 보완을 합산해서 보여드려요.',
+    subEn: 'Sum of stem · branch · element bridges.',
+    href: '/couple',
+    accent: 'rose' as const,
+  },
+];
+
+const BANNER_ACCENTS: Record<'warm' | 'lilac' | 'rose', { bg: string; chip: string; orb: string; orbSoft: string }> = {
+  warm:  { bg: C.warmSoft, chip: C.ink,      orb: C.warm,      orbSoft: '#FFC195' },
+  lilac: { bg: C.lilac,    chip: C.ink,      orb: C.lilacDeep, orbSoft: '#B7A2EE' },
+  rose:  { bg: C.rose,     chip: C.ink,      orb: C.roseDeep,  orbSoft: '#F3A296' },
+};
+
 export default function LandingPage() {
-  const { t, localePath } = useLang();
+  const { t, lang, localePath } = useLang();
+  const [bannerIdx, setBannerIdx] = useState(0);
+  const [today, setToday] = useState<{ m: number; d: number; weekday: string } | null>(null);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setBannerIdx((i) => (i + 1) % BANNERS.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    const now = new Date();
+    const days = lang === 'en'
+      ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+      : ['일', '월', '화', '수', '목', '금', '토'];
+    setToday({
+      m: now.getMonth() + 1,
+      d: now.getDate(),
+      weekday: days[now.getDay()],
+    });
+  }, [lang]);
+
+  const banner = BANNERS[bannerIdx];
+  const accent = BANNER_ACCENTS[banner.accent];
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900 antialiased">
+    <div style={{ background: C.paper }} className="min-h-screen w-full">
       <JsonLd data={faqSchema(LANDING_FAQ)} />
 
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-[780px] mx-auto px-6 sm:px-8 py-4 flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <div className="text-[17px] font-bold tracking-[-0.01em] text-slate-900">
-              {t('사주매칭', 'SajuMatch')}
-            </div>
-            <div className="text-[11.5px] text-slate-500 truncate">
-              {t('생년월일 하나로 푸는 데이터 사주', 'Data-driven Saju from one birth date')}
-            </div>
+      <main
+        id="main-content"
+        className="mx-auto w-full max-w-[540px] pb-32"
+        style={{ background: C.paper, color: C.ink }}
+      >
+        {/* Status bar (mini) */}
+        <div
+          className="flex items-center justify-between px-5 pt-4 pb-2 text-[11px]"
+          style={{ color: C.inkSub }}
+        >
+          <div className="flex items-center gap-1.5 truncate">
+            <span>{t('출처', 'Source')}</span>
+            <span style={{ color: '#D5D0C8' }}>·</span>
+            <span className="truncate">{t('KASI 만세력 · 궁통보감 · 자평진전', 'KASI · classical texts')}</span>
           </div>
-          <LangToggle />
+          {today && (
+            <span className="shrink-0" style={{ color: C.inkSoft }}>
+              {today.m}.{today.d} {today.weekday}
+            </span>
+          )}
         </div>
-      </header>
 
-      {/* Service launcher */}
-      <section className="border-b border-slate-200">
-        <div className="max-w-[780px] mx-auto px-6 sm:px-8 py-10 sm:py-14">
-          <ScrollReveal>
-            <p className="text-[12px] sm:text-[13px] font-semibold tracking-[0.12em] text-slate-500 uppercase mb-1.5">
-              {t('데이터로 푸는 명리학', 'Data-driven Korean astrology')}
-            </p>
-            <h1 className="text-[22px] sm:text-[26px] font-bold tracking-[-0.01em] mb-6">
-              {t('무엇을 볼까요?', 'What would you like to read?')}
+        {/* Title row */}
+        <header className="px-5 pt-3 pb-5 flex items-end justify-between">
+          <div>
+            <h1
+              className="text-[30px] font-black leading-none tracking-[-0.02em]"
+              style={{ color: C.ink }}
+            >
+              {t('운세', 'Fortune')}
             </h1>
-          </ScrollReveal>
-          <ul className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {SERVICES.map(({ href, ko, en, descKo, descEn, Icon, oh }, i) => (
-              <ScrollReveal key={href} delay={i * 60}>
-                <li className="h-full">
+            <p className="text-[12.5px] mt-2" style={{ color: C.inkSub }}>
+              {t('사주매칭 · 생년월일 하나로', 'SajuMatch · just one birth date')}
+            </p>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              aria-label={t('검색', 'Search')}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+              style={{ color: C.ink }}
+            >
+              <Search size={19} strokeWidth={2.2} />
+            </button>
+            <LangToggle />
+          </div>
+        </header>
+
+        {/* Hero banner — auto-rotating */}
+        <section className="px-5">
+          <Link
+            href={localePath(banner.href)}
+            className="block relative overflow-hidden rounded-[28px] p-6 pt-5 transition-transform active:scale-[0.99]"
+            style={{ background: accent.bg, minHeight: 248 }}
+          >
+            <span
+              className="inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[11.5px] font-bold"
+              style={{ background: accent.chip, color: '#FFFFFF' }}
+            >
+              {t(banner.eyebrowKo, banner.eyebrowEn)}
+              <span aria-hidden> ›</span>
+            </span>
+            <h2
+              className="mt-5 text-[26px] leading-[1.18] font-black tracking-[-0.02em] whitespace-pre-line"
+              style={{ color: C.ink }}
+            >
+              {t(banner.titleKo, banner.titleEn)}
+            </h2>
+            <p
+              className="mt-3 text-[13.5px] leading-[1.5] max-w-[280px]"
+              style={{ color: C.inkSoft }}
+            >
+              {t(banner.subKo, banner.subEn)}
+            </p>
+
+            {/* 그래픽 자리 — 추상 동심원 + sparkle (마스코트 대체) */}
+            <div
+              className="absolute right-[-30px] bottom-[-30px] w-[200px] h-[200px] pointer-events-none"
+              aria-hidden
+            >
+              {/* 큰 반투명 링 */}
+              <div
+                className="absolute right-0 bottom-0 w-[200px] h-[200px] rounded-full"
+                style={{ background: accent.orb, opacity: 0.18 }}
+              />
+              {/* 중간 링 */}
+              <div
+                className="absolute right-[20px] bottom-[20px] w-[140px] h-[140px] rounded-full"
+                style={{ background: accent.orbSoft, opacity: 0.55 }}
+              />
+              {/* 솔리드 작은 원 */}
+              <div
+                className="absolute right-[44px] bottom-[44px] w-[88px] h-[88px] rounded-full"
+                style={{ background: accent.orb }}
+              />
+              {/* sparkle */}
+              <Sparkles size={22} className="absolute top-[18px] right-[78px]" style={{ color: accent.orb }} />
+              <Star size={12} className="absolute top-[58px] right-[160px]" style={{ color: accent.orb, opacity: 0.7 }} />
+              <Star size={14} className="absolute bottom-[148px] right-[24px]" style={{ color: '#FFFFFF', opacity: 0.95 }} fill="#FFFFFF" />
+              <Moon size={18} className="absolute bottom-[112px] right-[60px]" style={{ color: '#FFFFFF', opacity: 0.9 }} />
+            </div>
+
+            {/* dots */}
+            <div className="absolute left-6 bottom-5 flex gap-1.5">
+              {BANNERS.map((_, i) => (
+                <span
+                  key={i}
+                  className="block h-1.5 rounded-full transition-all"
+                  style={{
+                    width: i === bannerIdx ? 20 : 6,
+                    background: i === bannerIdx ? C.ink : 'rgba(26,26,26,0.22)',
+                  }}
+                />
+              ))}
+            </div>
+          </Link>
+        </section>
+
+        {/* Card: 가장 정확한 사주 풀이 */}
+        <SectionCard
+          eyebrow={t('소름 돋는 미래 예측', 'Spookily accurate')}
+          title={t('가장 정확한 사주 풀이', 'The most precise Saju reading')}
+        >
+          <ul className="grid grid-cols-4 gap-y-6 gap-x-1 pt-1">
+            {PRIMARY_GRID.map(({ href, ko, en, Icon, group }) => {
+              const tt = GROUP_TONE[group];
+              return (
+                <li key={href}>
                   <Link
                     href={localePath(href)}
-                    className="group flex flex-col h-full rounded-2xl border border-slate-200 bg-white p-4 hover:border-slate-300 hover:shadow-sm transition-all"
+                    className="flex flex-col items-center gap-2.5 group"
                   >
-                    <span className={`inline-flex items-center justify-center w-11 h-11 rounded-xl mb-3 transition-colors group-hover:text-white ${OH_TILE[oh].box} ${OH_TILE[oh].icon} ${OH_TILE[oh].hoverBox}`}>
-                      <Icon size={20} strokeWidth={2} aria-hidden="true" />
+                    <span
+                      className="w-[56px] h-[56px] rounded-[18px] flex items-center justify-center transition-transform group-active:scale-95"
+                      style={{ background: tt.bg }}
+                    >
+                      <Icon size={26} strokeWidth={2.1} style={{ color: tt.fg }} />
                     </span>
-                    <span className="text-[15px] font-bold text-slate-900 leading-tight">
+                    <span
+                      className="text-[12.5px] font-semibold text-center leading-tight tracking-tight"
+                      style={{ color: C.ink }}
+                    >
                       {t(ko, en)}
-                    </span>
-                    <span className="mt-1 text-[12px] leading-[1.45] text-slate-500">
-                      {t(descKo, descEn)}
                     </span>
                   </Link>
                 </li>
-              </ScrollReveal>
-            ))}
+              );
+            })}
           </ul>
-        </div>
-      </section>
+        </SectionCard>
 
-      {/* Pitch */}
-      <section className="border-b border-slate-200">
-        <div className="max-w-[780px] mx-auto px-6 sm:px-8 py-14 sm:py-20">
-          <ScrollReveal>
-            <p className="text-[12px] sm:text-[13px] font-semibold tracking-[0.12em] text-slate-500 uppercase mb-6">
-              {t('Why this exists', 'Why this exists')}
-            </p>
-          </ScrollReveal>
-          <div className="space-y-3 text-[22px] sm:text-[28px] font-semibold leading-[1.35] tracking-[-0.01em]">
-            <ScrollReveal delay={0}>
-              <p>{t('사주 앱은 많습니다.', 'Plenty of Korean astrology apps exist.')}</p>
-            </ScrollReveal>
-            <ScrollReveal delay={140}>
-              <p className="text-slate-400">
-                {t('해석이 맞는지 검증할 방법이 없죠.', 'No way to check if the reading is right.')}
-              </p>
-            </ScrollReveal>
-            <ScrollReveal delay={280}>
-              <p>{t('그래서 근거를 함께 보여드립니다.', 'So we show the sources next to every line.')}</p>
-            </ScrollReveal>
-          </div>
-          <ScrollReveal delay={420}>
-            <p className="mt-8 text-[15px] sm:text-[16px] leading-[1.7] text-slate-700 max-w-[620px]">
-              {t(
-                '원국의 오행 분포, 일간의 십성 관계, 대운의 변곡점 — 모든 해석 옆에 왜 그렇게 나왔는지 근거를 함께 띄워드립니다. 사주팔자를 알아야 반박할 수 있고, 근거를 봐야 받아들일 수 있으니까요.',
-                'The Five Element distribution, the Ten Gods around your day stem, the pivots in your luck cycle — every interpretation comes with the reasoning behind it. You can only argue with a reading if you know the chart, and only accept it when you see the evidence.'
-              )}
-            </p>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* Method */}
-      <section className="border-b border-slate-200">
-        <div className="max-w-[780px] mx-auto px-6 sm:px-8 py-14 sm:py-20">
-          <ScrollReveal>
-            <p className="text-[12px] sm:text-[13px] font-semibold tracking-[0.12em] text-slate-500 uppercase mb-8">
-              {t('How it works', 'How it works')}
-            </p>
-          </ScrollReveal>
-          <div className="grid sm:grid-cols-2 gap-x-10 gap-y-8">
-            <ScrollReveal delay={0}>
-              <Step
-                n="01"
-                title={t('만세력 엔진', 'Manseryeok engine')}
-                body={t(
-                  '공인 만세력 데이터를 그대로 사용해, 천간·지지·대운을 분·초 단위까지 계산해드립니다.',
-                  'We use the official manseryeok calendar as-is, resolving Heavenly Stems, Earthly Branches, and luck cycles down to the minute.'
-                )}
-              />
-            </ScrollReveal>
-            <ScrollReveal delay={120}>
-              <Step
-                n="02"
-                title={t('오행·십성 분석', 'Five Elements · Ten Gods')}
-                body={t(
-                  '원국의 오행 분포와 일간 기준 십성을 정량화해, 편중된 힘과 결핍된 힘을 짚어드립니다.',
-                  'We quantify the Five Element distribution and the Ten Gods around your day stem, and point out which forces are overloaded and which are missing.'
-                )}
-              />
-            </ScrollReveal>
-            <ScrollReveal delay={240}>
-              <Step
-                n="03"
-                title={t('해석 레이어', 'Interpretation layer')}
-                body={t(
-                  '고전 명리학의 구절과 현대적 맥락을 연결해, 근거와 함께 해석을 보여드립니다.',
-                  'We connect classical Korean astrology passages to modern context, and hand back interpretations with their sources attached.'
-                )}
-              />
-            </ScrollReveal>
-          </div>
-        </div>
-      </section>
-
-      {/* For whom */}
-      <section className="border-b border-slate-200">
-        <div className="max-w-[780px] mx-auto px-6 sm:px-8 py-14 sm:py-20">
-          <ScrollReveal>
-            <p className="text-[12px] sm:text-[13px] font-semibold tracking-[0.12em] text-slate-500 uppercase mb-8">
-              {t('For whom', 'For whom')}
-            </p>
-          </ScrollReveal>
-          <ul className="space-y-3 text-[16px] sm:text-[17px] leading-[1.6] text-slate-800">
-            <ScrollReveal delay={0}>
-              <li className="flex gap-3">
-                <span className="text-slate-400">—</span>
-                {t('처음 사주를 보시는 분', 'First-time readers of Korean astrology')}
-              </li>
-            </ScrollReveal>
-            <ScrollReveal delay={100}>
-              <li className="flex gap-3">
-                <span className="text-slate-400">—</span>
-                {t('다른 앱의 해석이 왜 그런지 궁금하셨던 분', 'Anyone who wondered why another app gave that reading')}
-              </li>
-            </ScrollReveal>
-            <ScrollReveal delay={200}>
-              <li className="flex gap-3">
-                <span className="text-slate-400">—</span>
-                {t('재물·커리어·인연을 한 흐름으로 읽고 싶으신 분', 'Readers who want wealth, career, and relationships as one story')}
-              </li>
-            </ScrollReveal>
-            <ScrollReveal delay={300}>
-              <li className="flex gap-3">
-                <span className="text-slate-400">—</span>
-                {t('매일 아침 5분, 오늘을 점검하고 싶으신 분', 'Anyone who wants a five-minute read on the day, every morning')}
-              </li>
-            </ScrollReveal>
-          </ul>
-        </div>
-      </section>
-
-      {/* Closing CTA */}
-      <section>
-        <div className="max-w-[780px] mx-auto px-6 sm:px-8 py-16 sm:py-24">
-          <ScrollReveal>
-            <h2 className="text-[26px] sm:text-[34px] font-bold leading-[1.25] tracking-[-0.01em] mb-4">
-              {t('사주는 미신이 아닙니다.', 'Korean astrology isn’t superstition.')}
-              <br />
-              <span className="text-slate-400">
-                {t('읽을 줄 모르면 미신이 될 뿐이에요.', 'It only becomes superstition when you can’t read it.')}
-              </span>
-            </h2>
-          </ScrollReveal>
-          <ScrollReveal delay={140}>
-            <p className="text-[15px] sm:text-[16px] leading-[1.7] text-slate-700 max-w-[620px] mb-8">
-              {t(
-                '공개 프리뷰 기간 동안 무료로 이용하실 수 있습니다. 생년월일만 있으면 됩니다.',
-                'Free to use during the public preview. All you need is a date of birth.'
-              )}
-            </p>
-          </ScrollReveal>
-          <ScrollReveal delay={240}>
-            <Link
-              href={localePath('/saju')}
-              className="inline-flex items-center justify-center h-12 px-6 rounded-full bg-slate-900 text-white text-[15px] font-semibold hover:bg-slate-800 transition-colors"
+        {/* Card: 오늘의 한 줄 */}
+        <SectionCard
+          eyebrow={today ? `${today.m}월 ${today.d}일` : t('오늘', 'Today')}
+          title={t('오늘 하루의 흐름', "Today's flow")}
+        >
+          <Link
+            href={localePath('/today')}
+            className="flex items-center gap-4 rounded-2xl p-4 transition-transform active:scale-[0.99]"
+            style={{ background: C.cream }}
+          >
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+              style={{ background: '#FFD8A0' }}
             >
-              {t('지금 바로 시작하기 →', 'Start now →')}
-            </Link>
-          </ScrollReveal>
-          <ScrollReveal delay={340}>
-            <p className="mt-10 text-[12px] text-slate-500 leading-[1.6] max-w-[560px]">
-              {t(
-                '이 사이트의 해석은 고전 명리학 문헌을 참고한 데이터 기반 콘텐츠로, 오락·참고 목적의 정보이며 어떠한 판단·결정의 근거로도 사용할 수 없습니다.',
-                'Interpretations on this site are data-driven content based on classical Korean astrology literature. They are provided for entertainment and reference only, and must not be used as the basis for any decision.'
-              )}
-            </p>
-          </ScrollReveal>
+              <Sun size={24} strokeWidth={2.2} style={{ color: '#8A5800' }} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[14.5px] font-bold leading-tight tracking-tight" style={{ color: C.ink }}>
+                {t('일진 한 줄로 보기', 'Read the day in a single line')}
+              </p>
+              <p className="text-[12.5px] mt-1" style={{ color: C.inkSoft }}>
+                {t('재물·관계·건강 톤까지 3분 안에', 'Money · people · health in 3 minutes')}
+              </p>
+            </div>
+            <span className="text-[20px] shrink-0" style={{ color: C.inkSub }} aria-hidden>›</span>
+          </Link>
+        </SectionCard>
+
+        {/* Card: 둘의 인연 */}
+        <SectionCard
+          eyebrow={t('궁합 파헤치기', "Two of you")}
+          title={t('우리는 어떻게 될까?', 'How will we turn out?')}
+        >
+          <div className="grid grid-cols-2 gap-3">
+            <CoupleTile
+              href={localePath('/compatibility')}
+              title={t('이상형 역산', 'Ideal match')}
+              sub={t('상대 없이 내게 맞는 사주', 'Your match, even without one')}
+              tone={{ bg: C.rose, fg: C.roseDeep }}
+              Icon={Heart}
+            />
+            <CoupleTile
+              href={localePath('/couple')}
+              title={t('커플 궁합', 'Couple match')}
+              sub={t('두 사람의 점수와 흐름', 'Score and flow of two')}
+              tone={{ bg: C.lilac, fg: C.lilacDeep }}
+              Icon={Users}
+            />
+          </div>
+        </SectionCard>
+
+        {/* Card: 운세 이야기 */}
+        <SectionCard
+          eyebrow={t('운세 이야기', 'Fortune notes')}
+          title={t('매일 새로 도착해요', 'Fresh every morning')}
+        >
+          <Link
+            href={localePath('/blog')}
+            className="flex items-center justify-between rounded-2xl p-4 transition-transform active:scale-[0.99]"
+            style={{ background: C.mint }}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ background: C.mintDeep }}
+              >
+                <BookOpen size={20} strokeWidth={2.2} color="#FFFFFF" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[14px] font-bold tracking-tight truncate" style={{ color: C.ink }}>
+                  {t('블로그 보러 가기', 'Open the blog')}
+                </p>
+                <p className="text-[12px] mt-0.5 truncate" style={{ color: C.inkSoft }}>
+                  {t('데일리 별자리·주간 사주·명리 노트', 'Daily horoscope · weekly Saju')}
+                </p>
+              </div>
+            </div>
+            <span className="text-[20px] shrink-0" style={{ color: C.inkSub }} aria-hidden>›</span>
+          </Link>
+        </SectionCard>
+
+        {/* Disclaimer */}
+        <section className="px-5 pt-7 pb-2">
+          <p className="text-[11px] leading-[1.65]" style={{ color: C.inkSub }}>
+            {t(
+              '이 사이트의 해석은 고전 명리학 문헌을 참고한 데이터 기반 콘텐츠로, 오락·참고 목적의 정보이며 어떠한 판단·결정의 근거로도 사용할 수 없습니다.',
+              'Interpretations on this site are data-driven content based on classical Korean astrology literature. For entertainment and reference only.'
+            )}
+          </p>
+        </section>
+      </main>
+
+      {/* Bottom Nav — fixed */}
+      <nav
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[540px] z-40"
+        style={{
+          background: 'rgba(255,255,255,0.92)',
+          backdropFilter: 'saturate(180%) blur(14px)',
+          WebkitBackdropFilter: 'saturate(180%) blur(14px)',
+          borderTop: `1px solid ${C.line}`,
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        }}
+      >
+        <div className="flex items-center justify-around px-2 py-1.5">
+          <BottomTab href={localePath('/')}             Icon={Home}        label={t('홈',     'Home')}   active />
+          <BottomTab href={localePath('/today')}        Icon={Sun}         label={t('오늘',   'Today')}  />
+          <BottomTab href={localePath('/saju')}         Icon={ScrollText}  label={t('사주',   'Saju')}   />
+          <BottomTab href={localePath('/couple')}       Icon={Users}       label={t('궁합',   'Match')}  />
+          <BottomTab href={localePath('/blog')}         Icon={BookOpen}    label={t('블로그', 'Blog')}   />
         </div>
-      </section>
-    </main>
+      </nav>
+    </div>
   );
 }
 
-function Step({ n, title, body }: { n: string; title: string; body: string }) {
+function SectionCard({
+  eyebrow, title, children,
+}: { eyebrow: string; title: string; children: React.ReactNode }) {
   return (
-    <div>
-      <div className="text-[12px] font-semibold tracking-[0.12em] text-slate-400 mb-2">{n}</div>
-      <h3 className="text-[17px] font-semibold text-slate-900 mb-2 tracking-[-0.01em]">{title}</h3>
-      <p className="text-[14.5px] leading-[1.65] text-slate-700">{body}</p>
-    </div>
+    <section
+      className="mt-3 mx-3 rounded-[24px] p-5"
+      style={{ background: C.card, boxShadow: '0 1px 3px rgba(0,0,0,0.025)' }}
+    >
+      <div className="mb-4">
+        <p className="text-[12px] font-semibold tracking-tight" style={{ color: C.inkSub }}>{eyebrow}</p>
+        <h3 className="mt-1.5 text-[19px] font-black tracking-[-0.02em]" style={{ color: C.ink }}>{title}</h3>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function CoupleTile({
+  href, title, sub, tone, Icon,
+}: { href: string; title: string; sub: string; tone: { bg: string; fg: string }; Icon: LucideIcon }) {
+  return (
+    <Link
+      href={href}
+      className="flex flex-col gap-3 rounded-2xl p-4 transition-transform active:scale-[0.98]"
+      style={{ background: tone.bg }}
+    >
+      <span
+        className="w-10 h-10 rounded-xl flex items-center justify-center"
+        style={{ background: '#FFFFFF' }}
+      >
+        <Icon size={20} strokeWidth={2.2} style={{ color: tone.fg }} />
+      </span>
+      <div>
+        <p className="text-[14px] font-bold leading-tight tracking-tight" style={{ color: C.ink }}>{title}</p>
+        <p className="text-[11.5px] leading-snug mt-1" style={{ color: C.inkSoft }}>{sub}</p>
+      </div>
+    </Link>
+  );
+}
+
+function BottomTab({
+  href, Icon, label, active,
+}: { href: string; Icon: LucideIcon; label: string; active?: boolean }) {
+  return (
+    <Link
+      href={href}
+      className="flex flex-col items-center gap-1 py-2 px-2 flex-1"
+      style={{ color: active ? C.ink : C.inkSub }}
+    >
+      <Icon size={21} strokeWidth={active ? 2.5 : 2} />
+      <span className="text-[10.5px] font-bold tracking-tight">{label}</span>
+    </Link>
   );
 }
