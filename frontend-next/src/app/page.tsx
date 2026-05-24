@@ -8,8 +8,14 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { JsonLd, faqSchema } from '@/shared/lib/jsonLd';
+
+// 명조체 인라인 (한자/특수 강조용) — globals.css 안 건드림, 시스템 fallback chain
+const SERIF = '"Noto Serif KR", "Nanum Myeongjo", "Apple SD Gothic Neo", serif';
+
+// 한지 노이즈 (SVG turbulence, 인라인 data URL — 외부 요청 0)
+const HANJI_NOISE =
+  "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.27  0 0 0 0 0.18  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>\")";
 
 const LANDING_FAQ = [
   {
@@ -140,62 +146,133 @@ export default function LandingPage() {
   const accent = BANNER_ACCENTS[banner.accent];
 
   return (
-    <div style={{ background: C.paper }} className="min-h-screen w-full">
+    <div
+      style={{ background: C.paper, colorScheme: 'light' }}
+      className="min-h-screen w-full relative overflow-hidden"
+    >
+      {/* 다크모드 차단 + 한지 노이즈 깔개 */}
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10"
+        style={{
+          background: C.paper,
+          backgroundImage: HANJI_NOISE,
+          backgroundRepeat: 'repeat',
+        }}
+      />
+
+      {/* keyframes — 배너 동심원·sparkle 미세 모션. globals.css 안 건드림 */}
+      <style>{`
+        @keyframes saju-spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes saju-pulse {
+          0%, 100% { transform: scale(1);    opacity: 1; }
+          50%      { transform: scale(1.06); opacity: 0.92; }
+        }
+        @keyframes saju-twinkle {
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50%      { opacity: 1;   transform: scale(1.18); }
+        }
+      `}</style>
+
       <JsonLd data={faqSchema(LANDING_FAQ)} />
 
       <main
         id="main-content"
-        className="mx-auto w-full max-w-[540px] pb-32"
-        style={{ background: C.paper, color: C.ink }}
+        className="mx-auto w-full max-w-[540px] pb-32 relative"
+        style={{ color: C.ink }}
       >
-        {/* Status bar (mini) */}
+        {/* 배경 한자 — 페이지 우상단에 옅게, 사주방 결 */}
         <div
-          className="flex items-center justify-between px-5 pt-4 pb-2 text-[11px]"
-          style={{ color: C.inkSub }}
+          aria-hidden
+          className="pointer-events-none select-none absolute top-[60px] right-[-20px] z-0 leading-none"
+          style={{
+            fontFamily: SERIF,
+            fontWeight: 900,
+            fontSize: 240,
+            color: C.ink,
+            opacity: 0.045,
+          }}
+        >
+          運
+        </div>
+        <div
+          aria-hidden
+          className="pointer-events-none select-none absolute top-[420px] left-[-10px] z-0 leading-none"
+          style={{
+            fontFamily: SERIF,
+            fontWeight: 900,
+            fontSize: 180,
+            color: C.ink,
+            opacity: 0.035,
+          }}
+        >
+          命
+        </div>
+
+        {/* Status bar (mini) — 살짝 진하게, 점·점 구분자 정돈 */}
+        <div
+          className="relative z-10 flex items-center justify-between px-5 pt-5 pb-1.5 text-[11.5px]"
+          style={{ color: '#8C8579' }}
         >
           <div className="flex items-center gap-1.5 truncate">
-            <span>{t('출처', 'Source')}</span>
-            <span style={{ color: '#D5D0C8' }}>·</span>
+            <span style={{ fontFamily: SERIF, fontWeight: 600, color: C.ink, opacity: 0.55 }}>占</span>
             <span className="truncate">{t('KASI 만세력 · 궁통보감 · 자평진전', 'KASI · classical texts')}</span>
           </div>
           {today && (
-            <span className="shrink-0" style={{ color: C.inkSoft }}>
-              {today.m}.{today.d} {today.weekday}
+            <span
+              className="shrink-0 tabular-nums tracking-tight"
+              style={{ color: C.inkSoft, fontWeight: 600 }}
+            >
+              {today.m}.{today.d}
+              <span style={{ color: '#C9C2B5', margin: '0 4px' }}>·</span>
+              {today.weekday}
             </span>
           )}
         </div>
 
         {/* Title row */}
-        <header className="px-5 pt-3 pb-5 flex items-end justify-between">
+        <header className="relative z-10 px-5 pt-3 pb-5 flex items-end justify-between">
           <div>
             <h1
-              className="text-[30px] font-black leading-none tracking-[-0.02em]"
-              style={{ color: C.ink }}
+              className="leading-none"
+              style={{
+                fontFamily: SERIF,
+                fontWeight: 900,
+                fontSize: 36,
+                color: C.ink,
+                letterSpacing: '-0.01em',
+              }}
             >
-              {t('운세', 'Fortune')}
+              운<span style={{ color: C.warmDeep }}>세</span>
             </h1>
-            <p className="text-[12.5px] mt-2" style={{ color: C.inkSub }}>
+            <p
+              className="text-[12.5px] mt-2.5"
+              style={{ color: '#8C8579', letterSpacing: '-0.005em' }}
+            >
               {t('사주매칭 · 생년월일 하나로', 'SajuMatch · just one birth date')}
             </p>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               aria-label={t('검색', 'Search')}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-colors"
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-black/5 active:scale-95"
               style={{ color: C.ink }}
             >
               <Search size={19} strokeWidth={2.2} />
             </button>
-            <LangToggle />
+            <InlineLangToggle />
           </div>
         </header>
 
         {/* Hero banner — auto-rotating */}
-        <section className="px-5">
+        <section className="relative z-10 px-5">
           <Link
             href={localePath(banner.href)}
-            className="block relative overflow-hidden rounded-[28px] p-6 pt-5 transition-transform active:scale-[0.99]"
+            className="block relative overflow-hidden rounded-[28px] p-6 pt-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] active:scale-[0.99]"
             style={{ background: accent.bg, minHeight: 248 }}
           >
             <span
@@ -218,30 +295,47 @@ export default function LandingPage() {
               {t(banner.subKo, banner.subEn)}
             </p>
 
-            {/* 그래픽 자리 — 추상 동심원 + sparkle (마스코트 대체) */}
+            {/* 그래픽 자리 — 추상 동심원 + sparkle + 배경 한자 (마스코트 대체) */}
             <div
               className="absolute right-[-30px] bottom-[-30px] w-[200px] h-[200px] pointer-events-none"
               aria-hidden
             >
-              {/* 큰 반투명 링 */}
+              {/* 배경 한자 — 동심원과 겹쳐서 사주방 결 */}
+              <span
+                className="absolute right-[30px] bottom-[60px] leading-none"
+                style={{
+                  fontFamily: SERIF,
+                  fontWeight: 900,
+                  fontSize: 140,
+                  color: '#FFFFFF',
+                  opacity: 0.35,
+                  letterSpacing: '-0.05em',
+                }}
+              >
+                占
+              </span>
+              {/* 큰 반투명 링 — 천천히 회전 */}
               <div
-                className="absolute right-0 bottom-0 w-[200px] h-[200px] rounded-full"
-                style={{ background: accent.orb, opacity: 0.18 }}
+                className="absolute right-0 bottom-0 w-[200px] h-[200px] rounded-full animate-[saju-spin_22s_linear_infinite]"
+                style={{
+                  background: `radial-gradient(circle at 30% 30%, ${accent.orbSoft}, transparent 70%)`,
+                  opacity: 0.5,
+                }}
               />
               {/* 중간 링 */}
               <div
                 className="absolute right-[20px] bottom-[20px] w-[140px] h-[140px] rounded-full"
                 style={{ background: accent.orbSoft, opacity: 0.55 }}
               />
-              {/* 솔리드 작은 원 */}
+              {/* 솔리드 작은 원 — pulse */}
               <div
-                className="absolute right-[44px] bottom-[44px] w-[88px] h-[88px] rounded-full"
+                className="absolute right-[44px] bottom-[44px] w-[88px] h-[88px] rounded-full animate-[saju-pulse_3.6s_ease-in-out_infinite]"
                 style={{ background: accent.orb }}
               />
               {/* sparkle */}
-              <Sparkles size={22} className="absolute top-[18px] right-[78px]" style={{ color: accent.orb }} />
+              <Sparkles size={22} className="absolute top-[18px] right-[78px] animate-[saju-twinkle_2.4s_ease-in-out_infinite]" style={{ color: accent.orb }} />
               <Star size={12} className="absolute top-[58px] right-[160px]" style={{ color: accent.orb, opacity: 0.7 }} />
-              <Star size={14} className="absolute bottom-[148px] right-[24px]" style={{ color: '#FFFFFF', opacity: 0.95 }} fill="#FFFFFF" />
+              <Star size={14} className="absolute bottom-[148px] right-[24px] animate-[saju-twinkle_3.2s_ease-in-out_infinite]" style={{ color: '#FFFFFF', opacity: 0.95 }} fill="#FFFFFF" />
               <Moon size={18} className="absolute bottom-[112px] right-[60px]" style={{ color: '#FFFFFF', opacity: 0.9 }} />
             </div>
 
@@ -276,10 +370,10 @@ export default function LandingPage() {
                     className="flex flex-col items-center gap-2.5 group"
                   >
                     <span
-                      className="w-[56px] h-[56px] rounded-[18px] flex items-center justify-center transition-transform group-active:scale-95"
+                      className="w-[56px] h-[56px] rounded-[18px] flex items-center justify-center transition-all duration-200 group-hover:-translate-y-0.5 group-hover:brightness-95 group-active:scale-95"
                       style={{ background: tt.bg }}
                     >
-                      <Icon size={26} strokeWidth={2.1} style={{ color: tt.fg }} />
+                      <Icon size={26} strokeWidth={2.1} style={{ color: tt.fg }} className="transition-transform group-hover:scale-110" />
                     </span>
                     <span
                       className="text-[12.5px] font-semibold text-center leading-tight tracking-tight"
@@ -386,25 +480,30 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* Bottom Nav — fixed */}
-      <nav
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[540px] z-40"
-        style={{
-          background: 'rgba(255,255,255,0.92)',
-          backdropFilter: 'saturate(180%) blur(14px)',
-          WebkitBackdropFilter: 'saturate(180%) blur(14px)',
-          borderTop: `1px solid ${C.line}`,
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        }}
+      {/* Bottom Nav — fixed, outer = 페이지 배경 (다크모드 노출 차단), inner = 540 흰 dock */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-40"
+        style={{ background: C.paper }}
       >
-        <div className="flex items-center justify-around px-2 py-1.5">
-          <BottomTab href={localePath('/')}             Icon={Home}        label={t('홈',     'Home')}   active />
-          <BottomTab href={localePath('/today')}        Icon={Sun}         label={t('오늘',   'Today')}  />
-          <BottomTab href={localePath('/saju')}         Icon={ScrollText}  label={t('사주',   'Saju')}   />
-          <BottomTab href={localePath('/couple')}       Icon={Users}       label={t('궁합',   'Match')}  />
-          <BottomTab href={localePath('/blog')}         Icon={BookOpen}    label={t('블로그', 'Blog')}   />
+        <div
+          className="mx-auto w-full max-w-[540px]"
+          style={{
+            background: 'rgba(255,255,255,0.96)',
+            backdropFilter: 'saturate(180%) blur(14px)',
+            WebkitBackdropFilter: 'saturate(180%) blur(14px)',
+            borderTop: `1px solid ${C.line}`,
+            paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          }}
+        >
+          <nav className="flex items-center justify-around px-2 py-1.5">
+            <BottomTab href={localePath('/')}             Icon={Home}        label={t('홈',     'Home')}   active />
+            <BottomTab href={localePath('/today')}        Icon={Sun}         label={t('오늘',   'Today')}  />
+            <BottomTab href={localePath('/saju')}         Icon={ScrollText}  label={t('사주',   'Saju')}   />
+            <BottomTab href={localePath('/couple')}       Icon={Users}       label={t('궁합',   'Match')}  />
+            <BottomTab href={localePath('/blog')}         Icon={BookOpen}    label={t('블로그', 'Blog')}   />
+          </nav>
         </div>
-      </nav>
+      </div>
     </div>
   );
 }
@@ -414,12 +513,37 @@ function SectionCard({
 }: { eyebrow: string; title: string; children: React.ReactNode }) {
   return (
     <section
-      className="mt-3 mx-3 rounded-[24px] p-5"
+      className="relative z-10 mt-3 mx-3 rounded-[24px] p-5 transition-shadow duration-300 hover:shadow-[0_4px_12px_rgba(0,0,0,0.04)]"
       style={{ background: C.card, boxShadow: '0 1px 3px rgba(0,0,0,0.025)' }}
     >
-      <div className="mb-4">
-        <p className="text-[12px] font-semibold tracking-tight" style={{ color: C.inkSub }}>{eyebrow}</p>
-        <h3 className="mt-1.5 text-[19px] font-black tracking-[-0.02em]" style={{ color: C.ink }}>{title}</h3>
+      <div className="mb-4 flex items-baseline gap-2">
+        <span
+          style={{
+            fontFamily: SERIF,
+            fontWeight: 700,
+            color: C.warmDeep,
+            opacity: 0.55,
+            fontSize: 13,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          ▎
+        </span>
+        <div>
+          <p className="text-[12px] font-semibold tracking-tight" style={{ color: C.inkSub }}>{eyebrow}</p>
+          <h3
+            className="mt-1"
+            style={{
+              fontFamily: SERIF,
+              fontWeight: 900,
+              fontSize: 20,
+              letterSpacing: '-0.02em',
+              color: C.ink,
+            }}
+          >
+            {title}
+          </h3>
+        </div>
       </div>
       {children}
     </section>
@@ -455,11 +579,59 @@ function BottomTab({
   return (
     <Link
       href={href}
-      className="flex flex-col items-center gap-1 py-2 px-2 flex-1"
+      className="flex flex-col items-center gap-1 py-2 px-2 flex-1 transition-all hover:opacity-80 active:scale-95"
       style={{ color: active ? C.ink : C.inkSub }}
     >
       <Icon size={21} strokeWidth={active ? 2.5 : 2} />
       <span className="text-[10.5px] font-bold tracking-tight">{label}</span>
     </Link>
+  );
+}
+
+// 페이지 톤(페이퍼·잉크·워밍)에 맞춘 자체 KO/EN 토글 — shared LangToggle 무수정
+function InlineLangToggle() {
+  const { lang, setLang } = useLang();
+  const isEn = lang === 'en';
+  return (
+    <button
+      type="button"
+      onClick={() => setLang(isEn ? 'ko' : 'en')}
+      aria-label={isEn ? '한국어로 전환' : 'Switch to English'}
+      title={isEn ? '한국어' : 'English'}
+      className="relative inline-flex items-center rounded-full transition-colors hover:brightness-95"
+      style={{
+        width: 60,
+        height: 30,
+        padding: 3,
+        background: '#F0E9DC',
+        border: '1px solid #E5DCC8',
+      }}
+    >
+      <span
+        aria-hidden
+        className="absolute rounded-full transition-transform duration-300 ease-out"
+        style={{
+          width: 26,
+          height: 22,
+          top: 3,
+          left: 3,
+          background: C.ink,
+          transform: isEn ? 'translateX(28px)' : 'translateX(0)',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.12)',
+        }}
+      />
+      <span
+        className="relative z-10 flex items-center justify-center text-[10px] font-extrabold tracking-tight transition-colors"
+        style={{ width: 26, height: 22, color: isEn ? C.inkSoft : '#FFFFFF' }}
+      >
+        KO
+      </span>
+      <span
+        className="relative z-10 flex items-center justify-center text-[10px] font-extrabold tracking-tight transition-colors"
+        style={{ width: 26, height: 22, color: isEn ? '#FFFFFF' : C.inkSoft }}
+      >
+        EN
+      </span>
+    </button>
   );
 }
