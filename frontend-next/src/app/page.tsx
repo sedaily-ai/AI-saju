@@ -389,8 +389,8 @@ export default function LandingPage() {
 
         {/* Card: 사주 챗봇 */}
         <SectionCard
-          eyebrow={t('대화형 풀이', 'Chat reading')}
-          title={t('물어보면서 알아가요', 'Learn by asking')}
+          eyebrow={t('사주 × 시대', 'Saju × the times')}
+          title={t('내 사주에 지금 시대를 얹어', 'Your saju, against today')}
         >
           <Link
             href={localePath('/chat')}
@@ -409,7 +409,7 @@ export default function LandingPage() {
                   {t('사주 챗봇과 대화하기', 'Chat with the Saju bot')}
                 </p>
                 <p className="text-[12px] mt-0.5 truncate" style={{ color: C.inkSoft }}>
-                  {t('질문에 답하면 내 사주를 풀어드려요', 'Answer a few questions, get your reading')}
+                  {t('헤매는 게 아니라, 시대가 그렇게 흐르는 거예요', "You're not lost — the times are moving")}
                 </p>
               </div>
             </div>

@@ -18,7 +18,7 @@ export default function ChatPage() {
             <PageHeader
               title={t('사주 챗봇', 'Saju Chat')}
               titleAccent={t('챗봇', 'Chat')}
-              sub={t('질문에 답하면 내 사주를 풀어드려요', 'Answer a few questions to read your saju')}
+              sub={t('당신의 사주에 지금 시대를 얹어 읽어드려요', 'Your saju, read against the currents of today')}
               showSearch={false}
             />
           </div>

@@ -1,20 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { SAJU } from '@/shared/ui/sajuTokens';
 import type { ChatMessage } from '../lib/types';
 
-/** 글자당 타이핑 속도(ms) — ChatTab 의 답변 간격 계산과 맞춰져 있음 */
+/** 글자당 타이핑 속도(ms) */
 export const TYPE_SPEED = 24;
 
-export function ChatBubble({ message }: { message: ChatMessage }) {
+/** onTyped: 이 말풍선이 다 표시되면(타자기 완료 / 마크다운 등장 직후) 1회 호출 */
+export function ChatBubble({ message, onTyped }: { message: ChatMessage; onTyped?: () => void }) {
   const isBot = message.role === 'bot';
   // 봇의 일반 텍스트만 타자기 효과. 마크다운 답변·내 말풍선은 즉시 표시.
   const typewriter = isBot && !message.markdown;
   const shown = useTypewriter(message.text, typewriter);
   const typing = typewriter && shown.length < message.text.length;
+
+  // 완료 알림(1회): 타자기는 마지막 글자 후, 마크다운은 등장 애니메이션 직후
+  const doneRef = useRef(false);
+  useEffect(() => {
+    if (doneRef.current || !onTyped) return;
+    if (typewriter) {
+      if (!typing) { doneRef.current = true; onTyped(); }
+    } else {
+      const id = window.setTimeout(() => { doneRef.current = true; onTyped(); }, 380);
+      return () => window.clearTimeout(id);
+    }
+  }, [typing, typewriter, onTyped]);
 
   return (
     <div className={`flex ${isBot ? 'justify-start' : 'justify-end'} mb-2`}>
