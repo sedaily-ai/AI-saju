@@ -29,6 +29,7 @@
 import base64
 import json
 import os
+import time
 
 import boto3
 
@@ -37,6 +38,35 @@ bedrock = boto3.client("bedrock-runtime", region_name=os.environ.get("AWS_REGION
 MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "anthropic.claude-haiku-4-5")
 MAX_TOKENS = int(os.environ.get("MAX_TOKENS", "400"))
 ALLOW_ORIGIN = os.environ.get("ALLOW_ORIGIN", "https://saju.sedaily.ai")
+
+# ── 글로벌 일일 킬스위치 (비용 폭주 방지) ──
+# USAGE_TABLE 미설정 시 비활성(무제한). 설정 시 KST 하루 총 호출이 DAILY_LIMIT 를 넘으면
+# Bedrock 을 호출하지 않고 빈 응답을 돌려 프런트가 템플릿으로 폴백하게 한다.
+USAGE_TABLE = os.environ.get("USAGE_TABLE", "")
+DAILY_LIMIT = int(os.environ.get("DAILY_LIMIT", "500"))
+_ddb = boto3.client("dynamodb", region_name=os.environ.get("AWS_REGION", "us-east-1")) if USAGE_TABLE else None
+
+
+def _within_daily_limit() -> bool:
+    """오늘(KST) 글로벌 호출 수를 원자적으로 +1 하고 상한 이내인지 반환. 장애 시 fail-open."""
+    if not _ddb:
+        return True
+    kst_day = time.strftime("%Y-%m-%d", time.gmtime(time.time() + 9 * 3600))
+    try:
+        resp = _ddb.update_item(
+            TableName=USAGE_TABLE,
+            Key={"id": {"S": f"global#{kst_day}"}},
+            UpdateExpression="ADD #c :one SET #t = if_not_exists(#t, :ttl)",
+            ExpressionAttributeNames={"#c": "count", "#t": "ttl"},
+            ExpressionAttributeValues={
+                ":one": {"N": "1"},
+                ":ttl": {"N": str(int(time.time()) + 172800)},  # 2일 후 자동 삭제
+            },
+            ReturnValues="UPDATED_NEW",
+        )
+        return int(resp["Attributes"]["count"]["N"]) <= DAILY_LIMIT
+    except Exception:  # noqa: BLE001 — 카운터 장애로 서비스를 막지 않음(예약 동시성이 별도 천장)
+        return True
 
 # 서비스 정체성 = 8/9 원칙. 위로 멘트 금지, 담백한 팩트, 사주(개인의 시간) 위에 시대(세상의 시간)를 얹는다.
 BASE_KO = (
@@ -47,7 +77,9 @@ BASE_KO = (
     "(5) 제공된 시대 팩트는 '예시'이므로 단정적 통계로 진술하지 말 것. "
     "(6) ★명리 용어(오행·십성·신강약·격국·용신·대운 등)는 절대 그대로 던지지 말고, 반드시 일상어로 풀어 설명할 것★. "
     "예: '화(火)가 강하다'→'추진력과 표현 욕구가 큰 대신, 한번 타오르면 쉽게 지치는 편'. "
-    "'수(水) 과다'→'생각·감정이 많아 신중하지만 결정이 느려지기 쉬움'. 사용자가 명리를 몰라도 바로 이해되게."
+    "'수(水) 과다'→'생각·감정이 많아 신중하지만 결정이 느려지기 쉬움'. 사용자가 명리를 몰라도 바로 이해되게.\n"
+    "(7) ★사용자가 직접 적은 말(userText·history·narrowAnswers)이 있으면 그 구체적 내용에 반드시 닿게 답할 것 — "
+    "정해진 일반론·고정 문구로 빠지지 말고, 사용자가 처한 실제 상황(예: '헤어졌다')과 모순되는 말은 절대 하지 말 것★."
 )
 BASE_EN = (
     "You are Sedaily's saju chatbot. Not fortune-telling: you lay the currents of the present era "
@@ -57,7 +89,9 @@ BASE_EN = (
     "(5) Era facts provided are SAMPLES — do not state them as hard statistics. "
     "(6) NEVER drop bare saju jargon (elements, ten-gods, strength, structure, useful element, luck cycle) — "
     "always translate it into plain everyday meaning. e.g. 'strong Fire' -> 'lots of drive and need to express, but burns out fast'. "
-    "Make it understandable to someone who knows nothing about saju."
+    "Make it understandable to someone who knows nothing about saju.\n"
+    "(7) If the user wrote their own words (userText/history/narrowAnswers), you MUST address that specific content — "
+    "never fall back to generic boilerplate, and never say anything that contradicts their actual situation (e.g. 'broke up')."
 )
 
 TASK_KO = {
@@ -153,6 +187,9 @@ def handler(event, _context):
         lang = "en" if payload.get("lang") == "en" else "ko"
         if task not in ("classify", "predict", "hit", "overlay", "knot", "freeform"):
             return _response(400, {"error": "invalid task"})
+        # 글로벌 일일 상한 초과 시 Bedrock 미호출 → 프런트는 템플릿으로 폴백
+        if not _within_daily_limit():
+            return _response(200, {"text": "", "limited": True})
         text = _call_bedrock(_system(task, lang), _user(payload))
         return _response(200, {"text": text})
     except Exception as exc:  # noqa: BLE001 — 백엔드 오류 시 프런트는 템플릿으로 폴백

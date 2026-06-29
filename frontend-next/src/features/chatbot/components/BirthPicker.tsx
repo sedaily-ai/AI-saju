@@ -8,7 +8,7 @@ type T = (ko: string, en: string) => string;
 
 const selectClass = 'rounded-xl px-3 py-2.5 text-[14px] outline-none bg-white';
 const selectStyle = { border: `1px solid ${SAJU.line}`, color: SAJU.ink } as const;
-const confirmClass = 'rounded-2xl px-5 py-2.5 text-[14px] font-semibold text-white disabled:opacity-40 shrink-0';
+const confirmClass = 'rounded-2xl px-5 py-2.5 text-[14px] font-semibold text-white disabled:opacity-40 shrink-0 transition cursor-pointer hover:brightness-95 active:scale-95 disabled:cursor-not-allowed disabled:hover:brightness-100';
 
 /** 생년월일 드롭다운 선택 (년/월/일) — 일수는 월/연에 맞춰 자동 보정 */
 export function DateSelect({ onConfirm, t }: { onConfirm: (y: number, m: number, d: number) => void; t: T }) {

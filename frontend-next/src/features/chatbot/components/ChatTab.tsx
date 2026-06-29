@@ -14,6 +14,7 @@ import { initialPredict, knotHit } from '../lib/coldReading';
 import { buildOverlay, buildKnot } from '../lib/narrative';
 import { eraFactsFor } from '../lib/eraFacts';
 import { callLlm, llmEnabled, type LlmTask } from '../lib/llm';
+import { creditsLeft, spendCredit, DAILY_FREE } from '../lib/credits';
 import type {
   ChatMessage, ChatState, ConcernId, DraftInput, LangText, QuickReply,
 } from '../lib/types';
@@ -38,8 +39,17 @@ export function ChatTab() {
   const [timeTextMode, setTimeTextMode] = useState(false);
   const [hasSaved, setHasSaved] = useState(false);
   const [freeText, setFreeText] = useState('');
+  // 사용자가 입력창에 포커스/타이핑 중인지 — 이때는 자동 스크롤을 멈춰 화면이 끌려가지 않게 한다
+  const [inputFocused, setInputFocused] = useState(false);
   // 현재 말풍선이 타이핑되는 중인지 (true 면 '입력 중' 점은 숨김)
   const [isTyping, setIsTyping] = useState(false);
+  // 오늘 남은 무료 자유 질문 수 (LLM 연결 시에만 의미). 마운트 후 localStorage 로 동기화.
+  const [credits, setCredits] = useState(DAILY_FREE);
+  // 토글 입력 모달 표시 여부 — 봇 발화가 끝난 뒤 1.5초 지연 후 true (아래 effect 에서 제어)
+  const [pickerOpen, setPickerOpen] = useState(false);
+  // 결제 유도 팝업 (무료 소진 후 전송 시) + '준비 중' 안내 토글
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallSoon, setPaywallSoon] = useState(false);
 
   const idRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -50,6 +60,11 @@ export function ChatTab() {
   messagesRef.current = messages;
   // 현재 타이핑 중인 말풍선이 끝나면 호출되는 resolver (다음 말풍선 대기용)
   const typedResolverRef = useRef<(() => void) | null>(null);
+  // 현재 단계가 토글 입력 단계인지 (모달 표시는 pickerOpen 상태가 1.5초 지연 후 결정)
+  const pickerStep = chat.step === 'date' || chat.step === 'region' || (chat.step === 'time' && timeTextMode);
+  // 사용자가 입력 중이면(자유입력 포커스/작성 중 OR 토글 모달 열림) 자동 스크롤 일시정지
+  const composingRef = useRef(false);
+  composingRef.current = inputFocused || freeText.trim().length > 0 || pickerOpen;
   const nextId = () => `m${idRef.current++}`;
 
   const toStr = useCallback((l: LangText) => t(l.ko, l.en), [t]);
@@ -97,6 +112,11 @@ export function ChatTab() {
     if (llmEnabled() && chatRef.current.saju) {
       setBusy(true); // LLM 왕복 동안 '입력 중' 표시
       const concern = opts?.concern ?? chatRef.current.knot?.concern;
+      // 직전 대화(사용자가 직접 적은 말 포함)를 같이 넘겨 맞히기·얹기·매듭이 실제 상황에 닿게 — 마지막 6턴
+      const history = messagesRef.current
+        .filter(m => m.text && !m.era)
+        .slice(-6)
+        .map(m => ({ role: m.role, text: m.text }));
       const text = await callLlm({
         task,
         lang,
@@ -107,6 +127,7 @@ export function ChatTab() {
         eraFacts: concern
           ? eraFactsFor(concern).map(f => ({ text: lang === 'en' ? f.en : f.ko, source: lang === 'en' ? f.sourceEn : f.source }))
           : undefined,
+        history,
       });
       if (text) { await pushBot([text], true); return; }
     }
@@ -122,13 +143,22 @@ export function ChatTab() {
     }, 600);
   }), []);
 
-  // 자동 스크롤
+  // 토글 입력 모달은 봇 발화가 끝난 뒤 1.5초 지연 후 표시 (채팅을 잠시 보게 한 뒤 입력 등장)
   useEffect(() => {
+    if (busy || !pickerStep) { setPickerOpen(false); return; }
+    const id = window.setTimeout(() => setPickerOpen(true), 1500);
+    return () => window.clearTimeout(id);
+  }, [busy, pickerStep]);
+
+  // 자동 스크롤 — 사용자가 입력 중이면 멈춤(화면이 끌려 내려가지 않게)
+  useEffect(() => {
+    if (composingRef.current) return;
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, busy]);
   useEffect(() => {
     if (!busy) return;
     const id = window.setInterval(() => {
+      if (composingRef.current) return;
       scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
     }, 140);
     return () => window.clearInterval(id);
@@ -157,6 +187,7 @@ export function ChatTab() {
   useEffect(() => {
     if (greetedRef.current) return;
     greetedRef.current = true;
+    setCredits(creditsLeft());
     const saved = loadSavedDraft();
     setHasSaved(!!saved);
     (async () => {
@@ -256,8 +287,11 @@ export function ChatTab() {
         }
       }
       setChat({ ...INITIAL, step: 'date' });
-      await say(EXPLAIN_PILLARS);
-      await say([{ ko: '좋아요, 새로 볼게요! 먼저 태어난 날(양력)을 골라주세요.', en: "Sure, fresh start! First, pick your birth date (solar) below." }]);
+      // 한 번의 say 로 묶어 발화 중간에 busy 가 풀리며 모달이 깜빡이는 것을 막는다
+      await say([
+        ...EXPLAIN_PILLARS,
+        { ko: '좋아요, 새로 볼게요! 먼저 태어난 날(양력)을 골라주세요.', en: "Sure, fresh start! First, pick your birth date (solar) below." },
+      ]);
       return;
     }
 
@@ -265,7 +299,7 @@ export function ChatTab() {
       pushUser(reply.label);
       if (reply.value === 'input') {
         setTimeTextMode(true);
-        await say([{ ko: '아래에서 태어난 시각을 골라주세요.', en: 'Pick your birth time below.' }]);
+        await say([{ ko: '태어난 시각을 입력해주세요.', en: 'Enter your birth time.' }]);
         return;
       }
       setChat(c => ({ ...c, draft: { ...c.draft, noTime: true, hour: undefined, min: undefined }, step: 'gender' }));
@@ -338,9 +372,33 @@ export function ChatTab() {
     if (busy) return;
     const v = freeText.trim();
     if (!v) return;
+
+    // 무료 대화 소진 → 전송 시 결제 유도 팝업 (자유 질문 단계에서만; 좁히기 등 가이드 입력은 제외)
+    const step0 = chatRef.current.step;
+    if (llmEnabled() && (step0 === 'concern' || step0 === 'link') && creditsLeft() <= 0) {
+      setShowPaywall(true);
+      return; // 메시지 echo·크레딧 차감 없이 팝업만 띄움
+    }
+
     pushUser(v);
     setFreeText('');
+    setInputFocused(false); // 전송 후엔 입력 종료로 보고 자동 스크롤 재개
     const saju = chatRef.current.saju;
+
+    // 좁히기 단계에서 직접 입력: 타이핑 내용을 그 단계의 답으로 받아 매듭을 이어간다 (선택지와 동일 처리, 크레딧 차감 없음)
+    const nk = chatRef.current.knot;
+    if (chatRef.current.step === 'narrow' && nk) {
+      const answers = [...nk.narrowAnswers, v];
+      const nextStep = nk.narrowStep + 1;
+      if (nextStep < narrowCount(nk.concern)) {
+        setChat(c => ({ ...c, knot: { ...nk, narrowStep: nextStep, narrowAnswers: answers } }));
+        await say([CONCERN_MAP[nk.concern].narrow[nextStep].prompt]);
+      } else {
+        setChat(c => ({ ...c, knot: { ...nk, narrowAnswers: answers }, step: 'hit' }));
+        await sayLlmOr('hit', [knotHit(nk.concern, answers, chatRef.current.saju!)], { concern: nk.concern, narrowAnswers: answers });
+      }
+      return;
+    }
 
     // LLM 연결 시: 질문 자체에 사주×시대를 얹어 직접 답하고, 다시 잇기 단계로
     if (llmEnabled() && saju) {
@@ -352,6 +410,7 @@ export function ChatTab() {
         .map(m => ({ role: m.role, text: m.text }));
       const text = await callLlm({ task: 'freeform', lang, saju, userText: v, prior: chatRef.current.raisedConcerns, history });
       if (text) {
+        setCredits(spendCredit()); // 답변을 실제로 받은 경우에만 차감
         await pushBot([text], true);
         setChat(c => ({ ...c, step: 'link' }));
         await say([{ ko: '더 궁금한 게 있으면 적어주셔도 되고, 아래에서 골라도 돼요.', en: 'Ask anything else, or pick from below.' }]);
@@ -362,7 +421,7 @@ export function ChatTab() {
     const routed = routeFreeText(v);
     if (routed) await startKnot(routed);
     else await say([{ ko: '음, 아래에서 가까운 걸 골라주실래요?', en: 'Hmm — pick the closest below?' }]);
-  }, [busy, freeText, lang, pushUser, pushBot, say, startKnot]);
+  }, [busy, freeText, lang, pushUser, pushBot, say, sayLlmOr, startKnot]);
 
   // ── 입력 위젯 표시 ──
   const showDatePicker = chat.step === 'date';
@@ -370,6 +429,8 @@ export function ChatTab() {
   const showRegionPicker = chat.step === 'region';
   // 고민 열기/잇기 단계에서 자유 입력 허용 (선택지 + 직접 타이핑)
   const showConcernInput = chat.step === 'concern' || chat.step === 'link';
+  // 좁히기 단계에서도 선택지 외에 직접 입력 허용
+  const showNarrowInput = chat.step === 'narrow';
   const showPicker = showDatePicker || showTimePicker || showRegionPicker;
 
   const triRepl: QuickReply[] = [
@@ -422,6 +483,7 @@ export function ChatTab() {
   })();
 
   return (
+    <>
     <div className="flex flex-col h-full min-h-0">
       {/* 메시지 영역 */}
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-3">
@@ -443,19 +505,37 @@ export function ChatTab() {
         )}
       </div>
 
-      {/* 하단 입력/선택 영역 */}
+      {/* 하단 입력/선택 영역 (선택 버튼 + 자유입력). 드롭다운 입력은 아래 중앙 모달로 분리 */}
       <div className="shrink-0 border-t bg-white/70 backdrop-blur px-3 pt-3 pb-3" style={{ borderColor: SAJU.line }}>
         <QuickReplies replies={quickReplies} onPick={handlePick} disabled={busy} />
-        {showDatePicker && <div className="px-0.5 pb-1"><DateSelect onConfirm={acceptDate} t={t} /></div>}
-        {showTimePicker && <div className="px-0.5 pb-1"><TimeSelect onConfirm={acceptTime} t={t} /></div>}
-        {showRegionPicker && <div className="px-0.5 pb-1"><RegionSelect onConfirm={acceptRegion} t={t} lang={lang} /></div>}
-        {showConcernInput && (
+        {showConcernInput && llmEnabled() && credits > 0 && (
+          <div className="flex items-center gap-1.5 px-1.5 pb-1.5 text-[11.5px]" style={{ color: SAJU.inkSub }}>
+            <span>✨</span>
+            <span>{t(`오늘 남은 무료 질문 ${credits}회`, `${credits} free question${credits === 1 ? '' : 's'} left today`)}</span>
+          </div>
+        )}
+        {showConcernInput && llmEnabled() && credits <= 0 && (
+          <button
+            type="button"
+            onClick={() => setShowPaywall(true)}
+            className="flex items-center gap-1.5 px-1.5 pb-1.5 text-[11.5px] cursor-pointer"
+            style={{ color: SAJU.inkSub }}
+          >
+            <span>✨</span>
+            <span>{t('오늘 무료 질문을 모두 사용했어요', "You've used all of today's free questions")}</span>
+          </button>
+        )}
+        {(showConcernInput || showNarrowInput) && (
           <div className="flex gap-2.5 px-0.5 pb-1">
             <input
               value={freeText}
               onChange={e => setFreeText(e.target.value)}
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
               onKeyDown={e => { if (e.key === 'Enter') submitFreeConcern(); }}
-              placeholder={t('편하게 적어주셔도 돼요…', 'Feel free to type…')}
+              placeholder={showNarrowInput
+                ? t('아니면 직접 적어주셔도 돼요…', 'Or type your own…')
+                : t('편하게 적어주셔도 돼요…', 'Feel free to type…')}
               className="flex-1 rounded-2xl px-4 py-3 text-[15px] outline-none"
               style={{ background: '#fff', border: `1px solid ${SAJU.line}`, color: SAJU.ink }}
             />
@@ -463,7 +543,7 @@ export function ChatTab() {
               type="button"
               onClick={submitFreeConcern}
               disabled={busy || !freeText.trim()}
-              className="rounded-2xl px-5 py-3 text-[15px] font-semibold text-white disabled:opacity-40"
+              className="rounded-2xl px-5 py-3 text-[15px] font-semibold text-white disabled:opacity-40 transition cursor-pointer hover:brightness-95 active:scale-95 disabled:cursor-not-allowed disabled:hover:brightness-100"
               style={{ background: SAJU.warmDeep }}
             >
               {t('전송', 'Send')}
@@ -472,5 +552,86 @@ export function ChatTab() {
         )}
       </div>
     </div>
+
+    {/* 드롭다운 입력 중앙 모달 — 봇이 말하는 중(busy)엔 숨기고, 발화가 끝난 뒤에만 띄운다(pickerOpen).
+        스크롤 흐름 밖(fixed)이라 채팅 길이와 무관하게 항상 같은 위치에 보이고, 위아래로 펼칠 공간이 넉넉하다. */}
+    {pickerOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-5" style={{ background: 'rgba(20,16,12,0.34)' }}>
+        <div
+          className="chat-bubble-in w-full max-w-[400px] rounded-2xl border p-5"
+          style={{ background: '#fff', borderColor: SAJU.line, boxShadow: '0 14px 44px rgba(20,16,12,0.24)' }}
+        >
+          <div className="text-[14px] font-semibold mb-3.5" style={{ color: SAJU.warmDeep }}>
+            {showDatePicker && t('태어난 날(양력)을 골라주세요', 'Pick your birth date (solar)')}
+            {showTimePicker && t('태어난 시각을 골라주세요', 'Pick your birth time')}
+            {showRegionPicker && t('태어난 지역을 골라주세요', 'Pick your birth region')}
+          </div>
+          {showDatePicker && <DateSelect onConfirm={acceptDate} t={t} />}
+          {showTimePicker && (
+            <>
+              <TimeSelect onConfirm={acceptTime} t={t} />
+              <button
+                type="button"
+                onClick={() => setTimeTextMode(false)}
+                className="mt-3 text-[12px] underline cursor-pointer"
+                style={{ color: SAJU.inkSub }}
+              >
+                {t('← 다시 선택', '← Back')}
+              </button>
+            </>
+          )}
+          {showRegionPicker && <RegionSelect onConfirm={acceptRegion} t={t} lang={lang} />}
+        </div>
+      </div>
+    )}
+
+    {/* 결제 유도 팝업 — 무료 대화 소진 후 전송 시. 결제 버튼은 지금은 '준비 중' 플레이스홀더. */}
+    {showPaywall && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-5"
+        style={{ background: 'rgba(20,16,12,0.42)' }}
+        onClick={() => { setShowPaywall(false); setPaywallSoon(false); }}
+      >
+        <div
+          className="chat-bubble-in w-full max-w-[360px] rounded-2xl border p-6 text-center"
+          style={{ background: '#fff', borderColor: SAJU.line, boxShadow: '0 16px 48px rgba(20,16,12,0.28)' }}
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="text-[26px] mb-2">🔮</div>
+          <div className="text-[16px] font-bold mb-1.5" style={{ color: SAJU.ink }}>
+            {t('오늘 무료 대화를 모두 사용했어요', "You've used all of today's free chats")}
+          </div>
+          <div className="text-[13px] leading-relaxed mb-5" style={{ color: SAJU.inkSoft }}>
+            {t('프리미엄으로 무제한 대화와 더 깊은 사주 풀이를 이어가세요.', 'Go premium for unlimited chats and a deeper saju reading.')}
+          </div>
+          {paywallSoon ? (
+            <div className="rounded-2xl px-4 py-3 text-[13px] font-semibold mb-3" style={{ background: SAJU.warmSoft, color: SAJU.warmDeep }}>
+              {t('결제 기능을 준비 중이에요. 곧 만나요 🙏', 'Payments are coming soon 🙏')}
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setPaywallSoon(true)}
+              className="w-full rounded-2xl px-4 py-3 text-[15px] font-semibold text-white transition cursor-pointer hover:brightness-95 active:scale-95 mb-3"
+              style={{ background: SAJU.warmDeep }}
+            >
+              {t('프리미엄 시작하기', 'Start Premium')}
+            </button>
+          )}
+          <a href="/saju/" className="block text-[13px] underline mb-4" style={{ color: SAJU.inkSub }}>
+            {t('사주 전체 풀이 먼저 보기', 'See the full saju reading first')}
+          </a>
+          <button
+            type="button"
+            onClick={() => { setShowPaywall(false); setPaywallSoon(false); }}
+            className="text-[12.5px] cursor-pointer"
+            style={{ color: SAJU.inkSub }}
+          >
+            {t('나중에', 'Maybe later')}
+          </button>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

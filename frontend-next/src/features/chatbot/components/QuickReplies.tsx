@@ -21,8 +21,17 @@ export function QuickReplies({
           type="button"
           disabled={disabled}
           onClick={() => onPick(r)}
-          className="rounded-full px-4 py-2 text-[13.5px] font-semibold transition-all active:scale-95 disabled:opacity-40"
+          className="rounded-full px-4 py-2 text-[13.5px] font-semibold transition-all hover:-translate-y-0.5 active:scale-95 disabled:opacity-40 disabled:hover:translate-y-0 cursor-pointer disabled:cursor-not-allowed"
           style={{ background: '#fff', border: `1px solid ${SAJU.line}`, color: SAJU.warmDeep }}
+          onMouseEnter={e => {
+            if (disabled) return;
+            e.currentTarget.style.background = SAJU.warmSoft;
+            e.currentTarget.style.borderColor = SAJU.warm;
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = '#fff';
+            e.currentTarget.style.borderColor = SAJU.line;
+          }}
         >
           {r.label}
         </button>
