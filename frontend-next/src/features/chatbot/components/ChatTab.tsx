@@ -12,7 +12,7 @@ import { buildSajuContext, narrowCount, remainingConcerns } from '../lib/knotMac
 import { CONCERNS, CONCERN_MAP, routeFreeText } from '../lib/concerns';
 import { initialPredict, knotHit } from '../lib/coldReading';
 import { buildOverlay, buildKnot } from '../lib/narrative';
-import { eraFactsFor } from '../lib/eraFacts';
+import { eraFactsFor, fetchEraFacts, type EraFact } from '../lib/eraFacts';
 import { callLlm, llmEnabled, type LlmTask } from '../lib/llm';
 import { creditsLeft, spendCredit, DAILY_FREE } from '../lib/credits';
 import type {
@@ -24,6 +24,17 @@ const INITIAL: ChatState = {
   step: 'greeting', draft: {}, pillars: null, ilgan: '', daeuns: [],
   saju: null, knot: null, raisedConcerns: [],
 };
+
+/**
+ * freeform 응답이 '완결된 풀이'인지 판정 — 되묻기(짧은 클래리파이 질문)면 크레딧을 차감하지 않는다.
+ * freeform 프롬프트는 '재해석 + 행동'으로 닫게 되어 있어, 그 마감이 있거나 충분히 길면 답변으로 본다.
+ */
+function isSubstantiveAnswer(text: string): boolean {
+  const t = text.trim();
+  if (/재해석|행동|reframe|action/i.test(t)) return true; // 매듭형 마감이 있으면 완결된 답
+  if (/[?？]\s*$/.test(t)) return false;                   // 물음표로 끝나면 되묻기
+  return t.length >= 200;                                  // 마감이 없어도 충분히 길면 답으로 인정
+}
 
 // 입력 전 '왜 4기둥이 필요한지' 설명
 const EXPLAIN_PILLARS: LangText[] = [
@@ -107,7 +118,7 @@ export function ChatTab() {
   const sayLlmOr = useCallback(async (
     task: LlmTask,
     fallback: LangText[],
-    opts?: { concern?: ConcernId; narrowAnswers?: string[] },
+    opts?: { concern?: ConcernId; narrowAnswers?: string[]; eraFacts?: EraFact[] },
   ) => {
     if (llmEnabled() && chatRef.current.saju) {
       setBusy(true); // LLM 왕복 동안 '입력 중' 표시
@@ -117,6 +128,8 @@ export function ChatTab() {
         .filter(m => m.text && !m.era)
         .slice(-6)
         .map(m => ({ role: m.role, text: m.text }));
+      // 시대 팩트: 호출측이 가져온 실데이터 우선, 없으면 placeholder
+      const facts = opts?.eraFacts ?? (concern ? eraFactsFor(concern) : []);
       const text = await callLlm({
         task,
         lang,
@@ -124,8 +137,8 @@ export function ChatTab() {
         concern,
         narrowAnswers: opts?.narrowAnswers ?? chatRef.current.knot?.narrowAnswers,
         prior: chatRef.current.raisedConcerns,
-        eraFacts: concern
-          ? eraFactsFor(concern).map(f => ({ text: lang === 'en' ? f.en : f.ko, source: lang === 'en' ? f.sourceEn : f.source }))
+        eraFacts: facts.length
+          ? facts.map(f => ({ text: lang === 'en' ? f.en : f.ko, source: lang === 'en' ? f.sourceEn : f.source }))
           : undefined,
         history,
       });
@@ -134,10 +147,10 @@ export function ChatTab() {
     await pushBot(fallback.map(toStr), true);
   }, [lang, pushBot, toStr]);
 
-  const pushEra = useCallback((concern: ConcernId) => new Promise<void>(resolve => {
+  const pushEra = useCallback((concern: ConcernId, facts: EraFact[]) => new Promise<void>(resolve => {
     setBusy(true);
     window.setTimeout(() => {
-      setMessages(prev => [...prev, { id: nextId(), role: 'bot', text: '', era: concern }]);
+      setMessages(prev => [...prev, { id: nextId(), role: 'bot', text: '', era: concern, eraFacts: facts }]);
       setBusy(false);
       resolve();
     }, 600);
@@ -256,9 +269,12 @@ export function ChatTab() {
     const saju = chatRef.current.saju!;
     const prior = chatRef.current.raisedConcerns;
     const narrowAnswers = chatRef.current.knot?.narrowAnswers;
-    await sayLlmOr('overlay', buildOverlay(concern, saju), { concern, narrowAnswers });
-    await pushEra(concern);
-    await sayLlmOr('knot', buildKnot(concern, saju, prior), { concern, narrowAnswers });
+    // 서울경제 실데이터 뉴스 → 없으면 placeholder 로 폴백. 얹기·매듭(LLM)·카드 모두 같은 팩트 사용
+    const real = await fetchEraFacts(concern);
+    const eraFacts = real.length ? real : eraFactsFor(concern);
+    await sayLlmOr('overlay', buildOverlay(concern, saju), { concern, narrowAnswers, eraFacts });
+    await pushEra(concern, eraFacts);
+    await sayLlmOr('knot', buildKnot(concern, saju, prior), { concern, narrowAnswers, eraFacts });
 
     const nextRaised = [...prior, concern];
     setChat(c => ({ ...c, raisedConcerns: nextRaised, knot: null, step: 'link' }));
@@ -408,10 +424,20 @@ export function ChatTab() {
         .filter(m => m.text && !m.era)
         .slice(-6)
         .map(m => ({ role: m.role, text: m.text }));
-      const text = await callLlm({ task: 'freeform', lang, saju, userText: v, prior: chatRef.current.raisedConcerns, history });
+      // 질문을 가까운 고민으로 라우팅 → 서울경제 실데이터 뉴스를 같이 넘겨 '시대 흐름'을 근거 있게
+      const routedC = routeFreeText(v);
+      const facts = routedC ? await fetchEraFacts(routedC) : [];
+      const eraFacts = facts.length
+        ? facts.map(f => ({ text: lang === 'en' ? f.en : f.ko, source: lang === 'en' ? f.sourceEn : f.source }))
+        : undefined;
+      const text = await callLlm({ task: 'freeform', lang, saju, userText: v, prior: chatRef.current.raisedConcerns, history, eraFacts });
       if (text) {
-        setCredits(spendCredit()); // 답변을 실제로 받은 경우에만 차감
+        // 완결된 풀이일 때만 차감 — 되묻기(짧은 클래리파이)는 무료
+        const substantive = isSubstantiveAnswer(text);
+        if (substantive) setCredits(spendCredit());
         await pushBot([text], true);
+        // 실제 기사를 근거로 답한 완결 풀이면, 그 기사 카드를 함께 노출
+        if (substantive && facts.length && routedC) await pushEra(routedC, facts);
         setChat(c => ({ ...c, step: 'link' }));
         await say([{ ko: '더 궁금한 게 있으면 적어주셔도 되고, 아래에서 골라도 돼요.', en: 'Ask anything else, or pick from below.' }]);
         return;
@@ -489,7 +515,7 @@ export function ChatTab() {
       <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto px-3 py-3">
         {messages.map(m => (
           m.era
-            ? <EraFactCard key={m.id} facts={eraFactsFor(m.era)} />
+            ? <EraFactCard key={m.id} facts={m.eraFacts ?? eraFactsFor(m.era)} />
             : <ChatBubble key={m.id} message={m} onTyped={m.role === 'bot' ? handleBubbleTyped : undefined} />
         ))}
         {busy && !isTyping && (

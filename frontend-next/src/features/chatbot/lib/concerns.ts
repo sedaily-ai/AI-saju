@@ -83,9 +83,10 @@ export const CONCERN_MAP: Record<ConcernId, ConcernDef> =
 export function routeFreeText(text: string): ConcernId | null {
   const s = text.toLowerCase();
   const has = (...ks: string[]) => ks.some(k => s.includes(k));
-  if (has('일', '직장', '회사', '진로', '커리어', '이직', '취업', 'work', 'job', 'career')) return 'career';
-  if (has('돈', '재물', 'money', '돈벌', '투자', '빚', '월급', '노후')) return 'money';
-  if (has('연애', '사랑', '관계', '결혼', '이별', '사람', 'love', 'relationship')) return 'relationship';
-  if (has('지쳐', '지침', '힘들', '번아웃', '우울', 'tired', 'burnout')) return 'overwhelmed';
+  // 공부·학업·시험·외국어 등은 가장 가까운 고민인 커리어로 라우팅(교육·취업 뉴스 활용)
+  if (has('일', '직장', '회사', '진로', '커리어', '이직', '취업', '취준', '공부', '학업', '시험', '자격증', '외국어', '영어', '유학', '진학', '스펙', '대학', '대학원', 'work', 'job', 'career', 'study', 'exam')) return 'career';
+  if (has('돈', '재물', 'money', '돈벌', '투자', '빚', '월급', '노후', '재테크', '부동산', '주식', '저축', '대출')) return 'money';
+  if (has('연애', '사랑', '관계', '결혼', '이별', '사람', '썸', '이상형', '소개팅', 'love', 'relationship')) return 'relationship';
+  if (has('지쳐', '지침', '힘들', '번아웃', '우울', '스트레스', '쉬고', '쉬어', 'tired', 'burnout')) return 'overwhelmed';
   return null;
 }

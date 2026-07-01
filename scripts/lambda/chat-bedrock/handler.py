@@ -30,6 +30,7 @@ import base64
 import json
 import os
 import time
+import urllib.request
 
 import boto3
 
@@ -45,6 +46,27 @@ ALLOW_ORIGIN = os.environ.get("ALLOW_ORIGIN", "https://saju.sedaily.ai")
 USAGE_TABLE = os.environ.get("USAGE_TABLE", "")
 DAILY_LIMIT = int(os.environ.get("DAILY_LIMIT", "500"))
 _ddb = boto3.client("dynamodb", region_name=os.environ.get("AWS_REGION", "us-east-1")) if USAGE_TABLE else None
+
+# 뉴스 검색 API(MBTI 백엔드) — 브라우저는 CORS 로 막히므로 이 Lambda 가 서버끼리 대신 호출한다.
+SEARCH_API_URL = os.environ.get("SEARCH_API_URL", "https://chzwwtjtgk.execute-api.us-east-1.amazonaws.com/dev")
+
+
+def handle_news(payload: dict) -> dict:
+    """payload['search'](검색 body)를 뉴스 API 로 프록시. 실패 시 빈 articles."""
+    search = payload.get("search") or {}
+    try:
+        req = urllib.request.Request(
+            SEARCH_API_URL.rstrip("/") + "/api/search",
+            data=json.dumps(search).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            data = json.loads(resp.read())
+        arts = data.get("articles") if isinstance(data, dict) else None
+        return {"articles": arts if isinstance(arts, list) else []}
+    except Exception:  # noqa: BLE001 — 뉴스 실패는 치명적이지 않음(프런트가 placeholder 폴백)
+        return {"articles": []}
 
 
 def _within_daily_limit() -> bool:
@@ -74,7 +96,7 @@ BASE_KO = (
     "지금 시대의 흐름(세상의 시간)을 얹어 담백하게 읽어줍니다.\n"
     "원칙: (1) 위로·공감 멘트 금지, 팩트만 담백하게. (2) 사주는 경향이지 단정이 아님. "
     "(3) 매듭짓기는 '재해석 한 줄 + 행동 하나'로 닫는다. (4) 2~4문장, 군더더기 없이. "
-    "(5) 제공된 시대 팩트는 '예시'이므로 단정적 통계로 진술하지 말 것. "
+    "(5) 제공된 시대 팩트(eraFacts)는 최근 흐름·보도 맥락이다. 없는 통계를 새로 지어내지 말고, 주어진 내용 범위에서만 정성적으로 얹어라. "
     "(6) ★명리 용어(오행·십성·신강약·격국·용신·대운 등)는 절대 그대로 던지지 말고, 반드시 일상어로 풀어 설명할 것★. "
     "예: '화(火)가 강하다'→'추진력과 표현 욕구가 큰 대신, 한번 타오르면 쉽게 지치는 편'. "
     "'수(水) 과다'→'생각·감정이 많아 신중하지만 결정이 느려지기 쉬움'. 사용자가 명리를 몰라도 바로 이해되게.\n"
@@ -86,7 +108,7 @@ BASE_EN = (
     "(the world's time) on top of the person's saju (their time), plainly.\n"
     "Principles: (1) No comforting/empathy filler — just plain facts. (2) Saju is tendency, not verdict. "
     "(3) Close with one reframe + one action. (4) 2-4 sentences, no padding. "
-    "(5) Era facts provided are SAMPLES — do not state them as hard statistics. "
+    "(5) Era facts are recent context/news — do not invent statistics; weave them in qualitatively, only within what's given. "
     "(6) NEVER drop bare saju jargon (elements, ten-gods, strength, structure, useful element, luck cycle) — "
     "always translate it into plain everyday meaning. e.g. 'strong Fire' -> 'lots of drive and need to express, but burns out fast'. "
     "Make it understandable to someone who knows nothing about saju.\n"
@@ -104,9 +126,11 @@ TASK_KO = {
         "사용자가 자유롭게 던진 구체적 질문(userText)에 '그 질문 자체'로 답한다. "
         "★history(직전 대화)가 주어지면 반드시 그 맥락을 이어서 답할 것 — 앞서 네가 한 말("
         "예: '현지의 현실을 봐두세요')을 사용자가 되물으면, 모른다 하지 말고 그 말을 구체적으로 풀어줄 것★. "
-        "명식(사주=개인의 시간) 위에 관련된 지금 시대 흐름(세상의 시간)을 한 줄 얹어 담백하게 읽어준다. "
-        "★질문과 무관한 일반 성향론·번아웃·운세로 빠지지 말 것★. 위로·단정 금지. "
-        "★통계·수치·'조사로 드러난다'류 인용 금지 — 데이터가 제공되지 않았으니 시대 흐름은 정성적 서술로만★. "
+        "기본은 명식(사주=개인의 시간)으로 사용자 상황을 읽어주는 것이다. "
+        "★'시장·업계·요즘 흐름' 같은 세상 이야기를 하려면, 반드시 제공된 eraFacts 기사 중 하나의 제목을 직접 인용하며 그 사실에 근거해서만 말하라"
+        "(예: \"서울경제 보도처럼 '…기사 제목…'\"). 인용할 기사가 없거나 질문과 안 맞으면, 시장·업계·트렌드 이야기를 한 문장도 하지 말 것 — "
+        "네 일반 지식으로 '시장이 ~다'라고 단정하는 것은 금지다★. "
+        "★질문과 무관한 일반 성향론·번아웃·운세로 빠지지 말 것★. 위로·단정 금지. 통계·수치 날조 금지. "
         "마지막에 '재해석: 한 줄' + '행동: 하나'로 닫는다. 2~5문장."
     ),
 }
@@ -120,9 +144,11 @@ TASK_EN = {
         "Answer the user's specific free-text question (userText) AS ITSELF. "
         "If history (prior turns) is given, ALWAYS continue from that context — if the user asks back about "
         "something you just said (e.g. 'see the local reality first'), do NOT say you don't understand; unpack it concretely. "
-        "Lay one line of the relevant present-era current (the world's time) on top of the chart (their time), plainly. "
-        "Do NOT drift into generic personality/burnout/fortune readings unrelated to the question. No comfort, no verdicts. "
-        "Do NOT cite statistics, numbers, or 'studies show' — no data was provided, so keep era currents qualitative. "
+        "Default to reading the user's situation through the chart (their saju). "
+        "To say ANYTHING about 'the market / the industry / current trends', you MUST quote one of the provided eraFacts headlines and ground it in that fact "
+        "(e.g. \"as Sedaily reports, '…headline…'\"). If no article fits the question, do NOT say a single sentence about markets/industry/trends — "
+        "asserting 'the market is …' from your own knowledge is forbidden. "
+        "Do NOT drift into generic personality/burnout/fortune readings unrelated to the question. No comfort, no verdicts. No fabricated stats. "
         "Close with 'Reframe:' one line + 'Action:' one. 2-5 sentences."
     ),
 }
@@ -185,6 +211,8 @@ def handler(event, _context):
         payload = _parse_body(event)
         task = payload.get("task", "hit")
         lang = "en" if payload.get("lang") == "en" else "ko"
+        if task == "news":  # 뉴스 프록시 (Bedrock 미사용, 킬스위치 미적용)
+            return _response(200, handle_news(payload))
         if task not in ("classify", "predict", "hit", "overlay", "knot", "freeform"):
             return _response(400, {"error": "invalid task"})
         # 글로벌 일일 상한 초과 시 Bedrock 미호출 → 프런트는 템플릿으로 폴백

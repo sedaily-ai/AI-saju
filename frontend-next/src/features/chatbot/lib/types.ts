@@ -1,4 +1,5 @@
 import type { Pillar, DaeunEntry } from '@/features/fortune/lib/engine';
+import type { EraFact } from './eraFacts';
 
 export type ChatRole = 'bot' | 'user';
 
@@ -10,6 +11,8 @@ export interface ChatMessage {
   markdown?: boolean;
   /** 설정되면 텍스트 대신 시대 팩트 카드를 렌더 */
   era?: ConcernId;
+  /** era 카드에 실을 시대 팩트 (서울경제 실데이터 or placeholder) */
+  eraFacts?: EraFact[];
 }
 
 /** ko/en 쌍 — 컴포넌트에서 t(ko,en) 로 해소 */
