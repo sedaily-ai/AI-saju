@@ -4,10 +4,11 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useLang } from '@/shared/lib/LangContext';
 
-type TabId = 'saju' | 'today' | 'chaeun' | 'career' | 'compatibility' | 'couple' | 'news' | 'blog' | 'zodiac';
+type TabId = 'saju' | 'chat' | 'today' | 'chaeun' | 'career' | 'compatibility' | 'couple' | 'news' | 'blog' | 'zodiac';
 
 const TABS: { id: TabId; href: string; ko: string; en: string }[] = [
   { id: 'saju',          href: '/saju',          ko: '내 사주',   en: 'My Saju' },
+  { id: 'chat',          href: '/chat',          ko: '사주 챗봇', en: 'Saju Chat' },
   { id: 'today',         href: '/today',         ko: '오늘의 운세', en: "Today's Saju" },
   { id: 'chaeun',        href: '/chaeun',        ko: '재운',     en: 'Wealth'  },
   { id: 'career',        href: '/career',        ko: '커리어',   en: 'Career'  },
@@ -27,6 +28,7 @@ function resolveActive(pathname: string | null): TabId | null {
   if (bare.startsWith('/career')) return 'career';
   if (bare.startsWith('/compatibility')) return 'compatibility';
   if (bare.startsWith('/couple')) return 'couple';
+  if (bare.startsWith('/chat')) return 'chat';
   if (bare.startsWith('/saju')) return 'saju';
   if (bare.startsWith('/zodiac')) return 'zodiac';
   if (bare.startsWith('/news')) return 'news';

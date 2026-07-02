@@ -14,6 +14,7 @@ interface RouteEntry {
 const ROUTES: RouteEntry[] = [
   { path: '/',              changeFrequency: 'weekly',  priority: 1.0 },
   { path: '/saju/',         changeFrequency: 'daily',   priority: 1.0 },
+  { path: '/chat/',         changeFrequency: 'weekly',  priority: 0.8 },
   { path: '/chaeun/',       changeFrequency: 'daily',   priority: 0.9 },
   { path: '/career/',       changeFrequency: 'weekly',  priority: 0.8 },
   { path: '/compatibility/', changeFrequency: 'weekly', priority: 0.9 },

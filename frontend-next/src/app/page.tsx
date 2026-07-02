@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import {
   ScrollText, Sun, Coins, Briefcase, Heart, Users, Rabbit, Newspaper,
-  Search, Sparkles, BookOpen, Home, Moon, Star,
+  Search, Sparkles, BookOpen, Home, Moon, Star, MessageCircle,
   type LucideIcon,
 } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
@@ -387,6 +387,36 @@ export default function LandingPage() {
           </ul>
         </SectionCard>
 
+        {/* Card: 사주 챗봇 */}
+        <SectionCard
+          eyebrow={t('사주 × 시대', 'Saju × the times')}
+          title={t('내 사주에 지금 시대를 얹어', 'Your saju, against today')}
+        >
+          <Link
+            href={localePath('/chat')}
+            className="flex items-center justify-between rounded-2xl p-4 transition-transform active:scale-[0.99]"
+            style={{ background: C.warmSoft }}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
+                style={{ background: C.warmDeep }}
+              >
+                <MessageCircle size={20} strokeWidth={2.2} color="#FFFFFF" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[14px] font-bold tracking-tight truncate" style={{ color: C.ink }}>
+                  {t('사주 챗봇과 대화하기', 'Chat with the Saju bot')}
+                </p>
+                <p className="text-[12px] mt-0.5 truncate" style={{ color: C.inkSoft }}>
+                  {t('헤매는 게 아니라, 시대가 그렇게 흐르는 거예요', "You're not lost — the times are moving")}
+                </p>
+              </div>
+            </div>
+            <span className="text-[20px] shrink-0" style={{ color: C.inkSub }} aria-hidden>›</span>
+          </Link>
+        </SectionCard>
+
         {/* Card: 오늘의 한 줄 */}
         <SectionCard
           eyebrow={today ? `${today.m}월 ${today.d}일` : t('오늘', 'Today')}
@@ -499,7 +529,7 @@ export default function LandingPage() {
             <BottomTab href={localePath('/today')}        Icon={Sun}         label={t('오늘',   'Today')}  />
             <BottomTab href={localePath('/saju')}         Icon={ScrollText}  label={t('사주',   'Saju')}   />
             <BottomTab href={localePath('/couple')}       Icon={Users}       label={t('궁합',   'Match')}  />
-            <BottomTab href={localePath('/blog')}         Icon={BookOpen}    label={t('블로그', 'Blog')}   />
+            <BottomTab href={localePath('/chat')}         Icon={MessageCircle} label={t('챗봇', 'Chatbot')}   />
           </nav>
         </div>
       </div>
