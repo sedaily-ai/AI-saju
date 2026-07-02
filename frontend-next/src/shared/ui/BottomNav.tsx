@@ -5,19 +5,19 @@
  *
  * - outer = 화면 전체 폭 paper bg (다크 노출 차단)
  * - inner = max-w-540 흰 dock (blur)
- * - 5탭: 홈 · 오늘 · 사주 · 궁합 · 블로그
+ * - 5탭: 홈 · 오늘 · 사주 · 궁합 · 챗봇
  * - active prop 으로 현재 탭 강조
  */
 
 import Link from 'next/link';
 import {
-  Home, Sun, ScrollText, Users, BookOpen,
+  Home, Sun, ScrollText, Users, MessageCircle,
   type LucideIcon,
 } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
 import { SAJU } from './sajuTokens';
 
-export type BottomNavKey = 'home' | 'today' | 'saju' | 'couple' | 'blog';
+export type BottomNavKey = 'home' | 'today' | 'saju' | 'couple' | 'chat';
 
 interface BottomNavProps {
   active?: BottomNavKey;
@@ -49,7 +49,7 @@ export function BottomNav({ active, maxWidth = 540 }: BottomNavProps) {
           <Tab href={localePath('/today')}  icon={Sun}        label={t('오늘',   'Today')} isActive={active === 'today'} />
           <Tab href={localePath('/saju')}   icon={ScrollText} label={t('사주',   'Saju')}  isActive={active === 'saju'} />
           <Tab href={localePath('/couple')} icon={Users}      label={t('궁합',   'Match')} isActive={active === 'couple'} />
-          <Tab href={localePath('/blog')}   icon={BookOpen}   label={t('블로그', 'Blog')}  isActive={active === 'blog'} />
+          <Tab href={localePath('/chat')}   icon={MessageCircle} label={t('챗봇', 'Chatbot')}  isActive={active === 'chat'} />
         </nav>
       </div>
     </div>

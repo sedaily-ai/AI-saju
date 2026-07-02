@@ -529,7 +529,7 @@ export default function LandingPage() {
             <BottomTab href={localePath('/today')}        Icon={Sun}         label={t('오늘',   'Today')}  />
             <BottomTab href={localePath('/saju')}         Icon={ScrollText}  label={t('사주',   'Saju')}   />
             <BottomTab href={localePath('/couple')}       Icon={Users}       label={t('궁합',   'Match')}  />
-            <BottomTab href={localePath('/blog')}         Icon={BookOpen}    label={t('블로그', 'Blog')}   />
+            <BottomTab href={localePath('/chat')}         Icon={MessageCircle} label={t('챗봇', 'Chatbot')}   />
           </nav>
         </div>
       </div>

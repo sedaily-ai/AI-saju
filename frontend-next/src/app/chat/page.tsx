@@ -32,7 +32,7 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <BottomNav active="saju" />
+      <BottomNav active="chat" />
     </>
   );
 }

@@ -414,7 +414,7 @@ export default function BlogPage() {
         )}
       </div>
 
-      <BottomNav active="blog" />
+      <BottomNav />
     </PageShell>
   );
 }
