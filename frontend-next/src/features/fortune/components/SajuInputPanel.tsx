@@ -267,7 +267,7 @@ export function SajuInputPanel({ initial, onCalculated, submitLabel = '운세 �
               )}
             </div>
           </div>
-          <div className="mt-2 flex items-center justify-between gap-4 flex-wrap">
+          <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
             <div>
               {calendar === 'lunar' && (
                 <label className="inline-flex items-center gap-1.5 text-[13px] text-gray-400 dark:text-gray-300 cursor-pointer">
