@@ -113,7 +113,7 @@ Features 는 `index.ts` 배럴로만 외부에 노출됩니다 (`import { Fortun
 | 블로그 Lambda (미사용) | Function URL `2ranuwiguucfnrw7ks5jkjhami0zupuu.lambda-url.us-east-1.on.aws` — `AuthType=NONE`, 프론트 admin 삭제로 호출자 없음. 삭제 여부 미결정 | us-east-1 |
 | Bedrock Application Inference Profile | `cc-opus-47`, `cc-haiku-45` (Claude Code 사용량 태깅용) | us-east-1 |
 
-블로그 Lambda 는 (호출된다면) **두 S3 버킷 모두**에 업로드합니다 — `saju-oracle-frontend-887078546492` (사주) + `sedaily-mbti-frontend-dev` (MBTI). 두 사이트가 동일한 블로그를 공유하는 구조라 변경 시 주의. 현재는 `scripts/backend/upload_blog_post.py` CLI가 이 Lambda를 거치지 않고 두 버킷에 직접 업로드하는 유일한 수동 발행 경로.
+블로그 Lambda·`upload_blog_post.py` 모두 2026-07-09부로 `saju-oracle-frontend-887078546492` 버킷 하나에만 업로드합니다 — 이전엔 MBTI 사이트(`sedaily-mbti-frontend-dev`)와 콘텐츠를 공유했으나 서비스 리디자인 방침에 따라 제거됨. 수동 발행이 필요하면 `scripts/backend/upload_blog_post.py` CLI 사용 (Lambda는 미사용 상태).
 
 ## 주요 기술 결정
 
