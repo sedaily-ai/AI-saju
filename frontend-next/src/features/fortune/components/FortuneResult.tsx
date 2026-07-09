@@ -3,30 +3,31 @@ import { isBeforeLichun, getSajuMonth } from '@fullstackfamily/manseryeok';
 import { CG_OH, JJ_OH, OH_HJ, JJG, sipsung, unsung, buildStructureAnalysis, detectDayHapChung, evaluateForYongsin, generateDailyInsights, type Pillar, type ChongunResult, type TodayFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry, type YongsinRating } from '../lib/engine';
 import { OHAENG_SETS, V3_TOKENS, type Ohaeng } from '../lib/ohaeng';
 import { SajuTable } from './SajuTable';
-import { DailyCalendar } from './DailyCalendar';
+
 import { useLang } from '@/shared/lib/LangContext';
 
 type MbtiGroup = 'NT' | 'NF' | 'ST' | 'SF';
 
 const EL_COLORS: Record<string, string> = {
-  '목': 'text-green-600', '화': 'text-red-500', '토': 'text-yellow-600',
-  '금': 'text-gray-500 dark:text-gray-100 dark:text-gray-300', '수': 'text-blue-600',
+  '목': 'text-emerald-400', '화': 'text-red-600', '토': 'text-yellow-500',
+  '금': 'text-gray-400 dark:text-gray-300', '수': 'text-gray-900 dark:text-gray-100',
 };
 
-// 오행별 보충 배지 테두리·배경 — EL_COLORS 와 짝
+// 오행별 보충 배지 테두리·배경
 const EL_BADGE: Record<string, string> = {
-  '목': 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-950/40',
+  '목': 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/40',
   '화': 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-950/40',
   '토': 'border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-950/40',
-  '금': 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800',
-  '수': 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/40',
+  '금': 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800',
+  '수': 'border-gray-400 dark:border-gray-600 bg-gray-100 dark:bg-gray-900',
 };
 
 interface Props {
   data: {
     pillars: Pillar[]; ilgan: string;
     year: number; month: number; day: number; gender: string;
-    chongun: ChongunResult | null; todayFortune: TodayFortuneResult | null;
+    chongun: ChongunResult | null;
+    todayFortune: TodayFortuneResult | null;
     daeuns: DaeunEntry[]; yeonuns: YeonunEntry[]; woluns: WolunEntry[];
     correctedTime?: { hour: number; minute: number };
   };
@@ -37,7 +38,7 @@ interface Props {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4 break-words">
+    <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4 break-words">
       <h3 className="text-[15px] font-bold text-gray-900 dark:text-gray-100 mb-3">{title}</h3>
       <div className="text-[14px] text-gray-600 dark:text-gray-100 leading-relaxed">{children}</div>
     </div>
@@ -50,7 +51,7 @@ function CollapsibleSection({ title, subtitle, children, defaultOpen = false }: 
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl mb-4 overflow-hidden">
+    <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl mb-4 overflow-hidden">
       <button type="button" onClick={() => setOpen(v => !v)}
         className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
         <div className="text-left">
@@ -181,7 +182,6 @@ interface CategoryToneBuckets {
 interface TodayPartsCache {
   ss: Record<MbtiGroup, Record<string, string>>;
   us: Record<MbtiGroup, Record<string, string>>;
-  // 카테고리는 톤 버킷 구조 또는 기존 array/string (하위 호환)
   category: Record<string, Record<MbtiGroup, Record<string, string | string[] | CategoryToneBuckets>>>;
 }
 
@@ -206,7 +206,6 @@ const SS_FLOW: Record<string, string> = {
 };
 
 // 십성 → 오늘 흐름이 두드러지는 주 영역 매핑
-// (정인일인데 재물운만 주의 뜨는 '맥락 단절' 문제를 줄이기 위해 상단에 요약 노출)
 const SS_DOMAIN_MAP: Record<string, { primary: string; theme: string }> = {
   '비견': { primary: '관계·활동', theme: '동료·경쟁 기운이 도는 날' },
   '겁재': { primary: '관계·지출', theme: '형제·동료 기운과 함께 지출 주의가 있는 날' },
@@ -240,9 +239,10 @@ type UnVariant = 'daeun' | 'yeonun' | 'wolun';
 
 interface UnCol { c: string; j: string; ck: string; jk: string; label: string }
 
-function UnCard({ title, subtitle, cols, ilgan, activeCheck, variant, yongsinOh }: {
+function UnCard({ title, subtitle, hint, cols, ilgan, activeCheck, variant, yongsinOh }: {
   title: string;
   subtitle?: string;
+  hint?: string;
   cols: UnCol[];
   ilgan: string;
   activeCheck?: (col: UnCol) => boolean;
@@ -259,10 +259,18 @@ function UnCard({ title, subtitle, cols, ilgan, activeCheck, variant, yongsinOh 
   const showSipsung = variant !== 'wolun'; // 월운은 하단 십성 생략 (스크린샷 기준)
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] p-5 mb-4">
+    <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-4">
       <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{title}</div>
       {subtitle && <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5 mb-3">{subtitle}</div>}
       {!subtitle && <div className="mb-3" />}
+      {hint && (
+        <div className="text-[11px] text-gray-400 dark:text-gray-400 mb-2.5 flex items-center gap-1">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-60">
+            <path d="M15 15l-2 5L9 9l11 4-5 2z" />
+          </svg>
+          {hint}
+        </div>
+      )}
 
       <div className="overflow-x-auto -mx-1 px-1">
         <div className="flex gap-2 min-w-max pb-1">
@@ -415,7 +423,6 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
   const currentDay = now.getDate();
   const sajuYear = isBeforeLichun(currentMonth, currentDay) ? now.getFullYear() - 1 : now.getFullYear();
   // calcWolun은 각 달력 월 15일 기준이라 사주월 N(인월=1)이 label "N+1월"과 매칭됨
-  // (예: 입춘 후~경칩 전 = 사주월 1 = 인월 = 캘린더 2월 15일 월주)
   const wolunActiveMonth = (getSajuMonth(currentMonth, currentDay) % 12) + 1;
 
   // 캐시 JSON fetch
@@ -434,13 +441,14 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
       .catch(() => setChongunCache(null));
   }, [ilgan, pillars, lang]);
 
-  // 오늘의 운세 파트별 리라이팅 JSON (언어별 로드)
+  // 오늘의 운세 파트별 리라이팅 JSON (today 모드에서만 로드)
   useEffect(() => {
+    if (mode !== 'today') return;
     fetch(lang === 'en' ? '/saju-cache/today-parts-en.json' : '/saju-cache/today-parts.json')
       .then(r => r.ok ? r.json() : null)
       .then(d => setTodayParts(d))
       .catch(() => setTodayParts(null));
-  }, [lang]);
+  }, [lang, mode]);
 
   const structure = buildStructureAnalysis(pillars);
   const dayHapChung = todayFortune?.dayPillarHanja ? detectDayHapChung(pillars, todayFortune.dayPillarHanja) : [];
@@ -460,17 +468,15 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
   const chongunText = mbtiGroup && chongunCache?.[mbtiGroup] ? chongunCache[mbtiGroup] : null;
   const ssReadingText = mbtiGroup && todayParts?.ss?.[mbtiGroup]?.[todayFortune?.ss || ''] || todayFortune?.ssReading || '';
   const usReadingText = mbtiGroup && todayParts?.us?.[mbtiGroup]?.[todayFortune?.us || ''] || todayFortune?.usReading || '';
-  // 날짜 기반 variant 선택 — 같은 날엔 같은 variant, 날이 바뀌면 다른 variant
   const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
-  const getCategoryDesc = (catLabel: string, ss: string, fallback: string) => {
-    const entry = mbtiGroup ? todayParts?.category?.[catLabel]?.[mbtiGroup]?.[ss] : undefined;
+  const getCategoryDesc = (catLbl: string, ss: string, fallback: string) => {
+    const entry = mbtiGroup ? todayParts?.category?.[catLbl]?.[mbtiGroup]?.[ss] : undefined;
     if (!entry) return fallback;
     if (typeof entry === 'string') return entry;
     if (Array.isArray(entry)) {
       if (entry.length === 0) return fallback;
       return entry[dayOfYear % entry.length];
     }
-    // 톤 버킷 구조: 오늘 12운성에 따라 favor/caution/default 선택
     const us = todayFortune?.us || '';
     const bucket = US_TONE_BUCKET[us] || 'default';
     const buckets = entry as CategoryToneBuckets;
@@ -532,18 +538,16 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
         </div>
       </div>
 
-      {/* 타입 가이드 + MBTI 그룹 선택 — 일간 카드와 TODAY 사이, 한 줄 배치 */}
+      {/* 풀이 스타일 선택 */}
       {onMbtiChange && (
         <div className="mb-4 flex items-center justify-between gap-2 flex-wrap">
           <div className="text-[12px] text-gray-600 dark:text-gray-300 font-medium">
-            {t('타입에 맞게 풀이해드립니다!', 'Interpreted for your type!')}
+            {t('풀이 스타일', 'Interpretation style')}
           </div>
           <div className="flex gap-1">
             {([
               { id: 'NT' as const, ko: '분석', en: 'Analytic' },
               { id: 'NF' as const, ko: '이야기', en: 'Narrative' },
-              { id: 'ST' as const, ko: '실용', en: 'Practical' },
-              { id: 'SF' as const, ko: '다정', en: 'Warm' },
             ]).map((g) => (
               <button
                 key={g.id}
@@ -562,8 +566,10 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
         </div>
       )}
 
-      {/* TODAY */}
-      {todayFortune && (
+      {/* ── TODAY 모드 전용 섹션 ── */}
+
+      {/* TODAY 카드 */}
+      {mode === 'today' && todayFortune && (
         <div
           className="rounded-[16px] mb-4 relative overflow-hidden"
           style={{
@@ -598,25 +604,14 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
                 const ph = ilganPhrase ? <b>{ilganPhrase}</b> : null;
                 const ss = <b>{SS_FLOW[todayFortune.ss] || todayFortune.ss}</b>;
                 const us = <b>{US_FLOW[todayFortune.us] || todayFortune.us}</b>;
-                switch (mbtiGroup) {
-                  case 'NT':
-                    return (
-                      <>오늘 일진은 {dp}. {ph && <>{ph} 일간 기준 </>}{ss} 작용, 12운성 {us} 구간입니다.</>
-                    );
-                  case 'ST':
-                    return (
-                      <>오늘 {dp}일, {ph && <>{ph} 일간. </>}핵심은 {ss}과 {us} 두 축이에요.</>
-                    );
-                  case 'SF':
-                    return (
-                      <>오늘은 {dp}일이야~ {ph && <>네 {ph}한테 </>}오늘은 {ss} 기운이 돌고, {us} 느낌이 살짝 깔려 있어. 편하게 흘러가보자!</>
-                    );
-                  case 'NF':
-                  default:
-                    return (
-                      <>오늘은 {dp}일이에요.{ph && <> 당신의 {ph}에게</>} 오늘은 {ss}의 날, 그리고 {us}의 하루랍니다.</>
-                    );
+                if (mbtiGroup === 'NT') {
+                  return (
+                    <>오늘 일진은 {dp}. {ph && <>{ph} 일간 기준 </>}{ss} 작용, 12운성 {us} 구간입니다.</>
+                  );
                 }
+                return (
+                  <>오늘은 {dp}일이에요.{ph && <> 당신의 {ph}에게</>} 오늘은 {ss}의 날, 그리고 {us}의 하루랍니다.</>
+                );
               })()}
             </div>
             <div className="grid grid-cols-3 gap-2">
@@ -639,9 +634,8 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
         </div>
       )}
 
-
-      {/* [섹션 1] 오늘의 운세 — 설명 */}
-      {todayFortune && (
+      {/* 오늘의 운세 — 설명 */}
+      {mode === 'today' && todayFortune && (
         <Section title={t('오늘의 운세', "Today's Fortune")}>
           {ssReadingText && <p className="mb-3">{ssReadingText}</p>}
           <p className={todayFortune.sinsal.length || dailyInsights.complements.length || dayHapChung.length ? 'mb-3' : ''}>
@@ -650,7 +644,6 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
             <br />{usReadingText}
           </p>
 
-          {/* 원국 결핍 오행 ↔ 오늘 일진 지장간 보충 분석 */}
           {dailyInsights.complements.length > 0 && (
             <div className="border-t border-gray-100 dark:border-gray-800 pt-3 mb-3">
               <div className="text-[11px] font-semibold text-gray-600 dark:text-gray-100 dark:text-gray-300 mb-1.5">{t('원국 부족 기운 보충', 'Supplement for Lacking Elements')}</div>
@@ -667,7 +660,6 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
             </div>
           )}
 
-          {/* 일진 ↔ 원국 합충: 오늘 기운과 내 사주의 상호작용 */}
           {dayHapChung.length > 0 && (
             <div className="border-t border-gray-100 dark:border-gray-800 pt-3 mb-3">
               <div className="text-[11px] font-semibold text-gray-600 dark:text-gray-100 dark:text-gray-300 mb-1.5">{t('오늘 기운과 내 사주의 만남', "Today's Energy Meets Your Chart")}</div>
@@ -716,9 +708,9 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
         </Section>
       )}
 
-      {/* [섹션 2] 지지 속 숨은 기운 */}
-      {mode === 'full' && todayFortune && todayFortune.hiddenSipsung && todayFortune.hiddenSipsung.length > 0 && (
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5 mb-4">
+      {/* 지지 속 숨은 기운 */}
+      {mode === 'today' && todayFortune && todayFortune.hiddenSipsung && todayFortune.hiddenSipsung.length > 0 && (
+        <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-5 mb-4">
           <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('지지 속 숨은 기운', 'Hidden Energies in Earthly Branch')}</h3>
           <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5 mb-4">
             지지 {todayFortune.dayPillarHanja[1]} · 지장간
@@ -751,10 +743,9 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
         </div>
       )}
 
-      {/* [섹션 3] 분야별 운세 */}
-      {todayFortune && todayFortune.categories && todayFortune.categories.length > 0 && (
+      {/* 분야별 운세 */}
+      {mode === 'today' && todayFortune && todayFortune.categories && todayFortune.categories.length > 0 && (
         <Section title={t('분야별 운세', 'Fortune by Category')}>
-          {/* 십성 → 주 영역 테마 요약 (정인일 = 학업 등 맥락 연결) */}
           {(() => {
             const domain = SS_DOMAIN_MAP[todayFortune.ss];
             if (!domain) return null;
@@ -808,15 +799,14 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
                   {getCategoryDesc(cat.label, todayFortune.ss, cat.desc)}
                 </p>
                 {(() => {
-                  // 카테고리 pill 톤과 매칭되는 노트만 노출
                   const notes = categoryNoteMap[cat.label] || [];
                   const visible = notes.filter(n => {
-                    if (n.tone === 'positive') return cat.score >= 45;  // 무난 이상
-                    if (n.tone === 'negative') return cat.score < 65;   // 무난 이하
+                    if (n.tone === 'positive') return cat.score >= 45;
+                    if (n.tone === 'negative') return cat.score < 65;
                     return true;
                   });
                   if (visible.length === 0) return null;
-                  const isMild = cat.score >= 45 && cat.score < 65; // 무난 구간
+                  const isMild = cat.score >= 45 && cat.score < 65;
                   return (
                     <div className="mt-2.5 space-y-1.5">
                       {visible.map((n, i) => {
@@ -858,7 +848,57 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
         </Section>
       )}
 
-      {/* ── 이하 full 모드에서만 표시 ── */}
+      {/* 대운 */}
+      {mode === 'full' && ilgan && daeuns.length > 0 && (
+        <UnCard
+          title={t('대운', 'Major Cycle')}
+          subtitle={t('10년 주기로 보는 큰 흐름', '10-year major life cycles')}
+          hint={t('각 시기를 탭하면 상세 풀이를 볼 수 있어요', 'Tap a period to see detailed interpretation')}
+          variant="daeun"
+          cols={daeuns.map(x => ({ ...x, label: lang === 'en' ? `${x.age}` : `${x.age}세` }))}
+          ilgan={ilgan}
+          activeCheck={col => {
+            const age = (col as unknown as DaeunEntry).age;
+            return currentAge >= age && currentAge < age + 10;
+          }}
+        />
+      )}
+
+      {/* 연운 */}
+      {mode === 'full' && ilgan && yeonuns.length > 0 && (
+        <UnCard
+          title={t('세운', 'Annual Cycle')}
+          subtitle={t('1년 단위로 바뀌는 그해의 흐름', 'Year-by-year flow')}
+          variant="yeonun"
+          cols={yeonuns.map(x => ({ ...x, label: `${x.year}` }))}
+          ilgan={ilgan}
+          activeCheck={col => (col as unknown as YeonunEntry).year === sajuYear}
+        />
+      )}
+
+      {/* 월운 */}
+      {mode === 'full' && ilgan && woluns.length > 0 && (
+        <>
+          <UnCard
+            title={t('월운', 'Monthly Cycle')}
+            subtitle={t('한 달 단위의 세부 흐름', 'Month-by-month flow')}
+            variant="wolun"
+            cols={woluns.map(x => ({ ...x, label: lang === 'en' ? `M${String(x.month).padStart(2, '0')}` : `${String(x.month).padStart(2, '0')}월` }))}
+            ilgan={ilgan}
+            yongsinOh={structure?.yongsin?.primary}
+            activeCheck={col => (col as unknown as WolunEntry).month === wolunActiveMonth}
+          />
+          {structure?.yongsin && (
+            <div className="-mt-3 mb-4 px-5 text-[11px] text-gray-500 dark:text-gray-100 dark:text-gray-300">
+              <span className="text-green-600 font-semibold">{t('용신↑', 'Yongsin↑')}</span> {t('내 필요한 기운이 강해지는 달', 'Months where your needed element is strong')} ·
+              <span className="text-red-500 font-semibold ml-1">{t('용신↓', 'Yongsin↓')}</span> {t('용신이 약해지는 달', 'Months where it weakens')}
+              ({t('용신', 'Yongsin')}: <strong className={EL_COLORS[structure.yongsin.primary]}>{structure.yongsin.primary}</strong>)
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── 총운 (월운 뒤 배치) ── */}
       {mode === 'full' && chongun && (
         <Section title={t('총운', 'Overall Fortune')}>
           {chongunText ? (
@@ -953,58 +993,6 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
           <p className="text-[12px] italic text-gray-500 dark:text-gray-100 dark:text-gray-300">{chongun.iljiDetail.conclusion}</p>
         </Section>
       )}
-
-      {/* 대운 */}
-      {mode === 'full' && ilgan && daeuns.length > 0 && (
-        <UnCard
-          title={t('대운', 'Major Cycle')}
-          subtitle={t('10년 주기로 보는 큰 흐름', '10-year major life cycles')}
-          variant="daeun"
-          cols={daeuns.map(x => ({ ...x, label: lang === 'en' ? `${x.age}` : `${x.age}세` }))}
-          ilgan={ilgan}
-          activeCheck={col => {
-            const age = (col as unknown as DaeunEntry).age;
-            return currentAge >= age && currentAge < age + 10;
-          }}
-        />
-      )}
-
-      {/* 연운 */}
-      {mode === 'full' && ilgan && yeonuns.length > 0 && (
-        <UnCard
-          title={t('세운', 'Annual Cycle')}
-          subtitle={t('1년 단위로 바뀌는 그해의 흐름', 'Year-by-year flow')}
-          variant="yeonun"
-          cols={yeonuns.map(x => ({ ...x, label: `${x.year}` }))}
-          ilgan={ilgan}
-          activeCheck={col => (col as unknown as YeonunEntry).year === sajuYear}
-        />
-      )}
-
-      {/* 월운 */}
-      {mode === 'full' && ilgan && woluns.length > 0 && (
-        <>
-          <UnCard
-            title={t('월운', 'Monthly Cycle')}
-            subtitle={t('한 달 단위의 세부 흐름', 'Month-by-month flow')}
-            variant="wolun"
-            cols={woluns.map(x => ({ ...x, label: lang === 'en' ? `M${String(x.month).padStart(2, '0')}` : `${String(x.month).padStart(2, '0')}월` }))}
-            ilgan={ilgan}
-            yongsinOh={structure?.yongsin?.primary}
-            activeCheck={col => (col as unknown as WolunEntry).month === wolunActiveMonth}
-          />
-          {structure?.yongsin && (
-            <div className="-mt-3 mb-4 px-5 text-[11px] text-gray-500 dark:text-gray-100 dark:text-gray-300">
-              <span className="text-green-600 font-semibold">{t('용신↑', 'Yongsin↑')}</span> {t('내 필요한 기운이 강해지는 달', 'Months where your needed element is strong')} ·
-              <span className="text-red-500 font-semibold ml-1">{t('용신↓', 'Yongsin↓')}</span> {t('용신이 약해지는 달', 'Months where it weakens')}
-              ({t('용신', 'Yongsin')}: <strong className={EL_COLORS[structure.yongsin.primary]}>{structure.yongsin.primary}</strong>)
-            </div>
-          )}
-        </>
-      )}
-
-      {/* 일진 달력 */}
-      {mode === 'full' && ilgan && <DailyCalendar ilgan={ilgan} />}
 
       {/* 사주 구조 진단 — V3 디자인 */}
       {mode === 'full' && structure && (

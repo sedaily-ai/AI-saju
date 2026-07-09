@@ -22,7 +22,7 @@ export function CitySelect({ value, onChange }: Props) {
   if (lang !== 'en') {
     return (
       <select value={value} onChange={e => onChange(e.target.value)}
-        className="w-full px-3.5 py-3 text-[16px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 appearance-none cursor-pointer"
+        className="w-full px-3.5 py-3 text-[16px] bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 appearance-none cursor-pointer"
         style={{ backgroundImage: CARET_SVG, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}>
         {REGION_OPTIONS.map((r, i) => <option key={`${r.value}-${i}`} value={r.value}>{r.label}</option>)}
       </select>
@@ -110,14 +110,14 @@ function CitySearch({ value, onChange, t }: SearchProps) {
         onKeyDown={handleKeyDown}
         placeholder={t('도시 검색...', 'Type to search city...')}
         autoComplete="off"
-        className="w-full px-3.5 py-3 text-[16px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 cursor-text"
+        className="w-full px-3.5 py-3 text-[16px] bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 cursor-text"
         style={{ backgroundImage: CARET_SVG, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center' }}
       />
       {open && (
         <ul
           ref={listRef}
           role="listbox"
-          className="absolute z-20 mt-1 w-full max-h-[280px] overflow-y-auto bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg"
+          className="absolute z-20 mt-1 w-full max-h-[280px] overflow-y-auto bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl shadow-lg"
         >
           {filtered.length === 0 ? (
             <li className="px-3.5 py-2.5 text-[14px] text-gray-400">

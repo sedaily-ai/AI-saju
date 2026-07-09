@@ -10,13 +10,13 @@ import {
 export const metadata: Metadata = {
   metadataBase: new URL('https://saju.sedaily.ai'),
   title: {
-    absolute: '사주팔자 무료 풀이 — 원국·오늘의 운세·십성 분석',
+    absolute: '사주팔자 무료 풀이 — 원국·십성 분석·대운 타임라인',
   },
   description:
     '생년월일시만 입력하면 천간·지지·대운·십성·오행 분포를 한 장에 정리. 궁통보감·삼명통회·자평진전 3대 고전과 KASI 만세력 기반의 무료 사주팔자 서비스.',
   keywords: [
-    '사주팔자', '무료 사주', '오늘의 운세', '일진', '원국',
-    '십성', '오행', '천간', '지지', '만세력', 'KASI 만세력',
+    '사주팔자', '무료 사주', '원국',
+    '십성', '오행', '천간', '지지', '만세력', 'KASI 만세력', '대운',
   ],
   alternates: {
     canonical: 'https://saju.sedaily.ai/saju/',
@@ -26,8 +26,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: '사주팔자 무료 풀이 — 오늘의 운세',
-    description: '생년월일시로 원국·대운·오늘 일진까지 한 번에.',
+    title: '사주팔자 무료 풀이 — 원국·대운·십성',
+    description: '생년월일시로 원국·대운·십성까지 한 번에.',
     url: 'https://saju.sedaily.ai/saju/',
     type: 'website',
     locale: 'ko_KR',
@@ -35,8 +35,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: '사주팔자 무료 풀이 — 오늘의 운세',
-    description: '생년월일시로 원국·대운·오늘 일진까지 한 번에.',
+    title: '사주팔자 무료 풀이 — 원국·대운·십성',
+    description: '생년월일시로 원국·대운·십성까지 한 번에.',
   },
   robots: {
     index: true,
@@ -61,7 +61,7 @@ const SAJU_FAQ = [
   },
   {
     q: '오늘의 운세(일진)는 어떻게 계산되나요?',
-    a: '오늘 날짜에 해당하는 천간·지지(일진)와 내 일간의 관계를 십성으로 풀어 해석합니다. 예: 甲 일간에게 오늘이 丙(식신)이면 표현·활동이 유리한 날, 庚(편관)이면 압박·결단이 중심인 날로 읽습니다. 일지와 내 일지의 합·충 여부까지 함께 봅니다.',
+    a: '오늘 날짜에 해당하는 천간·지지(일진)와 내 일간의 관계를 십성으로 풀어 해석합니다. 예: 甲 일간에게 오늘이 丙(식신)이면 표현·활동이 유리한 날, 庚(편관)이면 압박·결단이 중심인 날로 읽습니다. 일지와 내 일지의 합·충 여부까지 함께 봅니다. 일진 분석은 별도 페이지(/today)에서 확인할 수 있습니다.',
   },
   {
     q: '태어난 시간을 모르면 사주를 볼 수 없나요?',
@@ -87,8 +87,8 @@ const SAJU_HOWTO = [
     text: '네 기둥(年月日時)과 십성, 오행 분포를 한 화면에서 확인합니다. 강한 기운과 부족한 기운이 자동으로 표시됩니다.',
   },
   {
-    name: '대운·오늘의 운세·재운·커리어·궁합 탐색',
-    text: '결과 화면에서 대운 타임라인, 오늘의 일진, 재운 흐름, 커리어 적성, 이상형 궁합 탭으로 바로 이동해 깊이 있는 해석을 확인합니다.',
+    name: '대운·재운·커리어·궁합 탐색',
+    text: '결과 화면에서 대운 타임라인, 재운 흐름, 커리어 적성, 이상형 궁합 탭으로 바로 이동해 깊이 있는 해석을 확인합니다.',
   },
 ];
 
@@ -97,10 +97,10 @@ export default function SajuLayout({ children }: { children: React.ReactNode }) 
     <>
       <JsonLd
         data={webPageSchema({
-          name: '사주팔자 무료 풀이 — 오늘의 운세',
-          description: '생년월일시로 원국·대운·오늘 일진까지 한 번에.',
+          name: '사주팔자 무료 풀이 — 원국·대운·십성',
+          description: '생년월일시로 원국·대운·십성까지 한 번에.',
           path: '/saju/',
-          topic: ['사주팔자', '오늘의 운세', '십성', '오행', '대운'],
+          topic: ['사주팔자', '십성', '오행', '대운'],
         })}
       />
       <JsonLd
@@ -113,7 +113,7 @@ export default function SajuLayout({ children }: { children: React.ReactNode }) 
       <JsonLd
         data={howToSchema({
           name: '사주팔자 보는 법',
-          description: '생년월일시로 사주 원국·십성·대운·오늘의 운세까지 확인하는 방법.',
+          description: '생년월일시로 사주 원국·십성·대운까지 확인하는 방법.',
           totalTime: 'PT1M',
           steps: SAJU_HOWTO,
         })}

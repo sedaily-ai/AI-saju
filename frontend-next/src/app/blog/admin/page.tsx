@@ -202,7 +202,7 @@ export default function BlogAdminPage() {
   if (!unlocked) {
     return (
       <div className="min-h-screen bg-[#F8F9FA] dark:bg-gray-950 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 w-full max-w-[360px] shadow-sm">
+        <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-2xl p-6 w-full max-w-[360px] shadow-sm">
           <h1 className="text-[18px] font-extrabold text-gray-900 dark:text-gray-100 mb-1">Blog Admin</h1>
           <p className="text-[12px] text-gray-500 dark:text-gray-400 mb-4">오라클 블로그 관리 · 글 작성</p>
           <input
@@ -321,19 +321,19 @@ function AdminList({
       </div>
 
       {loading && (
-        <div className="flex items-center justify-center py-16 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl">
+        <div className="flex items-center justify-center py-16 bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl">
           <Spinner size="md" label="목록을 불러오는 중…" />
         </div>
       )}
 
       {error && (
-        <div className="py-10 text-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl">
+        <div className="py-10 text-center bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl">
           <p className="text-[13px] text-gray-500 dark:text-gray-300">목록을 불러오지 못했어요.</p>
         </div>
       )}
 
       {!loading && !error && posts.length === 0 && (
-        <div className="py-12 text-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl">
+        <div className="py-12 text-center bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl">
           <p className="text-[13px] text-gray-500 dark:text-gray-300 mb-4">아직 작성된 글이 없어요.</p>
           <button
             type="button"
@@ -346,7 +346,7 @@ function AdminList({
       )}
 
       {!loading && !error && posts.length > 0 && (
-        <ul className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden">
+        <ul className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl divide-y divide-gray-100 dark:divide-gray-800 overflow-hidden">
           {posts.map((p) => (
             <li key={p.slug}>
               <button
@@ -641,7 +641,7 @@ function AdminEditor({
       </div>
 
       {/* 툴바 */}
-      <div className="sticky top-[56px] z-30 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg px-2 py-1.5 mb-3 flex flex-wrap items-center gap-1">
+      <div className="sticky top-[56px] z-30 bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-lg px-2 py-1.5 mb-3 flex flex-wrap items-center gap-1">
         <ToolbarButton title="제목 2" onClick={() => exec('formatBlock', '<h2>')}>H2</ToolbarButton>
         <ToolbarButton title="제목 3" onClick={() => exec('formatBlock', '<h3>')}>H3</ToolbarButton>
         <ToolbarButton title="본문" onClick={() => exec('formatBlock', '<p>')}>P</ToolbarButton>
@@ -671,12 +671,12 @@ function AdminEditor({
           const text = e.clipboardData.getData('text/plain');
           document.execCommand('insertText', false, text);
         }}
-        className="blog-body admin-editor min-h-[400px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl px-4 sm:px-6 py-5 outline-none focus:border-gray-400 text-[15px] leading-[1.8] text-gray-800 dark:text-gray-100"
+        className="blog-body admin-editor min-h-[400px] bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl px-4 sm:px-6 py-5 outline-none focus:border-gray-400 text-[15px] leading-[1.8] text-gray-800 dark:text-gray-100"
         aria-label="본문 에디터"
       />
 
       {/* 부가 옵션 — 태그 · 슬러그 · 커버 */}
-      <details className="mt-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl">
+      <details className="mt-5 bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl">
         <summary className="px-4 py-3 text-[12.5px] font-semibold text-gray-600 dark:text-gray-300 cursor-pointer select-none">
           상세 옵션 · 태그 / 슬러그 / 커버
         </summary>

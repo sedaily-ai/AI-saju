@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Providers } from "./providers";
 import { GoogleAnalytics } from "@/shared/lib/GoogleAnalytics";
 import { ClarityAnalytics } from "@/shared/lib/ClarityAnalytics";
+import { TopNav } from "@/shared/ui/TopNav";
 import {
   JsonLd,
   siteWebSiteSchema,
@@ -10,6 +12,7 @@ import {
   SITE_URL,
   SITE_NAME_KO,
 } from "@/shared/lib/jsonLd";
+import { ChatBot } from "@/widgets";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -78,18 +81,6 @@ export default function RootLayout({
         {/* phase-03 (2026-05-24): 점신 톤 라이트 단일.
             dark 클래스 절대 추가하지 않음. localStorage 의 옛 'theme=dark' 도 정리.
             (ThemeToggle UI 는 phase-04 에서 제거 예정 — 일단 클릭해도 시각 변화 없음) */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(){try{
-                document.documentElement.classList.remove('dark');
-                if(localStorage.getItem('theme')==='dark'){
-                  localStorage.removeItem('theme');
-                }
-              }catch(e){}})();
-            `,
-          }}
-        />
       </head>
       <body
         className="min-h-screen flex flex-col"
@@ -99,13 +90,19 @@ export default function RootLayout({
           colorScheme: 'light',
         }}
       >
+        <Script
+          id="remove-dark-mode"
+          strategy="beforeInteractive"
+        >{`(function(){try{document.documentElement.classList.remove('dark');if(localStorage.getItem('theme')==='dark'){localStorage.removeItem('theme')}}catch(e){}})();`}</Script>
         <JsonLd data={siteWebSiteSchema()} />
         <JsonLd data={siteOrganizationSchema()} />
         <Providers>
           <a href="#main-content" className="skip-link">
             본문 바로가기
           </a>
+          <TopNav />
           {children}
+          <ChatBot />
           <footer className="mt-auto py-4 text-center text-[11px] text-gray-400 dark:text-gray-500 font-medium">
             Copyright ⓒ Sedaily, All right reserved
           </footer>

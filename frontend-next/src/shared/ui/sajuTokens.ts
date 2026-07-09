@@ -7,24 +7,24 @@
  */
 
 export const SAJU = {
-  paper:      '#FAF6F0',
-  paperSoft:  '#FBF8F1',
+  paper:      '#FFFFFF',
+  paperSoft:  '#FFFFFF',
   card:       '#FFFFFF',
   ink:        '#1A1A1A',
   inkSoft:    '#4F4F58',
   inkSub:     '#A0A0A8',
   inkMute:    '#8C8579',
-  line:       '#EFEAE3',
-  warm:       '#FF8A4C',
-  warmSoft:   '#FFE9D6',
-  warmDeep:   '#D9651E',
-  cream:      '#FFF6E8',
-  rose:       '#FFE2DE',
-  roseDeep:   '#C8513F',
-  lilac:      '#EFE7FF',
-  lilacDeep:  '#7A5BE0',
-  mint:       '#DBF1E8',
-  mintDeep:   '#338A6A',
+  line:       '#E5E7EB',
+  warm:       '#34D399',
+  warmSoft:   '#D1FAE5',
+  warmDeep:   '#059669',
+  cream:      '#D1FAE5',
+  rose:       '#D1FAE5',
+  roseDeep:   '#059669',
+  lilac:      '#D1FAE5',
+  lilacDeep:  '#059669',
+  mint:       '#D1FAE5',
+  mintDeep:   '#059669',
 } as const;
 
 /** 명조체 (한자·헤딩 강조용). globals.css 안 건드림, 시스템 fallback chain. */

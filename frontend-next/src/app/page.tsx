@@ -4,11 +4,12 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import {
   ScrollText, Sun, Coins, Briefcase, Heart, Users, Rabbit, Newspaper,
-  Search, Sparkles, BookOpen, Home, Moon, Star, MessageCircle,
+  Search, BookOpen, Home, MessageCircle,
   type LucideIcon,
 } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
 import { JsonLd, faqSchema } from '@/shared/lib/jsonLd';
+import { HeroBanner } from '@/widgets/HeroBanner';
 
 // 명조체 인라인 (한자/특수 강조용) — globals.css 안 건드림, 시스템 fallback chain
 const SERIF = '"Noto Serif KR", "Nanum Myeongjo", "Apple SD Gothic Neo", serif';
@@ -34,16 +35,16 @@ const LANDING_FAQ = [
 
 // 점신 결 — 톤 통일. 메인 워밍 오렌지 + 4 보조톤만.
 const C = {
-  paper: '#FAF6F0',     // 페이지 배경 (약간 따뜻한 오프화이트)
+  paper: '#FFFFFF',     // 페이지 배경 (흰색)
   card: '#FFFFFF',
   ink: '#1A1A1A',
   inkSub: '#A0A0A8',
   inkSoft: '#4F4F58',
   line: '#EFEAE3',
-  warm: '#FF8A4C',
-  warmSoft: '#FFE9D6',
-  warmDeep: '#D9651E',
-  cream: '#FFF6E8',
+  warm: '#34D399',
+  warmSoft: '#D1FAE5',
+  warmDeep: '#059669',
+  cream: '#D1FAE5',
   rose: '#FFE2DE',
   roseDeep: '#C8513F',
   lilac: '#EFE7FF',
@@ -56,79 +57,49 @@ type Tile = {
   href: string;
   ko: string;
   en: string;
+  subKo: string;
+  subEn: string;
   Icon: LucideIcon;
   group: 'core' | 'wealth' | 'love' | 'info';
+  kanji: string;
 };
 
 // 4톤 그룹화 — 사탕색 8색 폐기
 const PRIMARY_GRID: Tile[] = [
-  { href: '/saju',          ko: '내 사주',     en: 'My Saju',         Icon: ScrollText, group: 'core'   },
-  { href: '/today',         ko: '오늘 운세',   en: "Today",           Icon: Sun,        group: 'core'   },
-  { href: '/zodiac',        ko: '띠별 운세',   en: 'Zodiac',          Icon: Rabbit,     group: 'core'   },
-  { href: '/chaeun',        ko: '재운',        en: 'Wealth',          Icon: Coins,      group: 'wealth' },
-  { href: '/career',        ko: '커리어',      en: 'Career',          Icon: Briefcase,  group: 'wealth' },
-  { href: '/compatibility', ko: '이상형',      en: 'Ideal',           Icon: Heart,      group: 'love'   },
-  { href: '/couple',        ko: '커플 궁합',   en: 'Couple',          Icon: Users,      group: 'love'   },
-  { href: '/news',          ko: '경제 뉴스',   en: 'News',            Icon: Newspaper,  group: 'info'   },
+  { href: '/saju',          ko: '내 사주',     en: 'My Saju',         subKo: '천간·십성·대운 풀이', subEn: 'Stems · Stars · Luck',  Icon: ScrollText, group: 'core',   kanji: '命' },
+  { href: '/today',         ko: '오늘 운세',   en: "Today",           subKo: '오늘의 딱 맞는 한 줄', subEn: "Today's one-liner",     Icon: Sun,        group: 'core',   kanji: '日' },
+  { href: '/zodiac',        ko: '띠별 운세',   en: 'Zodiac',          subKo: '12지신 오늘의 운세', subEn: '12 zodiac fortunes',     Icon: Rabbit,     group: 'core',   kanji: '辰' },
+  { href: '/chaeun',        ko: '재물운',      en: 'Wealth',          subKo: '돈이 들어오는 흐름', subEn: 'Money flow',             Icon: Coins,      group: 'wealth', kanji: '財' },
+  { href: '/career',        ko: '커리어',      en: 'Career',          subKo: '적성과 진로 방향', subEn: 'Career direction',         Icon: Briefcase,  group: 'wealth', kanji: '業' },
+  { href: '/compatibility', ko: '연애운',      en: 'Ideal',           subKo: '인연이 오는 시기', subEn: 'When love comes',          Icon: Heart,      group: 'love',   kanji: '緣' },
+  { href: '/couple',        ko: '커플 궁합',   en: 'Couple',          subKo: '둘의 궁합 점수', subEn: 'Couple score',               Icon: Users,      group: 'love',   kanji: '合' },
+  { href: '/news',          ko: '경제 뉴스',   en: 'News',            subKo: '오늘의 경제 소식', subEn: "Today's economy",          Icon: Newspaper,  group: 'info',   kanji: '報' },
 ];
+
+// 카드별 개별 색상 — 각 메뉴마다 고유한 톤
+const TILE_TONE: Record<string, { bg: string; fg: string }> = {
+  '/saju':          { bg: '#E8F5E9', fg: '#2E7D32' },   // 녹색 — 사주 핵심
+  '/today':         { bg: '#E0F2F1', fg: '#00796B' },   // 틸 — 오늘 운세
+  '/zodiac':        { bg: '#FFF3E0', fg: '#E65100' },   // 주황 — 띠별 운세
+  '/chaeun':        { bg: '#FFF8E1', fg: '#F57F17' },   // 골드 — 재물
+  '/career':        { bg: '#EDE7F6', fg: '#5E35B1' },   // 보라 — 커리어
+  '/compatibility': { bg: '#FCE4EC', fg: '#C62828' },   // 핑크 — 연애
+  '/couple':        { bg: '#F3E5F5', fg: '#8E24AA' },   // 라벤더 — 커플
+  '/news':          { bg: '#E3F2FD', fg: '#1565C0' },   // 블루 — 뉴스
+};
 
 const GROUP_TONE: Record<Tile['group'], { bg: string; fg: string }> = {
-  core:   { bg: C.warmSoft, fg: C.warmDeep   },
-  wealth: { bg: C.cream,    fg: '#9A6B0F'    },
-  love:   { bg: C.rose,     fg: C.roseDeep   },
-  info:   { bg: C.lilac,    fg: C.lilacDeep  },
+  core:   { bg: '#E8F5E9', fg: '#2E7D32' },
+  wealth: { bg: '#FFF8E1', fg: '#F57F17' },
+  love:   { bg: '#FCE4EC', fg: '#C62828' },
+  info:   { bg: '#E3F2FD', fg: '#1565C0' },
 };
 
-const BANNERS = [
-  {
-    eyebrowKo: '공개 프리뷰',
-    eyebrowEn: 'Open Preview',
-    titleKo: '오늘의 일진,\n한 줄로 받기',
-    titleEn: "Today's reading\nin a single line",
-    subKo: '생년월일 하나면 끝. 회원가입도 필요 없어요.',
-    subEn: 'One birth date. No sign-up.',
-    href: '/today',
-    accent: 'warm' as const,
-  },
-  {
-    eyebrowKo: '데이터 명리학',
-    eyebrowEn: 'Data Saju',
-    titleKo: '근거가 보이는\n사주 해석',
-    titleEn: 'Saju with the\nsources attached',
-    subKo: 'KASI 만세력 + 궁통보감·삼명통회·자평진전.',
-    subEn: 'KASI calendar + 3 classical texts.',
-    href: '/saju',
-    accent: 'lilac' as const,
-  },
-  {
-    eyebrowKo: '커플',
-    eyebrowEn: 'Couple',
-    titleKo: '둘의 인연을\n점수로',
-    titleEn: 'Two of you,\nscored',
-    subKo: '천간합·지지합·오행 보완을 합산해서 보여드려요.',
-    subEn: 'Sum of stem · branch · element bridges.',
-    href: '/couple',
-    accent: 'rose' as const,
-  },
-];
 
-const BANNER_ACCENTS: Record<'warm' | 'lilac' | 'rose', { bg: string; chip: string; orb: string; orbSoft: string }> = {
-  warm:  { bg: C.warmSoft, chip: C.warmDeep,  orb: C.warm,      orbSoft: '#FFC195' },
-  lilac: { bg: C.lilac,    chip: C.lilacDeep, orb: C.lilacDeep, orbSoft: '#B7A2EE' },
-  rose:  { bg: C.rose,     chip: C.roseDeep,  orb: C.roseDeep,  orbSoft: '#F3A296' },
-};
 
 export default function LandingPage() {
   const { t, lang, localePath } = useLang();
-  const [bannerIdx, setBannerIdx] = useState(0);
   const [today, setToday] = useState<{ m: number; d: number; weekday: string } | null>(null);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setBannerIdx((i) => (i + 1) % BANNERS.length);
-    }, 5000);
-    return () => clearInterval(id);
-  }, []);
 
   useEffect(() => {
     const now = new Date();
@@ -141,9 +112,6 @@ export default function LandingPage() {
       weekday: days[now.getDay()],
     });
   }, [lang]);
-
-  const banner = BANNERS[bannerIdx];
-  const accent = BANNER_ACCENTS[banner.accent];
 
   return (
     <div
@@ -180,13 +148,13 @@ export default function LandingPage() {
 
       <main
         id="main-content"
-        className="mx-auto w-full max-w-[540px] pb-32 relative"
+        className="mx-auto w-full max-w-[540px] lg:max-w-[1080px] pb-32 lg:pb-10 lg:px-6 relative"
         style={{ color: C.ink }}
       >
         {/* 배경 한자 — 페이지 우상단에 옅게, 사주방 결 */}
         <div
           aria-hidden
-          className="pointer-events-none select-none absolute top-[60px] right-[-20px] z-0 leading-none"
+          className="pointer-events-none select-none absolute top-[60px] right-[-20px] lg:right-[40px] z-[1] leading-none"
           style={{
             fontFamily: SERIF,
             fontWeight: 900,
@@ -199,7 +167,7 @@ export default function LandingPage() {
         </div>
         <div
           aria-hidden
-          className="pointer-events-none select-none absolute top-[420px] left-[-10px] z-0 leading-none"
+          className="pointer-events-none select-none absolute top-[420px] left-[-10px] lg:left-[40px] z-[1] leading-none"
           style={{
             fontFamily: SERIF,
             fontWeight: 900,
@@ -211,9 +179,9 @@ export default function LandingPage() {
           命
         </div>
 
-        {/* Status bar (mini) — 살짝 진하게, 점·점 구분자 정돈 */}
+        {/* Status bar (mini) — PC에서는 TopNav가 대체하므로 숨김 */}
         <div
-          className="relative z-10 flex items-center justify-between px-5 pt-5 pb-1.5 text-[11.5px]"
+          className="relative z-10 flex items-center justify-between px-5 pt-5 pb-1.5 text-[11.5px] lg:hidden"
           style={{ color: '#8C8579' }}
         >
           <div className="flex items-center gap-1.5 truncate">
@@ -232,8 +200,8 @@ export default function LandingPage() {
           )}
         </div>
 
-        {/* Title row */}
-        <header className="relative z-10 px-5 pt-3 pb-5 flex items-end justify-between">
+        {/* Title row — PC에서는 TopNav 브랜드가 대체 */}
+        <header className="relative z-10 px-5 pt-3 pb-5 flex items-end justify-between lg:hidden">
           <div>
             <h1
               className="leading-none"
@@ -263,129 +231,99 @@ export default function LandingPage() {
             >
               <Search size={19} strokeWidth={2.2} />
             </button>
-            <InlineLangToggle />
           </div>
         </header>
 
-        {/* Hero banner — auto-rotating */}
-        <section className="relative z-10 px-5">
-          <Link
-            href={localePath(banner.href)}
-            className="block relative overflow-hidden rounded-[28px] p-6 pt-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] active:scale-[0.99]"
-            style={{ background: accent.bg, minHeight: 248 }}
-          >
-            <span
-              className="inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-[11.5px] font-bold"
-              style={{ background: accent.chip, color: '#FFFFFF' }}
-            >
-              {t(banner.eyebrowKo, banner.eyebrowEn)}
-              <span aria-hidden> ›</span>
-            </span>
-            <h2
-              className="mt-5 text-[26px] leading-[1.18] font-black tracking-[-0.02em] whitespace-pre-line"
-              style={{ color: C.ink }}
-            >
-              {t(banner.titleKo, banner.titleEn)}
-            </h2>
-            <p
-              className="mt-3 text-[13.5px] leading-[1.5] max-w-[280px]"
-              style={{ color: C.inkSoft }}
-            >
-              {t(banner.subKo, banner.subEn)}
-            </p>
+        {/* Hero — 히어로 배너 */}
+        <HeroBanner />
 
-            {/* 그래픽 자리 — 추상 동심원 + sparkle + 배경 한자 (마스코트 대체) */}
-            <div
-              className="absolute right-[-30px] bottom-[-30px] w-[200px] h-[200px] pointer-events-none"
-              aria-hidden
+        {/* 기능 카드 그리드 — 캐러셀 아래 4열 2행 */}
+        <section className="relative z-10 mt-6 px-3">
+          <div className="mb-4 flex items-baseline gap-2 px-2">
+            <span
+              style={{
+                fontFamily: SERIF,
+                fontWeight: 700,
+                color: C.warmDeep,
+                opacity: 0.55,
+                fontSize: 13,
+                letterSpacing: '-0.02em',
+              }}
             >
-              {/* 배경 한자 — 동심원과 겹쳐서 사주방 결 */}
-              <span
-                className="absolute right-[30px] bottom-[60px] leading-none"
+              ▎
+            </span>
+            <div>
+              <p className="text-[12px] font-semibold tracking-tight" style={{ color: C.inkSub }}>
+                {t('소름 돋는 미래 예측', 'Spookily accurate')}
+              </p>
+              <h3
+                className="mt-1"
                 style={{
                   fontFamily: SERIF,
                   fontWeight: 900,
-                  fontSize: 140,
-                  color: '#FFFFFF',
-                  opacity: 0.35,
-                  letterSpacing: '-0.05em',
+                  fontSize: 20,
+                  letterSpacing: '-0.02em',
+                  color: C.ink,
                 }}
               >
-                占
-              </span>
-              {/* 큰 반투명 링 — 천천히 회전 */}
-              <div
-                className="absolute right-0 bottom-0 w-[200px] h-[200px] rounded-full animate-[saju-spin_22s_linear_infinite]"
-                style={{
-                  background: `radial-gradient(circle at 30% 30%, ${accent.orbSoft}, transparent 70%)`,
-                  opacity: 0.5,
-                }}
-              />
-              {/* 중간 링 */}
-              <div
-                className="absolute right-[20px] bottom-[20px] w-[140px] h-[140px] rounded-full"
-                style={{ background: accent.orbSoft, opacity: 0.55 }}
-              />
-              {/* 솔리드 작은 원 — pulse */}
-              <div
-                className="absolute right-[44px] bottom-[44px] w-[88px] h-[88px] rounded-full animate-[saju-pulse_3.6s_ease-in-out_infinite]"
-                style={{ background: accent.orb }}
-              />
-              {/* sparkle */}
-              <Sparkles size={22} className="absolute top-[18px] right-[78px] animate-[saju-twinkle_2.4s_ease-in-out_infinite]" style={{ color: accent.orb }} />
-              <Star size={12} className="absolute top-[58px] right-[160px]" style={{ color: accent.orb, opacity: 0.7 }} />
-              <Star size={14} className="absolute bottom-[148px] right-[24px] animate-[saju-twinkle_3.2s_ease-in-out_infinite]" style={{ color: '#FFFFFF', opacity: 0.95 }} fill="#FFFFFF" />
-              <Moon size={18} className="absolute bottom-[112px] right-[60px]" style={{ color: '#FFFFFF', opacity: 0.9 }} />
+                {t('가장 정확한 사주 풀이', 'The most precise Saju reading')}
+              </h3>
             </div>
-
-            {/* dots — 활성은 배너 accent 색으로 톤 매칭 */}
-            <div className="absolute left-6 bottom-5 flex gap-1.5">
-              {BANNERS.map((_, i) => (
-                <span
-                  key={i}
-                  className="block h-1.5 rounded-full transition-all"
-                  style={{
-                    width: i === bannerIdx ? 20 : 6,
-                    background: i === bannerIdx ? accent.orb : 'rgba(26,26,26,0.18)',
-                  }}
-                />
-              ))}
-            </div>
-          </Link>
-        </section>
-
-        {/* Card: 가장 정확한 사주 풀이 */}
-        <SectionCard
-          eyebrow={t('소름 돋는 미래 예측', 'Spookily accurate')}
-          title={t('가장 정확한 사주 풀이', 'The most precise Saju reading')}
-        >
-          <ul className="grid grid-cols-4 gap-y-6 gap-x-1 pt-1">
-            {PRIMARY_GRID.map(({ href, ko, en, Icon, group }) => {
-              const tt = GROUP_TONE[group];
+          </div>
+          <ul className="grid grid-cols-3 gap-3">
+            {PRIMARY_GRID.map(({ href, ko, en, subKo, subEn, Icon, group, kanji }) => {
+              const tt = TILE_TONE[href] ?? GROUP_TONE[group];
               return (
                 <li key={href}>
                   <Link
                     href={localePath(href)}
-                    className="flex flex-col items-center gap-2.5 group"
+                    className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] group h-[130px] overflow-hidden"
                   >
+                    {/* 배경 한자 장식 */}
                     <span
-                      className="w-[56px] h-[56px] rounded-[18px] flex items-center justify-center transition-all duration-200 group-hover:-translate-y-0.5 group-hover:brightness-95 group-active:scale-95"
-                      style={{ background: tt.bg }}
+                      aria-hidden
+                      className="absolute bottom-[-8px] right-[-2px] pointer-events-none select-none leading-none"
+                      style={{
+                        fontFamily: SERIF,
+                        fontWeight: 900,
+                        fontSize: 64,
+                        color: tt.fg,
+                        opacity: 0.07,
+                      }}
                     >
-                      <Icon size={26} strokeWidth={2.1} style={{ color: tt.fg }} className="transition-transform group-hover:scale-110" />
+                      {kanji}
                     </span>
-                    <span
-                      className="text-[12.5px] font-semibold text-center leading-tight tracking-tight"
-                      style={{ color: C.ink }}
-                    >
-                      {t(ko, en)}
-                    </span>
+                    {/* 상단: 아이콘 + 화살표 */}
+                    <div className="flex items-start justify-between">
+                      <span
+                        className="w-[38px] h-[38px] rounded-[12px] flex items-center justify-center"
+                        style={{ background: tt.bg }}
+                      >
+                        <Icon size={19} strokeWidth={2.1} style={{ color: tt.fg }} />
+                      </span>
+                      <span className="text-gray-300 text-[13px]" aria-hidden>↗</span>
+                    </div>
+                    {/* 하단: 타이틀 + 설명 */}
+                    <div className="relative z-[1]">
+                      <h4
+                        className="text-[13px] font-bold leading-tight tracking-tight"
+                        style={{ color: C.ink }}
+                      >
+                        {t(ko, en)}
+                      </h4>
+                      <p className="mt-0.5 text-[10.5px] leading-relaxed text-gray-400 line-clamp-1">
+                        {t(subKo, subEn)}
+                      </p>
+                    </div>
                   </Link>
                 </li>
               );
             })}
           </ul>
-        </SectionCard>
+        </section>
+
+        {/* 하단 카드들 — PC에서 2컬럼 그리드 */}
+        <div className="lg:grid lg:grid-cols-2 lg:gap-4 lg:mt-5">
 
         {/* Card: 사주 챗봇 */}
         <SectionCard
@@ -497,6 +435,7 @@ export default function LandingPage() {
             <span className="text-[20px] shrink-0" style={{ color: C.inkSub }} aria-hidden>›</span>
           </Link>
         </SectionCard>
+        </div>{/* /PC 2-col grid */}
 
         {/* Disclaimer */}
         <section className="px-5 pt-7 pb-2">
@@ -509,9 +448,9 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* Bottom Nav — fixed, outer = 페이지 배경 (다크모드 노출 차단), inner = 540 흰 dock */}
+      {/* Bottom Nav — fixed, 모바일 전용 (PC에서는 TopNav) */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-40"
+        className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
         style={{ background: C.paper }}
       >
         <div
@@ -617,50 +556,4 @@ function BottomTab({
   );
 }
 
-// 페이지 톤(페이퍼·워밍)에 맞춘 자체 KO/EN 토글 — shared LangToggle 무수정
-function InlineLangToggle() {
-  const { lang, setLang } = useLang();
-  const isEn = lang === 'en';
-  return (
-    <button
-      type="button"
-      onClick={() => setLang(isEn ? 'ko' : 'en')}
-      aria-label={isEn ? '한국어로 전환' : 'Switch to English'}
-      title={isEn ? '한국어' : 'English'}
-      className="relative inline-flex items-center rounded-full transition-colors hover:brightness-95"
-      style={{
-        width: 60,
-        height: 30,
-        padding: 3,
-        background: '#F0E9DC',
-        border: '1px solid #E5DCC8',
-      }}
-    >
-      <span
-        aria-hidden
-        className="absolute rounded-full transition-transform duration-300 ease-out"
-        style={{
-          width: 26,
-          height: 22,
-          top: 3,
-          left: 3,
-          background: C.warmDeep,
-          transform: isEn ? 'translateX(28px)' : 'translateX(0)',
-          boxShadow: '0 1px 2px rgba(217,101,30,0.25)',
-        }}
-      />
-      <span
-        className="relative z-10 flex items-center justify-center text-[10px] font-extrabold tracking-tight transition-colors"
-        style={{ width: 26, height: 22, color: isEn ? C.inkSoft : '#FFFFFF' }}
-      >
-        KO
-      </span>
-      <span
-        className="relative z-10 flex items-center justify-center text-[10px] font-extrabold tracking-tight transition-colors"
-        style={{ width: 26, height: 22, color: isEn ? '#FFFFFF' : C.inkSoft }}
-      >
-        EN
-      </span>
-    </button>
-  );
-}
+
