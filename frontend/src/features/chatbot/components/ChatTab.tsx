@@ -13,7 +13,7 @@ import { buildSajuContext, narrowCount, remainingConcerns } from '../lib/knotMac
 import { CONCERNS, CONCERN_MAP, routeFreeText } from '../lib/concerns';
 import { initialPredict, knotHit } from '../lib/coldReading';
 import { buildOverlay, buildKnot } from '../lib/narrative';
-import { eraFactsFor, fetchEraFacts, type EraFact } from '../lib/eraFacts';
+import { eraFactsFor, type EraFact } from '../lib/eraFacts';
 import { callLlm, llmEnabled, type LlmTask } from '../lib/llm';
 import { creditsLeft, spendCredit, DAILY_FREE } from '../lib/credits';
 import type {
@@ -272,9 +272,8 @@ export function ChatTab() {
     const saju = chatRef.current.saju!;
     const prior = chatRef.current.raisedConcerns;
     const narrowAnswers = chatRef.current.knot?.narrowAnswers;
-    // 서울경제 실데이터 뉴스 → 없으면 placeholder 로 폴백. 얹기·매듭(LLM)·카드 모두 같은 팩트 사용
-    const real = await fetchEraFacts(concern);
-    const eraFacts = real.length ? real : eraFactsFor(concern);
+    // 시대 팩트 placeholder. 얹기·매듭(LLM)·카드 모두 같은 팩트 사용
+    const eraFacts = eraFactsFor(concern);
     await sayLlmOr('overlay', buildOverlay(concern, saju), { concern, narrowAnswers, eraFacts });
     await pushEra(concern, eraFacts);
     await sayLlmOr('knot', buildKnot(concern, saju, prior), { concern, narrowAnswers, eraFacts });
@@ -427,9 +426,9 @@ export function ChatTab() {
         .filter(m => m.text && !m.era)
         .slice(-6)
         .map(m => ({ role: m.role, text: m.text }));
-      // 질문을 가까운 고민으로 라우팅 → 서울경제 실데이터 뉴스를 같이 넘겨 '시대 흐름'을 근거 있게
+      // 질문을 가까운 고민으로 라우팅 → 시대 팩트 placeholder를 같이 넘겨 '시대 흐름'을 근거 있게
       const routedC = routeFreeText(v);
-      const facts = routedC ? await fetchEraFacts(routedC) : [];
+      const facts = routedC ? eraFactsFor(routedC) : [];
       const eraFacts = facts.length
         ? facts.map(f => ({ text: lang === 'en' ? f.en : f.ko, source: lang === 'en' ? f.sourceEn : f.source }))
         : undefined;

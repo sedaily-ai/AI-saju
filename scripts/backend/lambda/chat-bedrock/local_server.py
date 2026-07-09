@@ -50,8 +50,6 @@ class Handler(BaseHTTPRequestHandler):
             payload = json.loads(raw)
             task = payload.get("task", "hit")
             lang = "en" if payload.get("lang") == "en" else "ko"
-            if task == "news":  # 뉴스 프록시 (handler 재사용)
-                return self._send(200, handler.handle_news(payload))
             if task not in ("classify", "predict", "hit", "overlay", "knot", "freeform"):
                 return self._send(400, {"error": "invalid task"})
             text = handler._call_bedrock(handler._system(task, lang), handler._user(payload))

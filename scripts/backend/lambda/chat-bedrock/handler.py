@@ -30,7 +30,6 @@ import base64
 import json
 import os
 import time
-import urllib.request
 
 import boto3
 
@@ -46,28 +45,6 @@ ALLOW_ORIGIN = os.environ.get("ALLOW_ORIGIN", "https://saju.sedaily.ai")
 USAGE_TABLE = os.environ.get("USAGE_TABLE", "")
 DAILY_LIMIT = int(os.environ.get("DAILY_LIMIT", "500"))
 _ddb = boto3.client("dynamodb", region_name=os.environ.get("AWS_REGION", "us-east-1")) if USAGE_TABLE else None
-
-# 뉴스 검색 API(MBTI 백엔드) — 브라우저는 CORS 로 막히므로 이 Lambda 가 서버끼리 대신 호출한다.
-SEARCH_API_URL = os.environ.get("SEARCH_API_URL", "https://chzwwtjtgk.execute-api.us-east-1.amazonaws.com/dev")
-
-
-def handle_news(payload: dict) -> dict:
-    """payload['search'](검색 body)를 뉴스 API 로 프록시. 실패 시 빈 articles."""
-    search = payload.get("search") or {}
-    try:
-        req = urllib.request.Request(
-            SEARCH_API_URL.rstrip("/") + "/api/search",
-            data=json.dumps(search).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            data = json.loads(resp.read())
-        arts = data.get("articles") if isinstance(data, dict) else None
-        return {"articles": arts if isinstance(arts, list) else []}
-    except Exception:  # noqa: BLE001 — 뉴스 실패는 치명적이지 않음(프런트가 placeholder 폴백)
-        return {"articles": []}
-
 
 def _within_daily_limit() -> bool:
     """오늘(KST) 글로벌 호출 수를 원자적으로 +1 하고 상한 이내인지 반환. 장애 시 fail-open."""
@@ -211,8 +188,6 @@ def handler(event, _context):
         payload = _parse_body(event)
         task = payload.get("task", "hit")
         lang = "en" if payload.get("lang") == "en" else "ko"
-        if task == "news":  # 뉴스 프록시 (Bedrock 미사용, 킬스위치 미적용)
-            return _response(200, handle_news(payload))
         if task not in ("classify", "predict", "hit", "overlay", "knot", "freeform"):
             return _response(400, {"error": "invalid task"})
         # 글로벌 일일 상한 초과 시 Bedrock 미호출 → 프런트는 템플릿으로 폴백
