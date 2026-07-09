@@ -9,7 +9,7 @@ import { useLang } from '@/shared/lib/LangContext';
  * (정적 사이트 특성상 클라이언트 번들에 문자열이 포함됨)
  * 진짜 인증은 Lambda 쪽에서 한 번 더 검증한다.
  */
-const ADMIN_PASS = 'sedaily2024!';
+const ADMIN_PASS = '1IaayIpLrFtROJlMXvld';
 const SESSION_KEY = 'admin_unlocked';
 
 const PUBLISH_ENDPOINT = 'https://2ranuwiguucfnrw7ks5jkjhami0zupuu.lambda-url.us-east-1.on.aws/';
