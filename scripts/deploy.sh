@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-# ── frontend-next 배포 스크립트 ──
+# ── frontend-next 배포 스크립트 (saju.sedaily.ai 전용) ──
 #
 # 사용법:
-#   ./scripts/deploy.sh both      # mbti + saju 둘 다 (기본값)
-#   ./scripts/deploy.sh mbti      # mbti.sedaily.ai 만
-#   ./scripts/deploy.sh saju      # saju.sedaily.ai 만
-#   ./scripts/deploy.sh both --no-build   # 이미 빌드된 out/ 재사용
+#   ./scripts/deploy.sh              # 빌드 + 배포
+#   ./scripts/deploy.sh --no-build   # 이미 빌드된 out/ 재사용
 #
 # 환경:
 #   - aws CLI 로그인 필요 (ap-northeast-2 접근)
@@ -17,25 +15,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 FRONTEND_DIR="$ROOT_DIR/frontend-next"
 
-# ── 배포 대상별 설정 ──
-MBTI_BUCKET="sedaily-mbti-frontend-dev"
-MBTI_DIST="E1QS7PY350VHF6"
-
+# ── 배포 대상 설정 ──
 SAJU_BUCKET="saju-oracle-frontend-887078546492"
 SAJU_DIST="E2ZDGPQU5JXQKC"
 SAJU_REGION="ap-northeast-2"
 
 # ── 인자 파싱 ──
-TARGET="${1:-both}"
 SKIP_BUILD=false
 for arg in "$@"; do
   [[ "$arg" == "--no-build" ]] && SKIP_BUILD=true
 done
-
-if [[ "$TARGET" != "both" && "$TARGET" != "mbti" && "$TARGET" != "saju" ]]; then
-  echo "❌ Unknown target: $TARGET (use: both / mbti / saju)"
-  exit 1
-fi
 
 # ── 빌드 ──
 cd "$FRONTEND_DIR"
@@ -49,20 +38,6 @@ else
   echo "🔨 Building..."
   npm run build
 fi
-
-# ── mbti 배포 ──
-deploy_mbti() {
-  echo ""
-  echo "🟦 mbti.sedaily.ai 배포 중..."
-  aws s3 sync out/ "s3://${MBTI_BUCKET}/" --delete
-  echo "🧹 CloudFront 무효화 (${MBTI_DIST})..."
-  aws cloudfront create-invalidation \
-    --distribution-id "$MBTI_DIST" \
-    --paths "/*" \
-    --query 'Invalidation.Id' --output text \
-    | xargs -I{} echo "    → Invalidation ID: {}"
-  echo "✅ mbti.sedaily.ai 배포 완료"
-}
 
 # ── saju 배포 (saju.html 을 index.html 로 치환해서 서빙) ──
 deploy_saju() {
@@ -86,12 +61,8 @@ deploy_saju() {
   echo "✅ saju.sedaily.ai 배포 완료"
 }
 
-case "$TARGET" in
-  mbti) deploy_mbti ;;
-  saju) deploy_saju ;;
-  both) deploy_mbti; deploy_saju ;;
-esac
+deploy_saju
 
 echo ""
-echo "🎉 전체 배포 완료 (대상: $TARGET)"
+echo "🎉 배포 완료"
 echo "   무효화 전파까지 1~5분 정도 소요될 수 있어요."

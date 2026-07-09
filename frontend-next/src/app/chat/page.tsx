@@ -11,8 +11,9 @@ export default function ChatPage() {
 
   return (
     <>
-      {/* 채팅 화면 전체를 뷰포트에 고정 — 페이지 스크롤/여백 없이 메시지 영역만 내부 스크롤 */}
-      <div className="fixed inset-0 z-30" style={{ background: SAJU.paper, colorScheme: 'light' }}>
+      {/* 채팅 화면 전체를 뷰포트에 고정 — 페이지 스크롤/여백 없이 메시지 영역만 내부 스크롤.
+          top-14 는 TopNav(h-14, 모든 화면폭에서 항상 렌더) 높이만큼 띄워 겹침 방지 */}
+      <div className="fixed inset-x-0 bottom-0 top-14 z-30" style={{ background: SAJU.paper, colorScheme: 'light' }}>
         <div className="mx-auto h-full max-w-[540px] flex flex-col">
           <div className="shrink-0">
             <PageHeader
@@ -32,7 +33,7 @@ export default function ChatPage() {
         </div>
       </div>
 
-      <BottomNav active="saju" />
+      <BottomNav active="chat" />
     </>
   );
 }

@@ -3,5 +3,5 @@
 // FeedPage 분해 시 추가 예정
 
 export { FeatureTabs } from './FeatureTabs';
-export { ChatBot } from './ChatBot';
 export { HeroBanner } from './HeroBanner';
+export { ConcernCardFlow } from './ConcernCardFlow';

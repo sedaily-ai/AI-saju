@@ -7,6 +7,7 @@ import type { Pillar } from '@/features/fortune/lib/engine';
 import { computeIdealMatch, type Gender, type MatchMode } from '../lib/matchEngine';
 import { ShareCard } from './ShareCard';
 import { ReasonChip, REASON_EXPLAIN } from './ReasonChip';
+import { MatchedCharacterCard } from './MatchedCharacterCard';
 
 /** 오행 — 영문 라벨 */
 const OH_EN: Record<string, string> = {
@@ -263,6 +264,11 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
           )}
         </div>
       </div>
+
+      {/* === 매칭 캐릭터 카드 (60갑자) === */}
+      {match.idealZodiacs[0] && (
+        <MatchedCharacterCard primaryOh={primaryOh} zodiacKo={match.idealZodiacs[0]} />
+      )}
 
       {/* === 점수 근거 자세히 보기 — 항상 펼쳐짐 === */}
       {match.scoreReasons.length > 0 && (

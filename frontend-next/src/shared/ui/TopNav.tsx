@@ -11,7 +11,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Home, Sun, ScrollText, Users, BookOpen, Coins, Briefcase, Heart,
+  Home, ScrollText, Sparkles, BookOpen, MessageCircle,
   type LucideIcon,
 } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
@@ -26,15 +26,13 @@ type NavItem = {
   key: string;
 };
 
+// 재운/커리어/이상형/궁합/주역점은 /saju 하위로 편입 — /unse 허브는 폐지 (2026-07-09)
 const NAV_ITEMS: NavItem[] = [
-  { href: '/',       icon: Home,       ko: '홈',   en: 'Home',  key: 'home' },
-  { href: '/today',  icon: Sun,        ko: '오늘', en: 'Today', key: 'today' },
-  { href: '/saju',   icon: ScrollText, ko: '사주', en: 'Saju',  key: 'saju' },
-  { href: '/chaeun', icon: Coins,      ko: '재운', en: 'Wealth', key: 'chaeun' },
-  { href: '/career', icon: Briefcase,  ko: '커리어', en: 'Career', key: 'career' },
-  { href: '/compatibility', icon: Heart, ko: '이상형', en: 'Ideal', key: 'compatibility' },
-  { href: '/couple', icon: Users,      ko: '궁합', en: 'Match', key: 'couple' },
-  { href: '/blog',   icon: BookOpen,   ko: '블로그', en: 'Blog', key: 'blog' },
+  { href: '/',          icon: Home,        ko: '홈',     en: 'Home',       key: 'home' },
+  { href: '/saju',      icon: ScrollText,  ko: '사주',   en: 'Saju',       key: 'saju' },
+  { href: '/character', icon: Sparkles,    ko: '캐릭터', en: 'Characters', key: 'character' },
+  { href: '/blog',      icon: BookOpen,    ko: '블로그', en: 'Blog',       key: 'blog' },
+  { href: '/chat',      icon: MessageCircle, ko: '챗봇', en: 'Chat',       key: 'chat' },
 ];
 
 export function TopNav() {

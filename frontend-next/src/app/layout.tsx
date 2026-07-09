@@ -12,8 +12,6 @@ import {
   SITE_URL,
   SITE_NAME_KO,
 } from "@/shared/lib/jsonLd";
-import { ChatBot } from "@/widgets";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
@@ -102,7 +100,6 @@ export default function RootLayout({
           </a>
           <TopNav />
           {children}
-          <ChatBot />
           <footer className="mt-auto py-4 text-center text-[11px] text-gray-400 dark:text-gray-500 font-medium">
             Copyright ⓒ Sedaily, All right reserved
           </footer>

@@ -126,6 +126,12 @@ export default function CompatibilityPage() {
 
   return (
     <PageShell hanjaRight="緣" hanjaLeft="求">
+      <div
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-[420px] -z-[1] pointer-events-none"
+        style={{ background: 'linear-gradient(to bottom, #FFF1F0 0%, rgba(255,241,240,0) 100%)' }}
+      />
+
       <PageHeader
         title={t('이상형 역산', 'Ideal Match')}
         titleAccent={t('산', 'ch')}
@@ -242,7 +248,7 @@ export default function CompatibilityPage() {
         )}
       </div>
 
-      <BottomNav />
+      <BottomNav active="saju" />
     </PageShell>
   );
 }

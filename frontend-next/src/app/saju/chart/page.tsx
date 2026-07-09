@@ -6,23 +6,21 @@ import { PageShell } from '@/shared/ui/PageShell';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { BottomNav } from '@/shared/ui/BottomNav';
 import { useLang } from '@/shared/lib/LangContext';
-import { ClaimPopup, useDailyFortunePoints } from '@/features/points';
 
 type MbtiGroup = 'NT' | 'NF' | 'ST' | 'SF';
 
-export default function TodayPage() {
+export default function SajuChartPage() {
   const [mbtiGroup, setMbtiGroup] = useState<MbtiGroup>('NF');
   const { t } = useLang();
-  const { result, dismiss } = useDailyFortunePoints();
 
   return (
-    <PageShell hanjaRight="日" hanjaLeft="運">
+    <PageShell hanjaRight="易" hanjaLeft="命">
       <PageHeader
-        title={t('오늘 운세', "Today")}
-        titleAccent={t('세', 'day')}
+        title={t('내 사주 원국', 'My Chart')}
+        titleAccent={t('원국', 'Chart')}
         sub={t(
-          '오늘 일진과 내 사주의 상호작용 · 매일 새로',
-          "Today's energy × your chart · refreshed daily",
+          '궁통보감·삼명통회·자평진전 3대 고전 · KASI 만세력',
+          '3 classical texts · KASI ephemeris',
         )}
       />
 
@@ -30,12 +28,9 @@ export default function TodayPage() {
         <FortuneTab
           selectedGroup={mbtiGroup}
           onMbtiChange={setMbtiGroup}
-          mode="today"
           hideOwnHeader
         />
       </div>
-
-      {result && <ClaimPopup dayCount={result.dayCount} amount={result.amount} onClose={dismiss} />}
 
       <BottomNav active="saju" />
     </PageShell>

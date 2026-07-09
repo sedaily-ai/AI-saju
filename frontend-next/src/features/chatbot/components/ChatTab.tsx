@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Sparkles } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
 import { SAJU } from '@/shared/ui/sajuTokens';
 import { ChatBubble } from './ChatBubble';
@@ -65,6 +66,8 @@ export function ChatTab() {
   const idRef = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const greetedRef = useRef(false);
+  // 랜딩 입력창에서 넘어온 고민 — 온보딩 끝나고 자유 입력 단계에 도달하면 자동 전송
+  const pendingPrefillRef = useRef<string | null>(null);
   const chatRef = useRef(chat);
   chatRef.current = chat;
   const messagesRef = useRef(messages);
@@ -205,7 +208,7 @@ export function ChatTab() {
     setHasSaved(!!saved);
     (async () => {
       await say([
-        { ko: '안녕하세요. 🔮', en: 'Hello. 🔮' },
+        { ko: '안녕하세요.', en: 'Hello.' },
         { ko: '당신 사주에 지금 세상이 어떻게 흐르는지를 얹어서 같이 읽어드려요.', en: "I lay how the world is moving right now on top of your saju, and read them together." },
       ]);
       if (saved) {
@@ -449,6 +452,27 @@ export function ChatTab() {
     else await say([{ ko: '음, 아래에서 가까운 걸 골라주실래요?', en: 'Hmm — pick the closest below?' }]);
   }, [busy, freeText, lang, pushUser, pushBot, say, sayLlmOr, startKnot]);
 
+  // ── 랜딩 입력창 고민 이어받기 — 자유 입력 단계에 들어서면 1회 예약 ──
+  useEffect(() => {
+    if (chat.step !== 'concern' && chat.step !== 'link') return;
+    if (busy || pendingPrefillRef.current !== null) return;
+    try {
+      const pre = window.localStorage.getItem('saju_chat_prefill');
+      if (pre && pre.trim()) {
+        window.localStorage.removeItem('saju_chat_prefill');
+        pendingPrefillRef.current = pre;
+        setFreeText(pre);
+      }
+    } catch {}
+  }, [chat.step, busy]);
+
+  // ── 예약된 고민이 실제로 입력창에 반영되면 전송 ──
+  useEffect(() => {
+    if (pendingPrefillRef.current === null || freeText !== pendingPrefillRef.current) return;
+    pendingPrefillRef.current = null;
+    submitFreeConcern();
+  }, [freeText, submitFreeConcern]);
+
   // ── 입력 위젯 표시 ──
   const showDatePicker = chat.step === 'date';
   const showTimePicker = chat.step === 'time' && timeTextMode;
@@ -519,12 +543,19 @@ export function ChatTab() {
             : <ChatBubble key={m.id} message={m} onTyped={m.role === 'bot' ? handleBubbleTyped : undefined} />
         ))}
         {busy && !isTyping && (
-          <div className="flex justify-start mb-2">
-            <div className="chat-bubble-in rounded-2xl px-4 py-3" style={{ background: 'rgba(255,255,255,0.96)', border: `1px solid ${SAJU.line}` }}>
+          <div className="flex justify-start items-end gap-1.5 mb-2">
+            <span
+              className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center"
+              style={{ background: SAJU.warmSoft, color: SAJU.warmDeep }}
+              aria-hidden
+            >
+              <Sparkles size={13} strokeWidth={2.2} />
+            </span>
+            <div className="chat-bubble-in rounded-2xl px-4 py-3" style={{ background: 'rgba(255,255,255,0.96)', border: `1px solid ${SAJU.warm}33` }}>
               <span className="inline-flex items-center gap-1.5">
-                <span className="chat-dot w-1.5 h-1.5 rounded-full" style={{ background: SAJU.inkSub }} />
-                <span className="chat-dot w-1.5 h-1.5 rounded-full" style={{ background: SAJU.inkSub, animationDelay: '0.18s' }} />
-                <span className="chat-dot w-1.5 h-1.5 rounded-full" style={{ background: SAJU.inkSub, animationDelay: '0.36s' }} />
+                <span className="chat-dot w-1.5 h-1.5 rounded-full" style={{ background: SAJU.warmDeep }} />
+                <span className="chat-dot w-1.5 h-1.5 rounded-full" style={{ background: SAJU.warmDeep, animationDelay: '0.18s' }} />
+                <span className="chat-dot w-1.5 h-1.5 rounded-full" style={{ background: SAJU.warmDeep, animationDelay: '0.36s' }} />
               </span>
             </div>
           </div>
@@ -623,7 +654,12 @@ export function ChatTab() {
           style={{ background: '#fff', borderColor: SAJU.line, boxShadow: '0 16px 48px rgba(20,16,12,0.28)' }}
           onClick={e => e.stopPropagation()}
         >
-          <div className="text-[26px] mb-2">🔮</div>
+          <div
+            className="w-11 h-11 mx-auto mb-3 rounded-full flex items-center justify-center"
+            style={{ background: SAJU.warmSoft, color: SAJU.warmDeep }}
+          >
+            <Sparkles size={20} strokeWidth={2.2} />
+          </div>
           <div className="text-[16px] font-bold mb-1.5" style={{ color: SAJU.ink }}>
             {t('오늘 무료 대화를 모두 사용했어요', "You've used all of today's free chats")}
           </div>

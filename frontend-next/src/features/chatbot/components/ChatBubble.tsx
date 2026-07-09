@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Sparkles } from 'lucide-react';
 import { SAJU } from '@/shared/ui/sajuTokens';
 import type { ChatMessage } from '../lib/types';
 
@@ -30,12 +31,21 @@ export function ChatBubble({ message, onTyped }: { message: ChatMessage; onTyped
   }, [typing, typewriter, onTyped]);
 
   return (
-    <div className={`flex ${isBot ? 'justify-start' : 'justify-end'} mb-2`}>
+    <div className={`flex ${isBot ? 'justify-start' : 'justify-end'} items-end gap-1.5 mb-2`}>
+      {isBot && (
+        <span
+          className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center"
+          style={{ background: SAJU.warmSoft, color: SAJU.warmDeep }}
+          aria-hidden
+        >
+          <Sparkles size={13} strokeWidth={2.2} />
+        </span>
+      )}
       <div
         className={`${isBot ? 'chat-in-bot' : 'chat-in-user'} max-w-[82%] rounded-2xl px-3.5 py-2.5 text-[14px] leading-relaxed break-words`}
         style={
           isBot
-            ? { background: 'rgba(255,255,255,0.96)', border: `1px solid ${SAJU.line}`, color: SAJU.ink }
+            ? { background: 'rgba(255,255,255,0.96)', border: `1px solid ${SAJU.warm}33`, color: SAJU.ink }
             : { background: SAJU.warmDeep, color: '#fff' }
         }
       >

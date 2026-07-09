@@ -149,7 +149,7 @@ export default function CouplePage() {
         )}
       </div>
 
-      <BottomNav active="couple" />
+      <BottomNav active="saju" />
     </PageShell>
   );
 }

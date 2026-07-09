@@ -1,15 +1,18 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
   ScrollText, Sun, Coins, Briefcase, Heart, Users, Rabbit, Newspaper,
-  Search, BookOpen, Home, MessageCircle,
+  Search, BookOpen, Home, MessageCircle, ArrowUp,
   type LucideIcon,
 } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
 import { JsonLd, faqSchema } from '@/shared/lib/jsonLd';
 import { HeroBanner } from '@/widgets/HeroBanner';
+import { ConcernCardFlow } from '@/widgets/ConcernCardFlow';
+import { PointsBadge, WeeklyCheckIn } from '@/features/points';
 
 // 명조체 인라인 (한자/특수 강조용) — globals.css 안 건드림, 시스템 fallback chain
 const SERIF = '"Noto Serif KR", "Nanum Myeongjo", "Apple SD Gothic Neo", serif';
@@ -237,6 +240,52 @@ export default function LandingPage() {
         {/* Hero — 히어로 배너 */}
         <HeroBanner />
 
+        {/* 출석 체크 — 오늘의 운세/주역점을 보면 포인트 적립 */}
+        <section className="relative z-10 mt-4 px-3">
+          <div className="rounded-[20px] bg-white p-4" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+            <div className="flex items-start justify-between mb-1">
+              <div>
+                <p className="text-[14px] font-black" style={{ color: C.ink, fontFamily: SERIF }}>
+                  {t('이번 주 출석', "This week's check-in")}
+                </p>
+                <p className="text-[11.5px] mt-0.5" style={{ color: C.inkSub }}>
+                  {t('오늘의 운세나 주역점을 보면 자동으로 포인트가 쌓여요', "View today's fortune or draw a trigram to earn points automatically")}
+                </p>
+              </div>
+              <PointsBadge />
+            </div>
+
+            <div className="mt-4">
+              <WeeklyCheckIn />
+            </div>
+
+            <div className="flex items-center justify-center gap-4 mt-3 text-[10.5px]" style={{ color: C.inkSub }}>
+              <span className="inline-flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: C.warmDeep }} />
+                {t('받음', 'Earned')}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#E5E7EB' }} />
+                {t('놓침', 'Missed')}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ boxShadow: `inset 0 0 0 1.5px ${C.line}` }} />
+                {t('예정', 'Upcoming')}
+              </span>
+            </div>
+
+            <p className="text-[11px] text-center mt-3 pt-3" style={{ color: C.warmDeep, borderTop: `1px solid ${C.line}` }}>
+              {t('꾸준히 모을수록 행운도 함께 쌓여요', 'The more you keep it up, the more luck builds up')}
+            </p>
+          </div>
+        </section>
+
+        {/* 챗봇 고민 입력 */}
+        <ChatPrompt />
+
+        {/* 고민 카드(부적 만들기) — 챗봇 바로 아래. "고민 있나요?"를 두 번 묻지 않도록 순서 조정 */}
+        <ConcernCardFlow />
+
         {/* 기능 카드 그리드 — 캐러셀 아래 4열 2행 */}
         <section className="relative z-10 mt-6 px-3">
           <div className="mb-4 flex items-baseline gap-2 px-2">
@@ -324,36 +373,6 @@ export default function LandingPage() {
 
         {/* 하단 카드들 — PC에서 2컬럼 그리드 */}
         <div className="lg:grid lg:grid-cols-2 lg:gap-4 lg:mt-5">
-
-        {/* Card: 사주 챗봇 */}
-        <SectionCard
-          eyebrow={t('사주 × 시대', 'Saju × the times')}
-          title={t('내 사주에 지금 시대를 얹어', 'Your saju, against today')}
-        >
-          <Link
-            href={localePath('/chat')}
-            className="flex items-center justify-between rounded-2xl p-4 transition-transform active:scale-[0.99]"
-            style={{ background: C.warmSoft }}
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div
-                className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
-                style={{ background: C.warmDeep }}
-              >
-                <MessageCircle size={20} strokeWidth={2.2} color="#FFFFFF" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[14px] font-bold tracking-tight truncate" style={{ color: C.ink }}>
-                  {t('사주 챗봇과 대화하기', 'Chat with the Saju bot')}
-                </p>
-                <p className="text-[12px] mt-0.5 truncate" style={{ color: C.inkSoft }}>
-                  {t('헤매는 게 아니라, 시대가 그렇게 흐르는 거예요', "You're not lost — the times are moving")}
-                </p>
-              </div>
-            </div>
-            <span className="text-[20px] shrink-0" style={{ color: C.inkSub }} aria-hidden>›</span>
-          </Link>
-        </SectionCard>
 
         {/* Card: 오늘의 한 줄 */}
         <SectionCard
@@ -514,6 +533,56 @@ function SectionCard({
         </div>
       </div>
       {children}
+    </section>
+  );
+}
+
+function ChatPrompt() {
+  const { t, localePath } = useLang();
+  const router = useRouter();
+  const [text, setText] = useState('');
+
+  const submit = () => {
+    const v = text.trim();
+    if (!v) return;
+    try {
+      localStorage.setItem('saju_chat_prefill', v);
+    } catch {}
+    router.push(localePath('/chat'));
+  };
+
+  return (
+    <section className="relative z-10 mt-5 px-3">
+      <p
+        className="mb-2 px-1 text-[13px] font-semibold tracking-tight"
+        style={{ color: C.ink }}
+      >
+        {t('무슨 고민이 있으신가요?', "What's on your mind?")}
+      </p>
+      <div
+        className="flex items-center gap-2 rounded-full pl-4 pr-1.5 py-1.5 transition-shadow focus-within:shadow-md"
+        style={{ background: '#D1FAE5', boxShadow: `0 1px 3px rgba(0,0,0,0.06), inset 0 0 0 1px #A7F3D0` }}
+      >
+        <MessageCircle size={16} strokeWidth={2.2} style={{ color: C.warmDeep }} className="shrink-0" />
+        <input
+          type="text"
+          value={text}
+          onChange={e => setText(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') submit(); }}
+          placeholder={t('예: 지금 회사, 계속 다녀도 될까요?', 'e.g. Should I stay at my job?')}
+          className="flex-1 min-w-0 bg-transparent text-[13.5px] text-gray-800 placeholder:text-gray-400 outline-none"
+        />
+        <button
+          type="button"
+          onClick={submit}
+          disabled={!text.trim()}
+          aria-label={t('전송', 'Send')}
+          className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center transition-all disabled:opacity-30 active:scale-90"
+          style={{ background: C.warmDeep }}
+        >
+          <ArrowUp size={16} strokeWidth={2.5} color="#FFFFFF" />
+        </button>
+      </div>
     </section>
   );
 }
