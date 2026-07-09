@@ -305,7 +305,7 @@ export default function BlogPage() {
 
       <div className="relative z-10 px-3 pt-2">
         {slug ? (
-          <article className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5">
+          <article className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5">
             <button
               type="button"
               onClick={closePost}
@@ -390,7 +390,7 @@ export default function BlogPage() {
                     <button
                       type="button"
                       onClick={() => openPost(p.slug)}
-                      className="w-full text-left bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer"
+                      className="w-full text-left bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-2 mb-1 text-[10.5px] text-gray-400 dark:text-gray-400">
                         <span className="font-semibold text-gray-500 dark:text-gray-300">

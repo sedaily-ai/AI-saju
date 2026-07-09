@@ -229,10 +229,10 @@ export function SajuInputPanel({ initial, onCalculated, submitLabel = '운세 �
   return (
     <div>
       {/* 입력 폼 */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] p-5 mb-4">
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 dark:border-gray-800 rounded-[16px] p-5 mb-4">
         <div className="mb-6">
           <label className="block text-[13px] font-semibold text-gray-800 dark:text-gray-200 mb-2">{t('성별', 'Gender')}</label>
-          <div className="flex border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900">
+          <div className="flex shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900">
             {(['남', '여'] as const).map(g => (
               <button key={g} type="button" onClick={() => setGender(g)}
                 className={`flex-1 py-3 text-[15px] transition-all relative ${gender === g ? 'font-semibold text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:text-gray-100 dark:text-gray-300'}`}>
@@ -246,7 +246,7 @@ export function SajuInputPanel({ initial, onCalculated, submitLabel = '운세 �
         <div className="mb-6">
           <label className="block text-[13px] font-semibold text-gray-800 dark:text-gray-200 mb-2">{t('생년월일시', 'Date & Time of Birth')}</label>
           <div className="flex items-stretch gap-2">
-            <div className="shrink-0 inline-flex border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900">
+            <div className="shrink-0 inline-flex shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900">
               {(['solar', 'lunar'] as const).map(c => (
                 <button key={c} type="button" onClick={() => setCalendar(c)}
                   className={`px-3 text-[13px] font-medium transition-all ${calendar === c ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}>
@@ -256,12 +256,12 @@ export function SajuInputPanel({ initial, onCalculated, submitLabel = '운세 �
             </div>
             <input type="text" inputMode="numeric" maxLength={14} placeholder="YYYY / MM / DD"
               value={birthdate} onChange={e => handleDateInput(e.target.value)}
-              className="flex-1 min-w-0 px-3 py-3 text-[15px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 placeholder:text-gray-300" />
+              className="flex-1 min-w-0 px-3 py-3 text-[15px] bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 placeholder:text-gray-300" />
             <div className="relative shrink-0 w-[92px]">
               <input type="text" inputMode="numeric" maxLength={5} placeholder="HH:MM"
                 value={timeInput} onChange={e => handleTimeInput(e.target.value)}
                 disabled={noTime}
-                className={`w-full px-2 py-3 text-[15px] text-center tracking-widest tabular-nums bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 placeholder:text-gray-300 ${noTime ? 'opacity-35' : ''}`} />
+                className={`w-full px-2 py-3 text-[15px] text-center tracking-widest tabular-nums bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 placeholder:text-gray-300 ${noTime ? 'opacity-35' : ''}`} />
               {timeSijin && (
                 <div className="absolute -bottom-5 left-0 right-0 text-center text-[11px] text-gray-400 dark:text-gray-300">{timeSijin.label}</div>
               )}
@@ -321,7 +321,7 @@ export function SajuInputPanel({ initial, onCalculated, submitLabel = '운세 �
                   className={`flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-900 rounded-xl cursor-pointer transition-all ${
                     isCurrent
                       ? 'border-2 border-green-500 bg-green-50/50 dark:bg-green-950/40'
-                      : 'border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      : 'shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}>
                   {isCurrent && (
                     <span className="shrink-0 mr-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-600 text-white">{t('현재', 'Now')}</span>

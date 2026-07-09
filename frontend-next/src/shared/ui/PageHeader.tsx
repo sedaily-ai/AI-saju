@@ -14,7 +14,6 @@
 import { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
-import { InlineLangToggle } from './InlineLangToggle';
 import { SAJU, SERIF } from './sajuTokens';
 
 interface PageHeaderProps {
@@ -113,20 +112,17 @@ export function PageHeader({
             </p>
           )}
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          {showSearch && (
-            <button
-              type="button"
-              onClick={onSearch}
-              aria-label={t('검색', 'Search')}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-black/5 active:scale-95"
-              style={{ color: SAJU.ink }}
-            >
-              <Search size={19} strokeWidth={2.2} />
-            </button>
-          )}
-          <InlineLangToggle />
-        </div>
+        {showSearch && (
+          <button
+            type="button"
+            onClick={onSearch}
+            aria-label={t('검색', 'Search')}
+            className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-black/5 active:scale-95 shrink-0"
+            style={{ color: SAJU.ink }}
+          >
+            <Search size={19} strokeWidth={2.2} />
+          </button>
+        )}
       </header>
     </>
   );

@@ -104,7 +104,7 @@ export function CoupleMatchSection({ a, b, onReset }: Props) {
   return (
     <div className="space-y-3">
       {/* Hero */}
-      <div className={`relative overflow-hidden rounded-[20px] bg-gradient-to-br ${EL_HERO_BG[primaryOh]} border border-gray-200 dark:border-gray-800`}>
+      <div className={`relative overflow-hidden rounded-[20px] bg-gradient-to-br ${EL_HERO_BG[primaryOh]} shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800`}>
         <div className="px-5 pt-5 pb-4">
           <div className="flex items-start justify-between gap-3 mb-4">
             <div>
@@ -188,7 +188,7 @@ export function CoupleMatchSection({ a, b, onReset }: Props) {
       </div>
 
       {/* 점수 해설 — 왜 이 점수인지 2~3문장으로 */}
-      <div className="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4">
+      <div className="rounded-xl bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 p-4">
         <div className="text-[12px] font-bold text-gray-500 dark:text-gray-400 mb-1.5 tracking-wide">
           {t('이 점수에 담긴 의미', 'What this score means')}
         </div>
@@ -231,7 +231,7 @@ export function CoupleMatchSection({ a, b, onReset }: Props) {
 
       {/* 근거 자세히 보기 — 각 점수 근거별 긴 설명 (항상 펼쳐짐) */}
       {insights.reasonDetails.length > 0 && (
-        <div className="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4">
+        <div className="rounded-xl bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 p-4">
           <div className="text-[12px] font-bold text-gray-500 dark:text-gray-400 mb-3 tracking-wide">
             {t('근거 자세히 보기', 'See the reasoning')}
             <span className="ml-1.5 text-[11px] text-gray-400 font-medium">

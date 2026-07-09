@@ -10,7 +10,7 @@
   --color-surface-2: #f8f9fa;
   --color-text: #000000;
   --color-text-muted: #6b7280;
-  --color-primary: #2563eb;
+  --color-primary: #34D399;
   --color-border: #e5e7eb;
   --max-container: 1080px;
   --gutter: 20px;
@@ -21,11 +21,11 @@
   --v3-panel: #F9FAFB;
   --v3-subtle: #8B95A1;
   --v3-hairline: #F2F4F7;
-  /* 강조 박스 (오늘의 흐름 등) — 블루 톤 */
-  --accent-blue-bg: #EFF4FF;
-  --accent-blue-border: #3B82F6;
-  --accent-blue-title: #3B82F6;
-  --accent-blue-body: #1E3A8A;
+  /* 강조 박스 (오늘의 흐름 등) — 그린 톤 */
+  --accent-blue-bg: #ECFDF5;
+  --accent-blue-border: #34D399;
+  --accent-blue-title: #059669;
+  --accent-blue-body: #064E3B;
   /* 톤 배지 (오늘 플러스/참고/주의/중립) */
   --tone-positive-bg: #E8F5E5;
   --tone-positive-fg: #2D7A1F;
@@ -35,24 +35,24 @@
   --tone-negative-fg: #C33A1F;
   --tone-neutral-bg: #F3F4F6;
   --tone-neutral-fg: #4E5968;
-  --tone-info-bg: #E8F2FF;
-  --tone-info-fg: #3182F6;
-  /* 오행 파스텔 팔레트 — 용신 박스 등 */
-  --oh-mok-bg: #E8F5E5;
-  --oh-mok-text: #2D7A1F;
-  --oh-mok-border: #BFE3B3;
-  --oh-hwa-bg: #FEE7E2;
-  --oh-hwa-text: #C33A1F;
-  --oh-hwa-border: #F8C4B8;
-  --oh-to-bg: #FBF1D6;
-  --oh-to-text: #8A6A1F;
-  --oh-to-border: #EFDCA7;
-  --oh-geum-bg: #F2F4F7;
-  --oh-geum-text: #4E5968;
-  --oh-geum-border: #D7DBE1;
-  --oh-su-bg: #E8F2FF;
-  --oh-su-text: #3182F6;
-  --oh-su-border: #BFD8FD;
+  --tone-info-bg: #ECFDF5;
+  --tone-info-fg: #059669;
+  /* 오행 팔레트 — 새 컬러 기준 (木#34D399 火#FD0002 土#EDCE01 金#EAEAEA 水#000000) */
+  --oh-mok-bg: #ECFDF5;
+  --oh-mok-text: #059669;
+  --oh-mok-border: #A7F3D0;
+  --oh-hwa-bg: #FEE2E2;
+  --oh-hwa-text: #DC2626;
+  --oh-hwa-border: #FECACA;
+  --oh-to-bg: #FEF9C3;
+  --oh-to-text: #A16207;
+  --oh-to-border: #FDE68A;
+  --oh-geum-bg: #F5F5F5;
+  --oh-geum-text: #525252;
+  --oh-geum-border: #E5E5E5;
+  --oh-su-bg: #F3F4F6;
+  --oh-su-text: #1F2937;
+  --oh-su-border: #D1D5DB;
   /* 편재 (적극형·amber) · 정재 (안정형·teal) */
   --chae-pyeon: #B45309;
   --chae-jeong: #0F766E;
@@ -88,7 +88,7 @@
   --color-surface-2: #111827;
   --color-text: #e5e7eb;
   --color-text-muted: #9ca3af;
-  --color-primary: #60a5fa;
+  --color-primary: #6EE7B7;
   --color-border: #1f2937;
   /* V3 토큰 다크 오버라이드 */
   --v3-ink: #FFFFFF;
@@ -97,11 +97,11 @@
   --v3-panel: #111827;
   --v3-subtle: #9CA3AF;
   --v3-hairline: #1F2937;
-  /* 강조 박스 다크 오버라이드 — 배경은 진한 네이비, 텍스트는 밝은 블루 */
-  --accent-blue-bg: rgba(59, 130, 246, 0.12);
-  --accent-blue-border: #60A5FA;
-  --accent-blue-title: #93C5FD;
-  --accent-blue-body: #DBEAFE;
+  /* 강조 박스 다크 오버라이드 — 배경은 진한 그린, 텍스트는 밝은 그린 */
+  --accent-blue-bg: rgba(52, 211, 153, 0.12);
+  --accent-blue-border: #6EE7B7;
+  --accent-blue-title: #A7F3D0;
+  --accent-blue-body: #D1FAE5;
   /* 톤 배지 다크 오버라이드 — 배경 반투명, 텍스트 밝게 */
   --tone-positive-bg: rgba(34, 197, 94, 0.15);
   --tone-positive-fg: #86EFAC;
@@ -111,24 +111,24 @@
   --tone-negative-fg: #FCA5A5;
   --tone-neutral-bg: rgba(148, 163, 184, 0.15);
   --tone-neutral-fg: #E2E8F0;
-  --tone-info-bg: rgba(59, 130, 246, 0.15);
-  --tone-info-fg: #93C5FD;
+  --tone-info-bg: rgba(52, 211, 153, 0.15);
+  --tone-info-fg: #6EE7B7;
   /* 오행 파스텔 다크 오버라이드 — 반투명 bg + 밝은 텍스트 */
-  --oh-mok-bg: rgba(34, 197, 94, 0.15);
-  --oh-mok-text: #86EFAC;
-  --oh-mok-border: rgba(34, 197, 94, 0.35);
-  --oh-hwa-bg: rgba(239, 68, 68, 0.15);
+  --oh-mok-bg: rgba(52, 211, 153, 0.15);
+  --oh-mok-text: #6EE7B7;
+  --oh-mok-border: rgba(52, 211, 153, 0.35);
+  --oh-hwa-bg: rgba(253, 0, 2, 0.15);
   --oh-hwa-text: #FCA5A5;
-  --oh-hwa-border: rgba(239, 68, 68, 0.35);
-  --oh-to-bg: rgba(245, 158, 11, 0.15);
-  --oh-to-text: #FCD34D;
-  --oh-to-border: rgba(245, 158, 11, 0.35);
-  --oh-geum-bg: rgba(148, 163, 184, 0.15);
-  --oh-geum-text: #E2E8F0;
-  --oh-geum-border: rgba(148, 163, 184, 0.35);
-  --oh-su-bg: rgba(59, 130, 246, 0.15);
-  --oh-su-text: #93C5FD;
-  --oh-su-border: rgba(59, 130, 246, 0.35);
+  --oh-hwa-border: rgba(253, 0, 2, 0.35);
+  --oh-to-bg: rgba(237, 206, 1, 0.15);
+  --oh-to-text: #FDE68A;
+  --oh-to-border: rgba(237, 206, 1, 0.35);
+  --oh-geum-bg: rgba(234, 234, 234, 0.15);
+  --oh-geum-text: #E5E5E5;
+  --oh-geum-border: rgba(234, 234, 234, 0.35);
+  --oh-su-bg: rgba(0, 0, 0, 0.25);
+  --oh-su-text: #E5E7EB;
+  --oh-su-border: rgba(255, 255, 255, 0.2);
   /* 편재·정재 다크 오버라이드 — 더 밝은 amber·teal */
   --chae-pyeon: #FBBF24;
   --chae-jeong: #5EEAD4;
@@ -142,7 +142,7 @@
   --period-row-2-bg: #1F2937;
   --period-row-2-border: #374151;
   --period-row-3-bg: #0F172A;
-  --period-row-3-border: #60A5FA;
+  --period-row-3-border: #6EE7B7;
   /* pane 다크 오버라이드 */
   --pane-good-bg: rgba(34, 197, 94, 0.12);
   --pane-good-border: rgba(34, 197, 94, 0.4);
@@ -231,7 +231,7 @@ html, body {
   --color-background: var(--color-bg);
   --color-foreground: var(--color-text);
   --color-primary: #ffffff;
-  --color-accent: #60a5fa;
+  --color-accent: #34D399;
   --font-sans: 'Pretendard Variable', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Merriweather', Georgia, 'Times New Roman', serif;
   --font-display: 'Playfair Display', Georgia, serif;
@@ -352,8 +352,8 @@ body {
   border-top: 1px solid #E5E7EB;
 }
 .dark .blog-body hr { border-top-color: #374151; }
-.blog-body a { color: #2563EB; text-decoration: underline; }
-.dark .blog-body a { color: #60A5FA; }
+.blog-body a { color: #059669; text-decoration: underline; }
+.dark .blog-body a { color: #6EE7B7; }
 
 .admin-editor:empty::before {
   content: attr(data-placeholder);

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { lunarToSolar } from '@fullstackfamily/manseryeok';
 import { trackEvent } from '@/shared/lib/trackEvent';
 import { ThemeToggle } from '@/shared/lib/ThemeToggle';
-import { LangToggle } from '@/shared/lib/LangToggle';
 import { useLang } from '@/shared/lib/LangContext';
 import {
   calculateSaju, parsePillar, sipsung, unsung, elClass,
@@ -234,7 +233,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
       {/* 흰색 헤더 블록 — phase-04: hideOwnHeader 시 숨김 (페이지에서 PageHeader 사용) */}
       {!hideOwnHeader && (
         <div className="bg-white dark:bg-gray-900 w-full">
-          <div className="max-w-[480px] lg:max-w-[720px] mx-auto relative overflow-hidden" style={{ padding: '20px 20px 18px' }}>
+          <div className="max-w-[480px] lg:max-w-[1080px] mx-auto relative overflow-hidden" style={{ padding: '20px 20px 18px' }}>
             {/* 배경 마스코트 — 우하단 살짝 크롭, 텍스트 뒤 */}
             <img
               src="/fortune-mascot.png"
@@ -257,7 +256,6 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
             <div className="flex items-center justify-between mb-1">
               <div className="text-[13px] text-gray-500 dark:text-gray-300 font-medium tracking-tight">{todayLabel}</div>
               <div className="flex items-center gap-2">
-                <LangToggle />
                 <ThemeToggle />
               </div>
             </div>
@@ -289,12 +287,12 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
         </div>
       )}
 
-      <div className={hideOwnHeader ? 'w-full' : 'max-w-[480px] lg:max-w-[720px] mx-auto'}>
+      <div className={hideOwnHeader ? 'w-full' : 'max-w-[480px] lg:max-w-[1080px] mx-auto'}>
       {/* 회색 콘텐츠 영역 */}
       <div className="px-3 sm:px-[14px] pt-[14px] pb-10">
       {/* 입력 폼 — 결과가 있으면 접힘 */}
       {showForm ? (
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] p-5 mb-4">
+        <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-4">
           {/* 성별 */}
           <div className="mb-6">
             <label className="block text-[13px] font-semibold text-gray-800 dark:text-gray-200 mb-2">
@@ -303,7 +301,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
                 {t('(선택)', '(optional)')}
               </span>
             </label>
-            <div className="flex border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900">
+            <div className="flex shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900">
               {(['남', '여', ''] as const).map(gv => (
                 <button key={gv || 'none'} onClick={() => setGender(gv)}
                   className={`flex-1 py-3 text-[15px] transition-all relative ${gender === gv ? 'font-semibold text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:text-gray-400'}`}>
@@ -318,7 +316,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
           <div className="mb-6">
             <label className="block text-[13px] font-semibold text-gray-800 dark:text-gray-200 mb-2">{t('생년월일시', 'Date & Time of Birth')}</label>
             <div className="flex items-stretch gap-2">
-              <div className="shrink-0 inline-flex border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900">
+              <div className="shrink-0 inline-flex shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900">
                 {(['solar', 'lunar'] as const).map(c => (
                   <button key={c} type="button" onClick={() => setCalendar(c)}
                     className={`px-3 text-[13px] font-medium transition-all ${calendar === c ? 'bg-[#D9651E] text-white' : 'text-gray-500 hover:text-gray-700'}`}>
@@ -328,12 +326,12 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
               </div>
               <input type="text" inputMode="numeric" maxLength={14} placeholder="YYYY / MM / DD"
                 value={birthdate} onChange={e => handleDateInput(e.target.value)}
-                className="flex-1 min-w-0 px-3 py-3 text-[15px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-100 placeholder:text-gray-300 transition-all" />
+                className="flex-1 min-w-0 px-3 py-3 text-[15px] bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-100 placeholder:text-gray-300 transition-all" />
               <div className="relative shrink-0 w-[92px]">
                 <input type="text" inputMode="numeric" maxLength={5} placeholder="HH:MM"
                   value={timeInput} onChange={e => handleTimeInput(e.target.value)}
                   disabled={noTime}
-                  className={`w-full px-2 py-3 text-[15px] text-center tracking-widest tabular-nums bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-100 placeholder:text-gray-300 transition-all ${noTime ? 'opacity-35' : ''}`} />
+                  className={`w-full px-2 py-3 text-[15px] text-center tracking-widest tabular-nums bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-100 placeholder:text-gray-300 transition-all ${noTime ? 'opacity-35' : ''}`} />
                 {timeBadgeLabel && (
                   <div className="absolute -bottom-5 left-0 right-0 text-center text-[11px] text-gray-400 dark:text-gray-300">{timeBadgeLabel}</div>
                 )}
@@ -377,11 +375,11 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
         </div>
       ) : result ? (() => {
         const EL_BG: Record<string, string> = {
-          '목': 'bg-green-50 text-green-700',
+          '목': 'bg-emerald-50 text-emerald-700',
           '화': 'bg-red-50 text-red-600',
           '토': 'bg-yellow-50 text-yellow-700',
-          '금': 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300',
-          '수': 'bg-blue-50 text-blue-700',
+          '금': 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300',
+          '수': 'bg-gray-100 text-gray-900',
         };
         const ilganOh = CG_OH[result.ilgan] || '';
         const parsed = parseDateStr(birthdate);
@@ -409,7 +407,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
         const subtitle = [genderLabel, regionLabel].filter(Boolean).join(' · ') + offsetLabel;
 
         return (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] p-4 mb-4">
+          <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-4 mb-4">
             <div className="flex items-center gap-3">
               <div className={`w-9 h-9 rounded-[10px] flex items-center justify-center text-[16px] font-bold shrink-0 ${EL_BG[ilganOh] || 'bg-gray-50 dark:bg-gray-900 text-gray-400 dark:text-gray-300'}`}>
                 {result.ilgan || '—'}
@@ -481,7 +479,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
             <input type="text" value={saveName} onChange={e => setSaveName(e.target.value)}
               placeholder={t('예) 홍길동', 'e.g. John Doe')} maxLength={20} autoFocus
               onKeyDown={e => { if (e.key === 'Enter') { handleSave(); } if (e.key === 'Escape') setShowSaveModal(false); }}
-              className="w-full px-3 py-2.5 text-[14px] border border-gray-200 dark:border-gray-800 rounded-lg outline-none focus:border-gray-400 mb-4" />
+              className="w-full px-3 py-2.5 text-[14px] shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-lg outline-none focus:border-gray-400 mb-4" />
             <div className="flex gap-2">
               <button onClick={() => setShowSaveModal(false)} className="flex-1 py-2.5 text-[13px] font-medium bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">{t('취소', 'Cancel')}</button>
               <button onClick={handleSave} className="flex-1 py-2.5 text-[13px] font-medium bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-all">{t('저장', 'Save')}</button>
@@ -513,7 +511,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
                   className={`flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-900 rounded-xl cursor-pointer transition-all ${
                     isCurrent
                       ? 'border-2 border-green-500 bg-green-50/50 dark:bg-green-950/40'
-                      : 'border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+                      : 'shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
                   }`}>
                   {isCurrent && (
                     <span className="shrink-0 mr-2 inline-block px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-600 text-white">

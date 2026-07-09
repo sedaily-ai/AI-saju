@@ -37,10 +37,10 @@ interface CurrentSaju {
 }
 
 const EL_BG: Record<string, string> = {
-  '목': '#E8F5E5', '화': '#FEE7E2', '토': '#FBF1D6', '금': '#F2F4F7', '수': '#E8F2FF',
+  '목': '#ECFDF5', '화': '#FEE2E2', '토': '#FEF9C3', '금': '#F5F5F5', '수': '#F3F4F6',
 };
 const EL_SOLID: Record<string, string> = {
-  '목': '#2D7A1F', '화': '#C33A1F', '토': '#A97C1F', '금': '#4E5968', '수': '#3182F6',
+  '목': '#34D399', '화': '#FD0002', '토': '#EDCE01', '금': '#EAEAEA', '수': '#000000',
 };
 
 const MAIN_TABS = [
@@ -506,7 +506,7 @@ export default function CareerPage() {
               'Officer · Output · Resource · 4-type auto-typing')}
       />
 
-      <div className="max-w-[480px] lg:max-w-[720px] mx-auto px-3 sm:px-[14px] pt-4 pb-10">
+      <div className="max-w-[480px] lg:max-w-[1080px] mx-auto px-3 sm:px-[14px] pt-4 pb-10">
         {!saju && (
           <>
             <p className="mb-4 text-center text-[13px] text-gray-500 dark:text-gray-100 dark:text-gray-300 leading-relaxed">
@@ -555,7 +555,7 @@ export default function CareerPage() {
               const genderLabel = saju.gender === '남' ? t('남', 'Male') : saju.gender === '여' ? t('여', 'Female') : saju.gender;
               const subtitle = [genderLabel, regionLabel].filter(Boolean).join(' · ');
               return (
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] p-4 mb-3">
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-4 mb-3">
                   <div className="flex items-center gap-3">
                     <div
                       className="w-9 h-9 rounded-[10px] flex items-center justify-center text-[16px] font-bold shrink-0"
@@ -586,7 +586,7 @@ export default function CareerPage() {
             })()}
 
             {/* 커리어 프로파일 */}
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
+            <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
               <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('내 커리어 기운의 성격', 'Your Career Energy')}</h3>
               <p className="text-[11px] text-gray-400 dark:text-gray-300 mb-3">{t('관성(官) · 식상(食傷) · 인성(印) 축으로 본 커리어 체질', 'Career constitution via Authority · Output · Resource axes')}</p>
 
@@ -698,7 +698,7 @@ export default function CareerPage() {
               const traits = TRAITS_BY_TYPE[profileType.type];
               if (!aptitude || !tips || !traits) return null;
               return (
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
                   <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('내가 빛나는 일의 성격', 'The Kind of Work That Makes You Shine')}</h3>
                   <p className="text-[11px] text-gray-400 dark:text-gray-300 mb-3">
                     {t('일간', 'Day Stem')} <b className="text-gray-600 dark:text-gray-100 dark:text-gray-300">{ilganOh}</b> · <b className="text-gray-600 dark:text-gray-100 dark:text-gray-300">{profileType.type}</b> {t('조합', 'combo')}
@@ -845,7 +845,7 @@ export default function CareerPage() {
                 t === 'good' ? 'var(--tone-positive-fg)' : t === 'neutral' ? 'var(--tone-neutral-fg)' : 'var(--tone-caution-fg)';
 
               return (
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
                   <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('시기별 커리어 흐름', 'Career Flow by Period')}</h3>
                   <p className="text-[11px] text-gray-400 dark:text-gray-300 mb-3 leading-snug">
                     {t('올해(세운) · 이번 달(월운) · 오늘(일진) 간지가 내 일간에 가져오는 커리어 영향', 'Career influence this year · this month · today brings to your Day Stem')}
@@ -955,7 +955,7 @@ export default function CareerPage() {
               const dotColor = (tone: 'good' | 'neutral' | 'caution') =>
                 tone === 'good' ? '#10B981' : tone === 'neutral' ? '#94A3B8' : '#F59E0B';
               return (
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
                   <div className="flex items-baseline justify-between gap-2 mb-1">
                     <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('올해 월별 커리어 타임라인', 'Monthly Career Timeline')}</h3>
                     <span className="text-[10px] font-bold text-gray-400 dark:text-gray-300 tabular-nums">{min}~{max}</span>

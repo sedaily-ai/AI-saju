@@ -239,7 +239,7 @@ function CareerNewsSectionImpl({ periodChaeun, careerOverall, monthSeries }: Pro
   if (periods.length === 0) return null;
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
+    <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
       <div className="flex items-center justify-between mb-4">
         <div className="min-w-0">
           <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">이 시기 참고할 커리어 뉴스</h3>

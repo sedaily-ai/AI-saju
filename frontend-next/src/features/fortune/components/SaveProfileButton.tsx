@@ -153,7 +153,7 @@ export function SaveProfileButton({ profile }: Props) {
                 if (e.key === 'Enter') confirmSave();
                 if (e.key === 'Escape') setShowModal(false);
               }}
-              className="w-full px-3 py-2.5 text-[14px] border border-gray-200 dark:border-gray-800 rounded-lg outline-none focus:border-gray-400 mb-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
+              className="w-full px-3 py-2.5 text-[14px] shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-lg outline-none focus:border-gray-400 mb-4 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100"
             />
             <div className="flex gap-2">
               <button

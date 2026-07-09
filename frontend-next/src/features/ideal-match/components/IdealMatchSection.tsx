@@ -54,27 +54,27 @@ interface Props {
 }
 
 const EL_BG: Record<string, string> = {
-  '목': 'bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800',
+  '목': 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
   '화': 'bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800',
   '토': 'bg-yellow-50 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800',
-  '금': 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700',
-  '수': 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+  '금': 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700',
+  '수': 'bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700',
 };
 
 const EL_HERO_BG: Record<string, string> = {
-  '목': 'from-green-100 to-emerald-50 dark:from-green-950/60 dark:to-emerald-950/30',
-  '화': 'from-rose-100 to-orange-50 dark:from-rose-950/60 dark:to-orange-950/30',
-  '토': 'from-amber-100 to-yellow-50 dark:from-amber-950/60 dark:to-yellow-950/30',
-  '금': 'from-slate-100 to-gray-50 dark:from-slate-800 dark:to-gray-900',
-  '수': 'from-sky-100 to-indigo-50 dark:from-sky-950/60 dark:to-indigo-950/30',
+  '목': 'from-emerald-100 to-emerald-50 dark:from-emerald-950/60 dark:to-emerald-950/30',
+  '화': 'from-red-100 to-red-50 dark:from-red-950/60 dark:to-red-950/30',
+  '토': 'from-yellow-100 to-yellow-50 dark:from-yellow-950/60 dark:to-yellow-950/30',
+  '금': 'from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900',
+  '수': 'from-gray-200 to-gray-100 dark:from-gray-900 dark:to-gray-950',
 };
 
 const EL_BADGE_SOLID: Record<string, string> = {
-  '목': 'bg-green-600 text-white',
-  '화': 'bg-rose-600 text-white',
-  '토': 'bg-amber-600 text-white',
-  '금': 'bg-slate-600 text-white',
-  '수': 'bg-sky-600 text-white',
+  '목': 'bg-emerald-500 text-white',
+  '화': 'bg-red-600 text-white',
+  '토': 'bg-yellow-500 text-black',
+  '금': 'bg-gray-300 text-gray-800',
+  '수': 'bg-gray-900 text-white',
 };
 
 export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
@@ -179,7 +179,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
         )}
       </p>
       {/* === Hero 파트너 카드 === */}
-      <div className={`relative overflow-hidden rounded-[20px] mb-3 bg-gradient-to-br ${EL_HERO_BG[primaryOh] ?? 'from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900'} border border-gray-200 dark:border-gray-800`}>
+      <div className={`relative overflow-hidden rounded-[20px] mb-3 bg-gradient-to-br ${EL_HERO_BG[primaryOh] ?? 'from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900'} shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800`}>
         <div className="px-5 pt-5 pb-4">
           <div className="flex items-start justify-between gap-3 mb-3">
             <div>
@@ -266,7 +266,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
       {/* === 점수 근거 자세히 보기 — 항상 펼쳐짐 === */}
       {match.scoreReasons.length > 0 && (
-        <div className="rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-4 mb-3">
+        <div className="rounded-xl bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 p-4 mb-3">
           <div className="text-[12px] font-bold text-gray-500 dark:text-gray-400 mb-1 tracking-wide">
             {t('이 점수, 이런 이유로 이렇게 나왔어요', 'Why the score came out this way')}
           </div>
@@ -305,7 +305,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       )}
 
       {/* === 상세 카드 === */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] overflow-hidden mb-4">
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] overflow-hidden mb-4">
         <div className="px-5 py-4 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800">
           <span className="inline-block text-[11px] font-bold text-pink-600 dark:text-pink-400 tracking-wider">
             {t('상세 해석', 'Details')}

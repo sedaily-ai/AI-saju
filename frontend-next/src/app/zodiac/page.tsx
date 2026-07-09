@@ -79,7 +79,7 @@ export default function ZodiacPage() {
               &larr; {t('목록으로', 'Back to list')}
             </button>
 
-            <article className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 sm:p-5">
+            <article className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-2 text-[11px] text-gray-400 dark:text-gray-400">
                 <span className="font-semibold text-gray-500 dark:text-gray-300">
                   {t('오늘의 띠별 운세', "Today's Zodiac Fortune")}
@@ -121,7 +121,7 @@ export default function ZodiacPage() {
                 <button
                   type="button"
                   onClick={() => setSelected(animal.id)}
-                  className="w-full text-left bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer"
+                  className="w-full text-left bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer"
                 >
                   <div className="flex items-center gap-2 mb-1 text-[10.5px] text-gray-400 dark:text-gray-400">
                     <span className="font-semibold text-gray-500 dark:text-gray-300">

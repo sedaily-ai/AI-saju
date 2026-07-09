@@ -44,7 +44,7 @@ export function FeatureTabs() {
       aria-label={t('기능 탭', 'Feature tabs')}
       className="sticky top-0 z-40 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800"
     >
-      <div className="max-w-[480px] lg:max-w-[720px] mx-auto px-3 sm:px-[14px]">
+      <div className="max-w-[480px] lg:max-w-[1080px] mx-auto px-3 sm:px-[14px]">
         <ul className="flex gap-2 overflow-x-auto py-2.5 scrollbar-hide">
           {TABS.map(tab => {
             const isActive = active === tab.id;

@@ -86,7 +86,7 @@ export function DailyCalendar({ ilgan }: Props) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 dark:border-gray-800 rounded-[16px] p-5 mb-4">
+    <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 dark:border-gray-800 rounded-[16px] p-5 mb-4">
       {/* 헤더: 타이틀 + 토글 pill */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">

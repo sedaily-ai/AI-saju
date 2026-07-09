@@ -2,12 +2,17 @@ import { sipsung, unsung, elClass, CG_OH, JJG, type Pillar } from '../lib/engine
 import { useLang } from '@/shared/lib/LangContext';
 
 const EL_COLORS: Record<string, string> = {
-  '목': 'text-green-600', '화': 'text-red-500', '토': 'text-yellow-600',
-  '금': 'text-gray-500', '수': 'text-blue-600',
+  '목': 'text-emerald-400', '화': 'text-red-600', '토': 'text-yellow-500',
+  '금': 'text-gray-400', '수': 'text-gray-900',
 };
-const EL_BG: Record<string, string> = {
-  '목': 'bg-green-50', '화': 'bg-red-50', '토': 'bg-yellow-50',
-  '금': 'bg-gray-100', '수': 'bg-blue-50',
+
+/** 셀 배경 + 텍스트 — 한눈에 오행 구분 */
+const EL_CELL: Record<string, string> = {
+  '목': 'bg-[#34D399] text-white',
+  '화': 'bg-[#FD0002] text-white',
+  '토': 'bg-[#EDCE01] text-gray-900',
+  '금': 'bg-[#EAEAEA] text-gray-700',
+  '수': 'bg-[#000000] text-white',
 };
 
 function ElSpan({ oh, children }: { oh: string; children: React.ReactNode }) {
@@ -21,7 +26,7 @@ export function SajuTable({ pillars, ilgan }: Props) {
   const headers = [t('생시', 'Hour'), t('생일', 'Day'), t('생월', 'Month'), t('생년', 'Year')];
   return (
     <div className="overflow-x-auto mt-8 mb-6">
-      <table className="w-full border-collapse text-center text-[13px]">
+      <table className="w-full border-separate border-spacing-x-1.5 border-spacing-y-0 text-center text-[13px]">
         <thead>
           <tr>
             <th className="p-2 text-[11px] text-gray-400 font-medium w-[52px]"></th>
@@ -29,12 +34,12 @@ export function SajuTable({ pillars, ilgan }: Props) {
           </tr>
         </thead>
         <tbody>
-          {/* 천간 */}
+          {/* 천간 — 오행별 배경색 블록 */}
           <tr>
             <td className="p-2 text-[11px] text-gray-400">{t('천간', 'Stem')}</td>
             {pillars.map((p, i) => (
-              <td key={i} className="p-2">
-                {p.c ? <span className={`text-[18px] font-bold ${EL_COLORS[p.co] || ''}`}>{p.ck}{p.c}</span> : <span className="text-gray-300">—</span>}
+              <td key={i} className={`py-5 px-3 rounded-lg ${p.c ? EL_CELL[p.co] || '' : ''}`}>
+                {p.c ? <span className="text-[24px] font-bold">{p.ck}{p.c}</span> : <span className="text-gray-300">—</span>}
               </td>
             ))}
           </tr>
@@ -43,12 +48,12 @@ export function SajuTable({ pillars, ilgan }: Props) {
             <td className="p-2 text-[11px] text-gray-400">{t('십성', 'God')}</td>
             {pillars.map((p, i) => <td key={i} className="p-2 text-[12px] text-gray-500">{p.c ? sipsung(ilgan, p.c) : ''}</td>)}
           </tr>
-          {/* 지지 */}
+          {/* 지지 — 오행별 배경색 블록 */}
           <tr>
             <td className="p-2 text-[11px] text-gray-400">{t('지지', 'Branch')}</td>
             {pillars.map((p, i) => (
-              <td key={i} className="p-2">
-                {p.j ? <span className={`text-[18px] font-bold ${EL_COLORS[p.jo] || ''}`}>{p.jk}{p.j}</span> : <span className="text-gray-300">—</span>}
+              <td key={i} className={`py-5 px-3 rounded-lg ${p.j ? EL_CELL[p.jo] || '' : ''}`}>
+                {p.j ? <span className="text-[24px] font-bold">{p.jk}{p.j}</span> : <span className="text-gray-300">—</span>}
               </td>
             ))}
           </tr>

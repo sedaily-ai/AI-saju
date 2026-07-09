@@ -28,10 +28,10 @@ interface CurrentSaju {
 }
 
 const EL_BG: Record<string, string> = {
-  '목': '#E8F5E5', '화': '#FEE7E2', '토': '#FBF1D6', '금': '#F2F4F7', '수': '#E8F2FF',
+  '목': '#ECFDF5', '화': '#FEE2E2', '토': '#FEF9C3', '금': '#F5F5F5', '수': '#F3F4F6',
 };
 const EL_SOLID: Record<string, string> = {
-  '목': '#2D7A1F', '화': '#C33A1F', '토': '#A97C1F', '금': '#4E5968', '수': '#3182F6',
+  '목': '#34D399', '화': '#FD0002', '토': '#EDCE01', '금': '#EAEAEA', '수': '#000000',
 };
 
 /**
@@ -40,7 +40,7 @@ const EL_SOLID: Record<string, string> = {
  */
 function ExamplePreviewCard() {
   return (
-    <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-rose-100 to-orange-50 dark:from-rose-950/60 dark:to-orange-950/30 border border-gray-200 dark:border-gray-800">
+    <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-rose-100 to-orange-50 dark:from-rose-950/60 dark:to-orange-950/30 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800">
       <div className="px-5 pt-5 pb-4">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div>
@@ -204,7 +204,7 @@ export default function CompatibilityPage() {
               const genderLabel = saju.gender === '남' ? t('남', 'Male') : saju.gender === '여' ? t('여', 'Female') : '';
               const subtitle = [genderLabel, regionLabel].filter(Boolean).join(' · ') + offsetLabel;
               return (
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-[16px] p-4 mb-3">
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-4 mb-3">
                   <div className="flex items-center gap-3">
                     <div
                       className="w-9 h-9 rounded-[10px] flex items-center justify-center text-[16px] font-bold shrink-0"

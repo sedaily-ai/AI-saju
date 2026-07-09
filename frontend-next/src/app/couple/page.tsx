@@ -114,7 +114,7 @@ export default function CouplePage() {
         {step === 'partner' && (
           <>
             {me && (
-              <div className="mb-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 flex items-center gap-3">
+              <div className="mb-3 bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-3 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-lg bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 flex items-center justify-center text-[13px] font-bold">
                   {me.pillars[1]?.c ?? '—'}
                 </div>

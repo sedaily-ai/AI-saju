@@ -25,19 +25,19 @@ interface Props {
 }
 
 const EL_BG: Record<string, string> = {
-  '목': 'linear-gradient(160deg, #d9f5cc 0%, #ecf9e3 55%, #f7fdf2 100%)',
-  '화': 'linear-gradient(160deg, #fcd9d0 0%, #fde8df 55%, #fff5f0 100%)',
-  '토': 'linear-gradient(160deg, #fae6b8 0%, #fcedc9 55%, #fff7e3 100%)',
-  '금': 'linear-gradient(160deg, #e4e7ec 0%, #eef0f3 55%, #f7f8fa 100%)',
-  '수': 'linear-gradient(160deg, #cfe3fa 0%, #dfeafc 55%, #f1f6ff 100%)',
+  '목': 'linear-gradient(160deg, #a7f3d0 0%, #d1fae5 55%, #ecfdf5 100%)',
+  '화': 'linear-gradient(160deg, #fecaca 0%, #fee2e2 55%, #fef2f2 100%)',
+  '토': 'linear-gradient(160deg, #fde68a 0%, #fef3c2 55%, #fefce8 100%)',
+  '금': 'linear-gradient(160deg, #e5e5e5 0%, #f0f0f0 55%, #f9f9f9 100%)',
+  '수': 'linear-gradient(160deg, #d1d5db 0%, #e5e7eb 55%, #f3f4f6 100%)',
 };
 
 const EL_BADGE: Record<string, string> = {
-  '목': '#1a5c0f',
-  '화': '#9a2a15',
-  '토': '#7a5900',
-  '금': '#374151',
-  '수': '#1e4ea8',
+  '목': '#059669',
+  '화': '#DC2626',
+  '토': '#A16207',
+  '금': '#525252',
+  '수': '#000000',
 };
 
 export function ShareCard({ match, mode, primaryStem, primaryOh, onClose }: Props) {

@@ -30,7 +30,7 @@ export function BottomNav({ active, maxWidth = 540 }: BottomNavProps) {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-40"
+      className="fixed bottom-0 left-0 right-0 z-40 lg:hidden"
       style={{ background: SAJU.paper }}
     >
       <div
