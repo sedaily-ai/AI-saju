@@ -21,7 +21,7 @@
 
 ```
 mbti/
-├─ frontend-next/         Next.js 앱 (정적 빌드 → S3)
+├─ frontend/         Next.js 앱 (정적 빌드 → S3)
 │  ├─ src/
 │  │  ├─ app/             App Router 라우트 (pages 단위)
 │  │  ├─ features/fortune 사주 도메인 (엔진·컴포넌트)
@@ -53,13 +53,13 @@ mbti/
 | `/timeline`·`/timemachine` | 과거 뉴스 타임라인 | `TimelineNewsFeed` |
 | `/login`·`/auth/callback` | OAuth 인증 (AWS Cognito) | `AuthContext` |
 
-`saju.sedaily.ai`는 정적 export 후 `out/saju.html` → `out-saju/index.html`로 치환해서 루트에 노출합니다 ([scripts/deploy.sh:75](../scripts/deploy.sh#L75)).
+`saju.sedaily.ai`는 정적 export 후 `out/saju.html` → `out-saju/index.html`로 치환해서 루트에 노출합니다 ([scripts/frontend/deploy.sh:75](../scripts/frontend/deploy.sh#L75)).
 
 ---
 
 ## 4. 사주 엔진 (도메인 로직)
 
-엔진은 **순수 함수의 모음** ([src/features/fortune/lib/](../frontend-next/src/features/fortune/lib/))로, UI 의존성 없이 독립 사용 가능합니다.
+엔진은 **순수 함수의 모음** ([src/features/fortune/lib/](../frontend/src/features/fortune/lib/))로, UI 의존성 없이 독립 사용 가능합니다.
 
 ### 4.1 기본 만세력 — `engine.ts`
 
@@ -103,7 +103,7 @@ calcCareerOverallRating(categories, dominantPath):
 
 ### 4.4 해석 데이터 (정적 테이블)
 
-[engine-data/categoryFortunes.ts](../frontend-next/src/features/fortune/lib/engine-data/categoryFortunes.ts) — 5카테고리(재물·건강·연애·직장·학업) × 10십성 매트릭스의 점수·해석 50개 셀.
+[engine-data/categoryFortunes.ts](../frontend/src/features/fortune/lib/engine-data/categoryFortunes.ts) — 5카테고리(재물·건강·연애·직장·학업) × 10십성 매트릭스의 점수·해석 50개 셀.
 
 ---
 
@@ -269,7 +269,7 @@ CareerPage (/career)
 
 **중요**: DB가 아니라 **프론트엔드 정적 캐시**입니다. 사주 해석문을 매번 LLM 재호출하지 않도록 빌드 시점에 미리 만들어둔 lookup table.
 
-### 8.1 캐시 파일 — 건수 인벤토리 ([frontend-next/public/saju-cache/](../frontend-next/public/saju-cache/))
+### 8.1 캐시 파일 — 건수 인벤토리 ([frontend/public/saju-cache/](../frontend/public/saju-cache/))
 
 | 파일 | 크기 | 건수 (해석문 단위) |
 |---|---|---|
@@ -287,9 +287,9 @@ CareerPage (/career)
 - **today-parts.json**: 오늘 일진이 일간에 미치는 영향(십성·12운성·5개 분야운)의 가능한 모든 조합. 매일 동일 파일 재사용 (일진은 매일 바뀌어도 매핑 자체는 불변).
 - **today.json**: 일진별 TODAY 카드 요약 데이터.
 
-엔진 ([engine.ts](../frontend-next/src/features/fortune/lib/engine.ts))은 사주 4기둥 계산만 직접 수행하고, 해석문은 위 JSON에서 lookup. 결과: **사용자 입력 → LLM 호출 0회 → 즉시 결과 표시**.
+엔진 ([engine.ts](../frontend/src/features/fortune/lib/engine.ts))은 사주 4기둥 계산만 직접 수행하고, 해석문은 위 JSON에서 lookup. 결과: **사용자 입력 → LLM 호출 0회 → 즉시 결과 표시**.
 
-### 8.3 빌드 도구 ([scripts/saju-cache-local/](../scripts/saju-cache-local/))
+### 8.3 빌드 도구 ([scripts/backend/saju-cache-local/](../scripts/backend/saju-cache-local/))
 
 - `chongun/`: 1,440개 JSON 파일을 LLM(Bedrock Claude)으로 병렬 생성 → `chongun.json`으로 병합
 - `today/`: 일자별 today-parts 생성 (테스트·증분 빌드용)
@@ -340,9 +340,9 @@ DynamoDB: sedaily-mbti-articles
 
 ## 10. 외부 연동 (분석)
 
-- **GA4** ([GoogleAnalytics.tsx](../frontend-next/src/shared/lib/GoogleAnalytics.tsx)): `NEXT_PUBLIC_GA_MEASUREMENT_ID` (예: `G-9LRLQM656T`), `saju.sedaily.ai`만 로드, `?ga_disable=1`로 opt-out
-- **Clarity** ([ClarityAnalytics.tsx](../frontend-next/src/shared/lib/ClarityAnalytics.tsx)): `NEXT_PUBLIC_CLARITY_PROJECT_ID` (예: `wgjfl4pwiq`), 두 도메인 모두, GA4 opt-out 키 공유, 대시보드에서 GA4 이벤트 자동 매핑
-- **trackEvent** ([trackEvent.ts](../frontend-next/src/shared/lib/trackEvent.ts)): 사주 계산·배너 클릭·뉴스 클릭 등 핵심 전환 이벤트를 GA4로 전송
+- **GA4** ([GoogleAnalytics.tsx](../frontend/src/shared/lib/GoogleAnalytics.tsx)): `NEXT_PUBLIC_GA_MEASUREMENT_ID` (예: `G-9LRLQM656T`), `saju.sedaily.ai`만 로드, `?ga_disable=1`로 opt-out
+- **Clarity** ([ClarityAnalytics.tsx](../frontend/src/shared/lib/ClarityAnalytics.tsx)): `NEXT_PUBLIC_CLARITY_PROJECT_ID` (예: `wgjfl4pwiq`), 두 도메인 모두, GA4 opt-out 키 공유, 대시보드에서 GA4 이벤트 자동 매핑
+- **trackEvent** ([trackEvent.ts](../frontend/src/shared/lib/trackEvent.ts)): 사주 계산·배너 클릭·뉴스 클릭 등 핵심 전환 이벤트를 GA4로 전송
 
 ---
 
@@ -350,34 +350,30 @@ DynamoDB: sedaily-mbti-articles
 
 ### 11.1 정적 export 빌드
 
-[next.config.ts](../frontend-next/next.config.ts):
+[next.config.ts](../frontend/next.config.ts):
 ```ts
 { output: "export" }
 ```
 
 `npm run build` → `out/` 디렉터리에 정적 HTML/JS/CSS 생성. 각 페이지가 `[name].html` 파일로 떨어집니다.
 
-### 11.2 배포 자동화 (`scripts/deploy.sh`)
+### 11.2 배포 자동화 (`scripts/frontend/deploy.sh`)
+
+이 레포는 **saju.sedaily.ai 전용**입니다 (mbti 타겟은 2026-07-09 제거됨 — 별도 레포 `AI-CUSTOMIZED-MBTI`에서 관리).
 
 ```bash
-./scripts/deploy.sh both     # mbti + saju 둘 다 (기본)
-./scripts/deploy.sh mbti
-./scripts/deploy.sh saju
+./scripts/frontend/deploy.sh              # 빌드 + 배포 + invalidation
+./scripts/frontend/deploy.sh --skip-build # 현재 out/ 그대로 배포
 ```
 
 내부 흐름:
 
-1. `npm run build` 실행
-2. **mbti.sedaily.ai**: `aws s3 sync out/ s3://sedaily-mbti-frontend-dev/`
-3. **saju.sedaily.ai**:
-   - `out/`을 `out-saju/`로 복사
-   - `out-saju/saju.html`을 `out-saju/index.html`로 치환 (saju 페이지를 루트로)
-   - `aws s3 sync out-saju/ s3://saju-oracle-frontend-887078546492/ --region ap-northeast-2`
-4. **CloudFront 무효화** 각각 발행 (전파 1~5분)
+1. `npm run build` 실행 (`--skip-build` 시 생략)
+2. `aws s3 sync out/ s3://saju-oracle-frontend-887078546492/ --region ap-northeast-2 --delete`
+3. CloudFront 무효화 발행 (전파 1~3분)
 
 | 도메인 | S3 버킷 | CloudFront ID |
 |---|---|---|
-| mbti.sedaily.ai | `sedaily-mbti-frontend-dev` | `E1QS7PY350VHF6` |
 | saju.sedaily.ai | `saju-oracle-frontend-887078546492` | `E2ZDGPQU5JXQKC` |
 
 ---

@@ -5,18 +5,21 @@
 #                     CloudFront E2ZDGPQU5JXQKC
 #
 # 사용법:
-#   ./scripts/deploy.sh              # 빌드 + 배포 + invalidation
-#   ./scripts/deploy.sh --skip-build # 현재 out/ 그대로 배포
+#   ./scripts/frontend/deploy.sh              # 빌드 + 배포 + invalidation
+#   ./scripts/frontend/deploy.sh --skip-build # 현재 out/ 그대로 배포
+#   npm run deploy (frontend/ 안에서)          # 위와 동일
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-FRONTEND_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+FRONTEND_DIR="$ROOT_DIR/frontend"
 cd "$FRONTEND_DIR"
 
 SAJU_BUCKET="saju-oracle-frontend-887078546492"
 SAJU_DIST="E2ZDGPQU5JXQKC"
 SAJU_DOMAIN="saju.sedaily.ai"
+SAJU_REGION="ap-northeast-2"
 
 SKIP_BUILD=false
 
@@ -24,7 +27,7 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --skip-build) SKIP_BUILD=true; shift ;;
     -h|--help)
-      grep -E '^#( |$)' "$0" | sed 's/^# \{0,1\}//'
+      grep -E '^#( |$)' "$SCRIPT_DIR/$(basename "$0")" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *) echo "unknown arg: $1" >&2; exit 1 ;;
@@ -47,7 +50,7 @@ if [[ ! -d out ]]; then
 fi
 
 log "sync out/ → s3://$SAJU_BUCKET"
-aws s3 sync out/ "s3://$SAJU_BUCKET" --delete
+aws s3 sync out/ "s3://$SAJU_BUCKET" --region "$SAJU_REGION" --delete
 
 log "invalidate CloudFront $SAJU_DIST (/*)"
 inv_id=$(aws cloudfront create-invalidation \

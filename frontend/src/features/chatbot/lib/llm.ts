@@ -5,7 +5,7 @@
  * Bedrock 을 호출하는 백엔드(Function URL Lambda) 엔드포인트로 POST 한다.
  *   - 엔드포인트: NEXT_PUBLIC_CHAT_API_URL (미설정 시 LLM 비활성 → 호출측 템플릿 폴백)
  *   - 모델: 백엔드 env 로 지정 (테스트 Haiku 4.5 / 운영 Sonnet 4.6~Opus 4.8)
- * 참조 백엔드: scripts/lambda/chat-bedrock/
+ * 참조 백엔드: scripts/backend/lambda/chat-bedrock/
  */
 import type { ConcernId, SajuContext } from './types';
 

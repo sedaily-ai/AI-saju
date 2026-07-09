@@ -1,4 +1,4 @@
-# frontend-next — 사주매칭 프런트엔드 규칙
+# frontend — 사주매칭 프런트엔드 규칙
 
 ## 기술 스택
 - Next.js 16.2.2 (App Router, `src/app/`)
@@ -26,7 +26,7 @@
 | `revalidate`, `cookies()`, `headers()` | SSR 전용 |
 | 동적 라우트 (`[id]`) | `generateStaticParams` 로 사전 생성 안 하면 빌드 실패 |
 
-데이터가 필요한 페이지는 모두 `'use client'` + `useEffect` 로 페칭. 보안 헤더는 CloudFront Response Headers Policy 로 주입 (`../scripts/cloudfront/apply-security-headers.sh`).
+데이터가 필요한 페이지는 모두 `'use client'` + `useEffect` 로 페칭. 보안 헤더는 CloudFront Response Headers Policy 로 주입 (`../scripts/frontend/cloudfront/apply-security-headers.sh`).
 
 ## 폴더 구조 (현재 상태)
 
@@ -47,12 +47,18 @@ src/
 │   ├── blog/               # 블로그 목록/상세 (/blog-content/ 정적 JSON)
 │   ├── blog/admin/         # 블로그 발행 (비밀번호 + Lambda Function URL POST)
 │   └── about/              # / 로 redirect 하는 래퍼
-├── features/               # Feature-Sliced Design (3개만 있음)
-│   ├── fortune/            # 사주 엔진 + 총운·오늘의 운세·경제뉴스 섹션
+├── features/               # Feature-Sliced Design (2026-07-09 기준 8개)
+│   ├── fortune/            # 사주 엔진 + 총운·오늘의 운세·경제뉴스 섹션 (다른 feature 다수가 의존하는 사실상의 코어)
 │   ├── couple-match/       # 두 사람 궁합 스코어링
-│   └── ideal-match/        # 이상형 역산 (성별·나이·태어난 달)
-├── widgets/
-│   ├── FeatureTabs.tsx     # 상단 탭 네비 (saju/chaeun/career/compatibility/couple/news/blog)
+│   ├── ideal-match/        # 이상형 역산 (성별·나이·태어난 달)
+│   ├── characters/         # 60갑자 캐릭터 그리드
+│   ├── chatbot/            # 사주 챗봇 UI + 대화 흐름
+│   ├── concern-card/       # 고민 카드(오행 기반 부적) 생성
+│   ├── iching/             # 팔괘 주역점
+│   └── points/             # 출석 포인트/주간 체크인
+├── widgets/                # 여러 feature를 조합하는 조립 컴포넌트
+│   ├── TopNav.tsx / BottomNav.tsx  # 실제로는 shared/ui/ 에 위치 (아래 참고)
+│   ├── HeroBanner.tsx, ConcernCardFlow.tsx, CharacterCarousel.tsx, FeatureTabs.tsx
 │   └── index.ts
 └── shared/
     ├── ui/                 # ScrollReveal, Spinner 등
@@ -137,12 +143,11 @@ features/{name}/
 | 패키지 | 용도 |
 |--------|------|
 | `@fullstackfamily/manseryeok` | 만세력 기반 사주 계산 (브라우저 사이드) |
-| `aromanize` | 한글 → 로마자 변환 (SEO/공유용) |
 | `html-to-image` | 공유 카드 이미지 생성 |
 | `react-markdown` + `remark-gfm` | 블로그 본문 렌더링 |
 | `lucide-react` | 아이콘 |
-| `aws-amplify` | (현재 사용처 없음 — 추후 제거 가능성 검토) |
-| `@aws-sdk/eventstream-codec`, `@aws-sdk/util-utf8` | (현재 사용처 없음 — 추후 검토) |
+
+`aromanize`, `aws-amplify`, `@aws-sdk/eventstream-codec`, `@aws-sdk/util-utf8` 는 미사용으로 확인되어 제거됨 (`docs/00-codebase-audit.md` §2 근거, `chore/cleanup-deps` 브랜치).
 
 ## 정적 자산 (`public/`)
 

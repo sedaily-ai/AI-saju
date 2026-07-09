@@ -1,17 +1,17 @@
 """
 영어 총운 캐시 병합
 - scripts/saju-cache-local/chongun_en/*.json (1440개 개별 파일) 을
-  단일 파일 frontend-next/public/saju-cache/chongun-en.json 으로 병합
+  단일 파일 frontend/public/saju-cache/chongun-en.json 으로 병합
 - 키 구조는 한글 chongun.json 과 동일: {ilgan_ilji_wolji} -> {NT,NF,ST,SF} -> text
 - 파일명 stem 이 그대로 키가 됨 (예: 丁_丑_丑.json -> "丁_丑_丑")
 """
 import json
 from pathlib import Path
 
-ROOT = Path(__file__).parent.parent
+ROOT = Path(__file__).parent.parent.parent
 SRC_DIR = Path(__file__).parent / 'saju-cache-local' / 'chongun_en'
-OUT_FILE = ROOT / 'frontend-next' / 'public' / 'saju-cache' / 'chongun-en.json'
-KO_FILE = ROOT / 'frontend-next' / 'public' / 'saju-cache' / 'chongun.json'
+OUT_FILE = ROOT / 'frontend' / 'public' / 'saju-cache' / 'chongun-en.json'
+KO_FILE = ROOT / 'frontend' / 'public' / 'saju-cache' / 'chongun.json'
 
 EXPECTED_GROUPS = {'NT', 'NF', 'ST', 'SF'}
 

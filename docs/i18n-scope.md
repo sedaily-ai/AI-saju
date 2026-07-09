@@ -32,12 +32,12 @@
 
 | 파일 | 원자 단위 | 성격 |
 |------|----------|------|
-| [engine.ts](../frontend-next/src/features/fortune/lib/engine.ts) | ~8 템플릿 | 일주 포맷, 계절 관계 |
-| [engine-chaeun.ts](../frontend-next/src/features/fortune/lib/engine-chaeun.ts) | ~130 (PHRASE_POOLS 16×3 + 메타) | 재운 해설 조각 |
-| [categoryFortunes.ts](../frontend-next/src/features/fortune/lib/engine-data/categoryFortunes.ts) | 50 (5 카테고리 × 10 십성) | 카테고리별 운 설명 |
-| [dailyReadings.ts](../frontend-next/src/features/fortune/lib/engine-data/dailyReadings.ts) | 22 (10 십성 + 12 운성) | 일진 리딩 |
-| [sinsalMap.ts](../frontend-next/src/features/fortune/lib/engine-data/sinsalMap.ts) | ~10 | 신살 메타 |
-| [FortuneResult.tsx](../frontend-next/src/features/fortune/components/FortuneResult.tsx) | ~60 정적 라벨 + SS/US_MEANING/DETAIL | 표시 라벨 |
+| [engine.ts](../frontend/src/features/fortune/lib/engine.ts) | ~8 템플릿 | 일주 포맷, 계절 관계 |
+| [engine-chaeun.ts](../frontend/src/features/fortune/lib/engine-chaeun.ts) | ~130 (PHRASE_POOLS 16×3 + 메타) | 재운 해설 조각 |
+| [categoryFortunes.ts](../frontend/src/features/fortune/lib/engine-data/categoryFortunes.ts) | 50 (5 카테고리 × 10 십성) | 카테고리별 운 설명 |
+| [dailyReadings.ts](../frontend/src/features/fortune/lib/engine-data/dailyReadings.ts) | 22 (10 십성 + 12 운성) | 일진 리딩 |
+| [sinsalMap.ts](../frontend/src/features/fortune/lib/engine-data/sinsalMap.ts) | ~10 | 신살 메타 |
+| [FortuneResult.tsx](../frontend/src/features/fortune/components/FortuneResult.tsx) | ~60 정적 라벨 + SS/US_MEANING/DETAIL | 표시 라벨 |
 
 **소계: ~280 원자 + 룩업 배열 7개 (~80 문자열)**
 
@@ -45,14 +45,14 @@
 
 | 파일 | 엔트리 | 번역 필요 필드 |
 |------|--------|--------------|
-| [cheongan_db.json](../frontend-next/src/features/fortune/lib/cheongan_db.json) | 10 천간 | 상징 / 성향 / 키워드 |
-| [jiji_db.json](../frontend-next/src/features/fortune/lib/jiji_db.json) | 12 지지 | 상징 / 성향 / 키워드 / 동물 / 월 |
+| [cheongan_db.json](../frontend/src/features/fortune/lib/cheongan_db.json) | 10 천간 | 상징 / 성향 / 키워드 |
+| [jiji_db.json](../frontend/src/features/fortune/lib/jiji_db.json) | 12 지지 | 상징 / 성향 / 키워드 / 동물 / 월 |
 
 **소계: 22 엔트리 × 4~5 필드 ≈ ~100 문장**
 
 ### Layer 3: LLM 프리젠 캐시 (최대 볼륨)
 
-`scripts/saju-cache-local/` — 한국어로 이미 Claude로 만들어둔 대량 서술.
+`scripts/backend/saju-cache-local/` — 한국어로 이미 Claude로 만들어둔 대량 서술.
 
 | 캐시 | 파일 수 | 용량 | 구조 |
 |------|---------|------|------|
@@ -79,7 +79,7 @@ Layer 3 실시간 호출 (비교):
 
 ## 번역 일관성 전략
 
-1. **용어집 기반**: [sajuGlossary.ts](../frontend-next/src/shared/constants/sajuGlossary.ts) 로 핵심 도메인 용어 (오행/십성/운성/천간/지지) 고정. LLM 프롬프트에 글로서리 주입.
+1. **용어집 기반**: [sajuGlossary.ts](../frontend/src/shared/constants/sajuGlossary.ts) 로 핵심 도메인 용어 (오행/십성/운성/천간/지지) 고정. LLM 프롬프트에 글로서리 주입.
 2. **LLM 프롬프트 설계**:
    - "다음 글로서리를 엄격히 따를 것" 섹션
    - 톤 보존 (NT/NF/ST/SF 4가지 MBTI 톤별)
@@ -97,7 +97,7 @@ Layer 3 실시간 호출 (비교):
 
 ### Phase B — Layer 3 (LLM 캐시)
 
-1. 기존 `scripts/saju-cache-local/` 생성 스크립트 찾기 (한국어 생성에 쓰였던 파이프라인)
+1. 기존 `scripts/backend/saju-cache-local/` 생성 스크립트 찾기 (한국어 생성에 쓰였던 파이프라인)
 2. 영어 버전 스크립트 추가 — 동일 입력 → 영어 출력, `chongun-en/` / `today-en/` 로 저장
 3. 클라이언트 fetch 경로를 `lang` 에 따라 분기:
    ```ts

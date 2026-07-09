@@ -3,8 +3,8 @@
 
 동작:
 1. Bedrock Claude Sonnet 4 로 오늘 날짜(KST) 기준 12별자리 운세 작성.
-2. 로컬 `frontend-next/public/blog-content/posts/{slug}.json` 저장.
-3. `frontend-next/public/blog-content/index.json` 의 posts 배열 맨 앞에 삽입 (dedupe).
+2. 로컬 `frontend/public/blog-content/posts/{slug}.json` 저장.
+3. `frontend/public/blog-content/index.json` 의 posts 배열 맨 앞에 삽입 (dedupe).
 4. 두 파일을 S3 에 동시 업로드 (mbti + saju 버킷).
 
 사용 예:
@@ -31,8 +31,8 @@ S3_TARGETS = [
     {'bucket': 'saju-oracle-frontend-887078546492', 'region': 'ap-northeast-2', 'cf_id': 'E2ZDGPQU5JXQKC'},
 ]
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-CONTENT_DIR = REPO_ROOT / 'frontend-next' / 'public' / 'blog-content'
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+CONTENT_DIR = REPO_ROOT / 'frontend' / 'public' / 'blog-content'
 POSTS_DIR = CONTENT_DIR / 'posts'
 INDEX_FILE = CONTENT_DIR / 'index.json'
 

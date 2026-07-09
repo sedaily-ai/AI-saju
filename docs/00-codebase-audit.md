@@ -4,6 +4,10 @@
 
 조사 시점: 이 문서 작성 시점의 `main`/작업 브랜치 기준.
 
+> **2026-07-09 후속 정리 안내**: 이 문서의 §1 경로들은 `chore/cleanup-deps` 브랜치에서 재구성되었다 —
+> `frontend-next/` → `frontend/`, `scripts/` → `scripts/frontend/`(deploy·cloudfront) + `scripts/backend/`(generate_*.py·lambda·saju-cache-local).
+> 아래 본문의 파일 경로는 **조사 시점 기준 그대로 보존**한다 (스냅샷 성격). 최신 경로는 루트 `CLAUDE.md`를 참고할 것.
+
 ---
 
 ## 1. 구조 (Structure)

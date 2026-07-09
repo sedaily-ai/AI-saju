@@ -94,14 +94,14 @@ BEDROCK_MODEL = 'arn:aws:bedrock:us-east-1:887078546492:application-inference-pr
 ```
 
 교체된 파일:
-- `scripts/generate_parallel.py`
-- `scripts/generate_parallel_en.py`
-- `scripts/generate_saju_cache.py`
-- `scripts/generate_today_parts.py`
-- `scripts/generate_today_parts_en.py`
-- `scripts/generate_today_variants.py`
-- `scripts/generate_tone_variants.py`
-- `scripts/generate_blog_daily_zodiac.py`
+- `scripts/backend/generate_parallel.py`
+- `scripts/backend/generate_parallel_en.py`
+- `scripts/backend/generate_saju_cache.py`
+- `scripts/backend/generate_today_parts.py`
+- `scripts/backend/generate_today_parts_en.py`
+- `scripts/backend/generate_today_variants.py`
+- `scripts/backend/generate_tone_variants.py`
+- `scripts/backend/generate_blog_daily_zodiac.py`
 
 > 호출 API(`invoke_model`)·`anthropic_version` 페이로드는 그대로. 프로파일 ARN 은 modelId 자리에 그대로 들어가며, 호출의 usage record 에 6개 태그가 자동 기록됨.
 

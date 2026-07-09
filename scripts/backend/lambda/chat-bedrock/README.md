@@ -3,7 +3,7 @@
 사주 챗봇의 **자유 입력 의도분류 + 매듭 서술 생성**을 Bedrock Claude 로 처리하는 Lambda(Function URL).
 정적 사이트는 브라우저에서 Bedrock 을 직접 부를 수 없으므로(AWS 키 노출), 이 Lambda 가 대리 호출한다.
 
-프런트 연동: [frontend-next/src/features/chatbot/lib/llm.ts](../../../frontend-next/src/features/chatbot/lib/llm.ts)
+프런트 연동: [frontend/src/features/chatbot/lib/llm.ts](../../../../frontend/src/features/chatbot/lib/llm.ts)
 → `NEXT_PUBLIC_CHAT_API_URL` 에 이 Lambda 의 Function URL 을 넣으면 활성화. **미설정 시 챗봇은 기존 템플릿으로 폴백(비용 $0).**
 
 ## 요청/응답
@@ -25,11 +25,11 @@ Bedrock 모델 ID 는 `anthropic.` 접두사 사용:
 로컬 AWS 자격증명으로 Bedrock 을 직접 부르는 작은 서버를 띄워 dev 에서 바로 시험한다.
 ```bash
 pip install boto3                       # 최초 1회
-cd scripts/lambda/chat-bedrock
+cd scripts/backend/lambda/chat-bedrock
 BEDROCK_MODEL_ID=anthropic.claude-haiku-4-5 python3 local_server.py   # → http://localhost:8787/
 
 # 다른 터미널
-cd frontend-next
+cd frontend
 echo 'NEXT_PUBLIC_CHAT_API_URL=http://localhost:8787/' >> .env.local
 npm run dev                              # http://localhost:3000/chat 에서 자유 입력이 LLM 으로 동작
 ```
@@ -37,7 +37,7 @@ npm run dev                              # http://localhost:3000/chat 에서 자
 
 ## 배포 (예시)
 ```bash
-cd scripts/lambda/chat-bedrock
+cd scripts/backend/lambda/chat-bedrock
 zip fn.zip handler.py
 aws lambda create-function \
   --function-name saju-chat-bedrock \

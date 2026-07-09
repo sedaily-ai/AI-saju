@@ -1,5 +1,5 @@
 {
-  "name": "frontend-next",
+  "name": "frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "deploy": "bash scripts/deploy.sh"
+    "deploy": "bash ../scripts/frontend/deploy.sh"
   },
   "dependencies": {
     "@fullstackfamily/manseryeok": "^1.0.8",

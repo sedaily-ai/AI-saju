@@ -30,7 +30,7 @@ progress_lock = Lock()
 CG10 = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸']
 JJ12 = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥']
 
-# Fixed English labels — MUST match frontend-next/src/shared/constants/sajuGlossary.ts
+# Fixed English labels — MUST match frontend/src/shared/constants/sajuGlossary.ts
 # Heavenly Stems (Korean reading + yin/yang + element)
 STEM_EN = {
     '甲': 'Gab (Yang Wood)',

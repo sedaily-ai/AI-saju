@@ -29,4 +29,4 @@ frontend/out/
 
 # Claude Code
 .claude/
-scripts/lambda/blog-publish/fn.zip
+scripts/backend/lambda/blog-publish/fn.zip

@@ -25,8 +25,8 @@ S3_TARGETS = [
     {'bucket': 'saju-oracle-frontend-887078546492', 'region': 'ap-northeast-2', 'cf_id': 'E2ZDGPQU5JXQKC'},
 ]
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-CONTENT_DIR = REPO_ROOT / 'frontend-next' / 'public' / 'blog-content'
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+CONTENT_DIR = REPO_ROOT / 'frontend' / 'public' / 'blog-content'
 POSTS_DIR = CONTENT_DIR / 'posts'
 INDEX_FILE = CONTENT_DIR / 'index.json'
 

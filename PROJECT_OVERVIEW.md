@@ -88,7 +88,7 @@
 
 ### 3. Bedrock 기반 LLM 프리컴퓨트 파이프라인
 - 1,440 조합 × 4 MBTI 톤 = **약 5,760 건 해석 JSON** 을 Bedrock Claude 로 사전 생성
-- 한국어·영어 병렬 생성 파이프라인 (`scripts/generate_parallel_*.py`)
+- 한국어·영어 병렬 생성 파이프라인 (`scripts/backend/generate_parallel_*.py`)
 - 실시간 호출 0건 → 사용자당 LLM 비용 $0
 - Bedrock Application Inference Profile (`cc-opus-47`, `cc-haiku-45`) 태깅으로 사용량 추적
 
@@ -155,7 +155,7 @@
 |------|------|
 | [README.md](./README.md) | 레포 개요 및 로컬 실행 가이드 |
 | [CLAUDE.md](./CLAUDE.md) | 레포 전체 아키텍처 |
-| [frontend-next/CLAUDE.md](./frontend-next/CLAUDE.md) | 프런트엔드 FSD 규칙 |
+| [frontend/CLAUDE.md](./frontend/CLAUDE.md) | 프런트엔드 FSD 규칙 |
 | [HANDOVER.md](./HANDOVER.md) | 상세 내부 인수인계 |
 | [HANDOVER_NOTION.md](./HANDOVER_NOTION.md) | Notion 공유용 인수인계 |
 | [docs/architecture.md](./docs/architecture.md) | 서비스 로직 · 아키텍처 |

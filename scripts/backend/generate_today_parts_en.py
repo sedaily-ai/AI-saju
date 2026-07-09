@@ -1,7 +1,7 @@
 """
 오늘의 운세 영어 캐시 생성
-- 입력: frontend-next/public/saju-cache/today-parts.json (한글)
-- 출력: frontend-next/public/saju-cache/today-parts-en.json (영어)
+- 입력: frontend/public/saju-cache/today-parts.json (한글)
+- 출력: frontend/public/saju-cache/today-parts-en.json (영어)
 - 전략: JSON 구조/키는 그대로 두고 leaf 문자열 값만 영어로 번역
   (ss/us/category 의 십성·12운성 키는 한글 유지 — 프런트가 한글 키로 룩업)
 - 번역 캐시(_today_parts_en_cache.json)로 resumable — 중단 후 재실행 시 이어서 진행
@@ -19,9 +19,9 @@ from threading import Lock
 BEDROCK_MODEL = 'arn:aws:bedrock:us-east-1:887078546492:application-inference-profile/cybevkpbbz32'
 BEDROCK_REGION = 'us-east-1'
 
-ROOT = Path(__file__).parent.parent
-IN_FILE = ROOT / 'frontend-next' / 'public' / 'saju-cache' / 'today-parts.json'
-OUT_FILE = ROOT / 'frontend-next' / 'public' / 'saju-cache' / 'today-parts-en.json'
+ROOT = Path(__file__).parent.parent.parent
+IN_FILE = ROOT / 'frontend' / 'public' / 'saju-cache' / 'today-parts.json'
+OUT_FILE = ROOT / 'frontend' / 'public' / 'saju-cache' / 'today-parts-en.json'
 CACHE_FILE = Path(__file__).parent / 'saju-cache-local' / '_today_parts_en_cache.json'
 
 # 사주 용어집 — frontend sajuGlossary.ts 의 영어 명칭과 일치시킬 것

@@ -8,11 +8,11 @@ import re
 import hashlib
 from pathlib import Path
 
-ROOT = Path(__file__).parent.parent
+ROOT = Path(__file__).parent.parent.parent
 TARGETS = [
-    ROOT / 'frontend-next' / 'public' / 'saju-cache' / 'today-parts.json',
-    ROOT / 'frontend-next' / 'public' / 'saju-cache' / 'chongun.json',
-    ROOT / 'frontend-next' / 'public' / 'saju-cache' / 'today.json',
+    ROOT / 'frontend' / 'public' / 'saju-cache' / 'today-parts.json',
+    ROOT / 'frontend' / 'public' / 'saju-cache' / 'chongun.json',
+    ROOT / 'frontend' / 'public' / 'saju-cache' / 'today.json',
 ]
 
 HANPAKJA_VARIANTS = [

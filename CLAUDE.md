@@ -14,16 +14,17 @@
 사주 계산과 해석 렌더링은 **브라우저에서 완결**됩니다.
 
 - **만세력**: `@fullstackfamily/manseryeok` npm 패키지 — 천간/지지/대운/일진 계산
-- **해석**: [scripts/generate_parallel*.py](scripts/) 로 Bedrock Claude 를 미리 호출해 생성한 JSON → `frontend-next/public/saju-cache/` 에서 읽음
+- **해석**: [scripts/backend/generate_parallel*.py](scripts/backend/) 로 Bedrock Claude 를 미리 호출해 생성한 JSON → `frontend/public/saju-cache/` 에서 읽음
 - **경제 뉴스**: 재운/커리어 페이지가 MBTI 백엔드의 `/api/search` Lambda (`chzwwtjtgk.execute-api…`) 를 호출 — 이 Lambda 는 별도 레포 `AI-CUSTOMIZED-MBTI` 에서 관리됨. 이 레포에는 소스가 없음
-- **블로그 발행**: [scripts/lambda/blog-publish/](scripts/lambda/blog-publish/) 의 Function URL Lambda 하나만 이 레포에서 관리
+- **챗봇**: [scripts/backend/lambda/chat-bedrock/](scripts/backend/lambda/chat-bedrock/) — 사주 챗봇 자유 입력을 Bedrock 으로 처리하는 Function URL Lambda
+- **블로그 발행**: [scripts/backend/lambda/blog-publish/](scripts/backend/lambda/blog-publish/) 의 Function URL Lambda 하나만 이 레포에서 관리
 
 재운/커리어에서 뉴스 검색 로직을 고쳐야 한다면 이 레포가 아니라 `AI-CUSTOMIZED-MBTI` 레포에서 작업해야 합니다.
 
 ## 명령어
 
 ```bash
-cd frontend-next
+cd frontend
 npm install
 npm run dev          # http://localhost:3000
 npm run build        # 정적 export → out/
@@ -32,28 +33,35 @@ npx eslint src/**/*.{ts,tsx}
 npm run deploy       # 빌드 + saju.sedaily.ai 배포 + CloudFront invalidation
 ```
 
-수정 후 **반드시 `npm run build` 성공** 확인. `--skip-build` 옵션은 `bash scripts/deploy.sh --skip-build` 로 직접 호출.
+수정 후 **반드시 `npm run build` 성공** 확인. `--skip-build` 옵션은 `bash scripts/frontend/deploy.sh --skip-build` 로 직접 호출.
 
 ## 레포 구조
 
 ```
 /
-├── frontend-next/     # Next.js 16 App Router (사주 사이트 본체)
+├── frontend/          # Next.js 16 App Router (사주 사이트 본체)
 ├── scripts/
-│   ├── generate_*.py             # Bedrock으로 사주 해석 캐시 생성
-│   ├── generate_blog_daily_zodiac.py  # 데일리 별자리 운세 자동 생성
-│   ├── upload_blog_post.py       # 블로그 포스트 S3 업로드
-│   ├── lambda/blog-publish/      # /blog/admin 발행 Lambda 소스
-│   ├── cloudfront/               # 보안 헤더·서브디렉토리 리라이트 스크립트
-│   └── saju-cache-local/         # Bedrock 생성 결과물 (한국어/영어)
-├── docs/              # architecture, i18n-scope, next-modules, bedrock-claude-code-tagging
+│   ├── frontend/
+│   │   ├── deploy.sh              # 빌드 + S3 sync + CloudFront invalidation
+│   │   ├── cloudfront/            # 보안 헤더·서브디렉토리 리라이트 스크립트
+│   │   └── split-characters.py    # 캐릭터 이미지 분할 유틸
+│   └── backend/
+│       ├── generate_*.py             # Bedrock으로 사주 해석 캐시 생성
+│       ├── generate_blog_daily_zodiac.py  # 데일리 별자리 운세 자동 생성
+│       ├── upload_blog_post.py       # 블로그 포스트 S3 업로드
+│       ├── merge_chongun_en.py / clean_today_cache.py  # 캐시 병합/정리
+│       ├── lambda/
+│       │   ├── chat-bedrock/      # 사주 챗봇 실시간 LLM Function URL Lambda
+│       │   └── blog-publish/      # /blog/admin 발행 Lambda 소스
+│       └── saju-cache-local/      # Bedrock 생성 결과물 (한국어/영어)
+├── docs/              # architecture, i18n-scope, next-modules, codebase-audit
 ├── .github/workflows/daily-blog.yml   # 매일 07:00 KST 블로그 자동 발행
 └── CLAUDE.md
 ```
 
 ## 프런트엔드 구조
 
-상세 규칙은 [frontend-next/CLAUDE.md](frontend-next/CLAUDE.md) 참고. 핵심만 여기 정리:
+상세 규칙은 [frontend/CLAUDE.md](frontend/CLAUDE.md) 참고. 핵심만 여기 정리:
 
 ```
 src/
@@ -89,8 +97,8 @@ Features 는 `index.ts` 배럴로만 외부에 노출됩니다 (`import { Fortun
 
 - API Route, Server Components, `revalidate`, `headers()`/`cookies()` 사용 불가
 - 모든 데이터 페칭은 `useEffect` + `fetch()` 로 클라이언트 사이드
-- 빌드 결과물이 `out/` 정적 HTML/JS 이고 CloudFront Function ([scripts/cloudfront/rewrite-subdir-index.js](scripts/cloudfront/rewrite-subdir-index.js)) 이 `/xxx/` → `/xxx/index.html` 매핑
-- 보안 헤더는 CloudFront Response Headers Policy ([scripts/cloudfront/apply-security-headers.sh](scripts/cloudfront/apply-security-headers.sh)) 로 적용
+- 빌드 결과물이 `out/` 정적 HTML/JS 이고 CloudFront Function ([scripts/frontend/cloudfront/rewrite-subdir-index.js](scripts/frontend/cloudfront/rewrite-subdir-index.js)) 이 `/xxx/` → `/xxx/index.html` 매핑
+- 보안 헤더는 CloudFront Response Headers Policy ([scripts/frontend/cloudfront/apply-security-headers.sh](scripts/frontend/cloudfront/apply-security-headers.sh)) 로 적용
 
 ## AWS 인프라
 
@@ -107,18 +115,18 @@ Features 는 `index.ts` 배럴로만 외부에 노출됩니다 (`import { Fortun
 
 ### 국제화 (i18n)
 
-- UI 라벨: `LangContext` + `t(ko, en)` 헬퍼로 토글. [frontend-next/src/shared/lib/LangContext.tsx](frontend-next/src/shared/lib/LangContext.tsx)
+- UI 라벨: `LangContext` + `t(ko, en)` 헬퍼로 토글. [frontend/src/shared/lib/LangContext.tsx](frontend/src/shared/lib/LangContext.tsx)
 - 결과 서술 텍스트: **프리컴퓨트** (실시간 LLM 호출 대신 Bedrock 으로 KO/EN 캐시 JSON 미리 생성). 자세한 근거는 [docs/i18n-scope.md](docs/i18n-scope.md).
 
 ### 사주 엔진
 
-- 원국 계산: [frontend-next/src/features/fortune/lib/engine.ts](frontend-next/src/features/fortune/lib/engine.ts) — `@fullstackfamily/manseryeok` 위에 일간 기준 십성·오행 분포·12운성·신살 로직 래핑
-- 재운/커리어 엔진: [engine-chaeun.ts](frontend-next/src/features/fortune/lib/engine-chaeun.ts) — 대운·세운·월운·일진 3축의 점수화 (관성 진입 +10 등)
+- 원국 계산: [frontend/src/features/fortune/lib/engine.ts](frontend/src/features/fortune/lib/engine.ts) — `@fullstackfamily/manseryeok` 위에 일간 기준 십성·오행 분포·12운성·신살 로직 래핑
+- 재운/커리어 엔진: [engine-chaeun.ts](frontend/src/features/fortune/lib/engine-chaeun.ts) — 대운·세운·월운·일진 3축의 점수화 (관성 진입 +10 등)
 
 ### SEO/GEO/AEO
 
-- 정적 export 환경에서 `<JsonLd>` 컴포넌트 ([frontend-next/src/shared/lib/jsonLd.tsx](frontend-next/src/shared/lib/jsonLd.tsx)) 로 WebSite/Organization/FAQPage/HowTo/BreadcrumbList/WebPage 스키마 주입
-- [robots.txt](frontend-next/public/robots.txt) 에 AI 크롤러 13종 허용, [llms.txt](frontend-next/public/llms.txt) 로 사이트 맥락 제공
+- 정적 export 환경에서 `<JsonLd>` 컴포넌트 ([frontend/src/shared/lib/jsonLd.tsx](frontend/src/shared/lib/jsonLd.tsx)) 로 WebSite/Organization/FAQPage/HowTo/BreadcrumbList/WebPage 스키마 주입
+- [robots.txt](frontend/public/robots.txt) 에 AI 크롤러 13종 허용, [llms.txt](frontend/public/llms.txt) 로 사이트 맥락 제공
 
 ## 작업 규칙
 
@@ -126,15 +134,15 @@ Features 는 `index.ts` 배럴로만 외부에 노출됩니다 (`import { Fortun
 2. 정적 export 제약 위반 금지 (Server Components, API Routes, dynamic route 에 generateStaticParams 없이 사용 등)
 3. `features/` 간 직접 import 금지 — `shared/` 경유하거나 로직이 한 feature 안에 머물러야 함
 4. `shared/` 에 특정 feature 전용 코드 넣지 말 것
-5. 블로그 발행 Lambda 수정 시 `scripts/lambda/blog-publish/fn.zip` 재패킹 + 수동 배포 필요
+5. 블로그 발행 Lambda 수정 시 `scripts/backend/lambda/blog-publish/fn.zip` 재패킹 + 수동 배포 필요
 6. Bedrock 으로 캐시 생성하는 `generate_*.py` 는 비용이 큼 — 실행 전 구간을 명확히 제한
 
 ## 참고 문서
 
 | 파일 | 내용 |
 |------|------|
-| [frontend-next/CLAUDE.md](frontend-next/CLAUDE.md) | 프런트 FSD 규칙, 네이밍 컨벤션 (MBTI 시절 기준이라 일부 표현은 낡음) |
-| [frontend-next/AGENTS.md](frontend-next/AGENTS.md) | 프런트 작업 에이전트 규칙 |
+| [frontend/CLAUDE.md](frontend/CLAUDE.md) | 프런트 FSD 규칙, 네이밍 컨벤션 (MBTI 시절 기준이라 일부 표현은 낡음) |
+| [frontend/AGENTS.md](frontend/AGENTS.md) | 프런트 작업 에이전트 규칙 |
 | [docs/architecture.md](docs/architecture.md) | 서비스 로직·아키텍처 개요 |
 | [docs/i18n-scope.md](docs/i18n-scope.md) | KO/EN 번역 전략 (프리컴퓨트) |
 | [docs/next-modules.md](docs/next-modules.md) | 다음 모듈 후보 (커리어·공부·연애·건강 등) |

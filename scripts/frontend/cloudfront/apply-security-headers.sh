@@ -12,7 +12,7 @@
 #   - Permissions-Policy: camera=(), microphone=(), geolocation=()
 #   - Content-Security-Policy (GA/Clarity 허용 리스트 포함)
 #
-# 사용법: ./scripts/cloudfront/apply-security-headers.sh
+# 사용법: ./scripts/frontend/cloudfront/apply-security-headers.sh
 
 set -euo pipefail
 

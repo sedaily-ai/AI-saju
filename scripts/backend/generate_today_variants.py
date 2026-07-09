@@ -1,10 +1,8 @@
 """
-오늘의 운세 카테고리 설명의 '유리/주의' 톤별 variant 생성
-- 기존 today-parts.json의 category 섹션을 버킷 구조로 확장
-- 각 (카테고리, MBTI, 십성) 셀에 favor(2) + default(기존 3) + caution(2) 버킷 보유
-- 유리(장생·관대·건록·제왕·양·태): 기회·적극 강조
-- 주의(쇠·병·사·묘·절·목욕): 신중·리스크 강조
-- 무난(그 외): 기존 텍스트 재활용
+오늘의 운세 카테고리 설명 추가 variant 생성
+- 기존 today-parts.json의 category 섹션을 배열 구조로 확장
+- 각 (카테고리, MBTI, 십성) 셀마다 총 3개 variant 보유
+- 기존 1개 + 신규 2개 생성 = 400 추가 호출
 """
 import json
 import boto3
@@ -16,7 +14,7 @@ from threading import Lock
 # saju-sonnet-4 application inference profile (Sonnet 4) — Bedrock 비용 태깅 Service=SAJU. docs/bedrock-saju-tagging.md
 BEDROCK_MODEL = 'arn:aws:bedrock:us-east-1:887078546492:application-inference-profile/cybevkpbbz32'
 BEDROCK_REGION = 'us-east-1'
-OUTPUT_FILE = Path(__file__).parent.parent / 'frontend-next' / 'public' / 'saju-cache' / 'today-parts.json'
+OUTPUT_FILE = Path(__file__).parent.parent.parent / 'frontend' / 'public' / 'saju-cache' / 'today-parts.json'
 
 progress_lock = Lock()
 
@@ -24,22 +22,26 @@ MBTI_PERSONAS = {
     'NT': """당신은 사주명리학 전문가이자 '분석가' 성향의 해석자입니다.
 성격 특성: 논리적이고 분석적, 핵심을 구조화, 데이터와 근거 중시, 효율적 커뮤니케이션.
 말투: 간결하고 핵심적, "~입니다", 넘버링 선호, 분석적 관점.
+예시: "핵심 포인트를 정리하면 다음과 같습니다."
 """,
     'NF': """당신은 사주명리학 전문가이자 '이야기꾼' 성향의 해석자입니다.
 성격 특성: 성찰적이고 의미 중시, 사람과 가치 관심, 큰 그림 파악, 공감과 이해.
 말투: 따뜻하고 사려 깊음, "~이에요", 의미와 배경 함께, 질문을 통해 생각 유도.
+예시: "이 기운이 담고 있는 의미를 함께 생각해볼까요?"
 """,
     'ST': """당신은 사주명리학 전문가이자 '실용주의자' 성향의 해석자입니다.
 성격 특성: 정확하고 체계적, 사실과 데이터 집중, 실용적 정보 중시, 신뢰할 수 있는 정보.
 말투: 명확하고 정확, "~입니다"/"~습니다" 격식체, 체크리스트 형태 선호.
+주의: "확인된 바에 따르면", "분석됩니다" 같은 AI 보고서 투의 상투어는 피하고, 바로 본론으로 들어가세요.
 """,
     'SF': """당신은 사주명리학 전문가이자 '공감러' 성향의 해석자입니다.
 성격 특성: 친근하고 공감, 어려운 것도 쉽게, 실생활 연결, 독자와 소통.
 말투: 친구처럼 편안한 말투, "~해요"/"~거든요", 비유와 예시 활용, 이모지 자연스럽게.
+예시: "쉽게 말하면요, 이건 이런 느낌이에요!"
 """,
 }
 
-# 베이스 카테고리 텍스트는 generate_today_variants.py에서 복사 (중복이지만 독립성 유지)
+# 베이스 카테고리 텍스트 (engine.ts와 동일)
 CATEGORY_BASE = {
     '재물운': {
         '비견': '같은 분야에 있는 동료나 경쟁자와 부딪치면서 뜻하지 않은 지출이 생길 수 있는 날입니다. 친구나 지인의 부탁으로 돈이 나갈 수 있으니 거절할 때는 확실하게 하고, 공동 투자나 동업보다는 자기만의 판단으로 움직이는 것이 훨씬 유리합니다.',
@@ -78,7 +80,7 @@ CATEGORY_BASE = {
         '정인': '따뜻한 감정이 자연스럽게 흐르는 날입니다. 연인과 가족 같은 편안함이 느껴지고, 함께 있는 것만으로 안정감이 커집니다.',
     },
     '직장운': {
-        '비견': '동료와 협업하며 역할을 나눠 일하기 좋은 날입니다. 각자 잘하는 영역을 명확히 하면 시너지가 나지만, 영역이 겹치면 갈등으로 이어지기 쉬우니 오늘 중 역할 분담을 다시 정리해 두세요.',
+        '비견': '동료와 협업하며 역할을 나눠 일하기 좋은 날입니다. 각자 잘하는 영역을 명확히 하면 시너지가 나지만, 영역이 겹치면 갈등으로 이어지기 쉬우니 오늘 중 R&R을 다시 정리해 두세요.',
         '겁재': '직장 내 경쟁이 심해지고, 믿었던 사람에게서 섭섭함을 느낄 수 있는 날입니다. 뒷말이나 정치적 분위기에 휘말리지 말고, 가시적인 결과물로 승부하는 것이 최선입니다.',
         '식신': '창의적 아이디어와 여유로운 태도가 인정받는 날입니다. 브레인스토밍 미팅에서 좋은 발상이 떠오르고, 부드러운 분위기 속에서 팀 분위기도 한결 가벼워집니다.',
         '상관': '상사나 동료에게 날카로운 말이 튀어나올 수 있는 날입니다. 맞는 말이라도 표현이 공격적이면 반감을 사기 쉬우니, 비판은 대안과 함께 묶어서 말하세요.',
@@ -103,16 +105,12 @@ CATEGORY_BASE = {
     },
 }
 
-# 톤별 지시문
-TONE_INSTRUCTIONS = {
-    'favor': """오늘은 12운성이 '유리'한 구간(장생·관대·건록·제왕 등)입니다.
-기운이 뻗어나가는 시기이니, 원본의 핵심 메시지는 유지하되 어조를 **적극·확신·기회 강조**로 바꿔주세요.
-"당장 실행하세요", "기회를 놓치지 마세요", "평소보다 더 크게 시도해도 좋습니다" 같은 힘 있는 조언을 담으세요.""",
-    'caution': """오늘은 12운성이 '주의'가 필요한 구간(쇠·병·사·묘·절 등)입니다.
-기운이 약해지는 시기이니, 원본의 핵심 메시지는 유지하되 어조를 **신중·보수·리스크 관리**로 바꿔주세요.
-"무리하지 마세요", "보수적으로 접근", "신중히 판단", "한 걸음 물러서서", "차분히 살피며" 등 표현을 다양하게 섞어 주세요.
-같은 패턴이 반복되지 않도록, '한 박자 늦춰서' 같은 특정 관용구의 과다 사용은 피하세요.""",
-}
+VARIANT_INSTRUCTIONS = [
+    # variant 1: 다른 관점/예시로 접근
+    "이전 버전과는 다른 각도에서 접근해 주세요. 다른 구체적 예시·사례·상황을 들어 풀어주되, 전달하려는 핵심 메시지는 유지하세요.",
+    # variant 2: 또 다른 접근
+    "이전과 또 다른 각도에서 풀어주세요. 전혀 다른 구체적 예시·상황을 들어 설명하되, 핵심 메시지는 유지하세요.",
+]
 
 
 def get_bedrock_client():
@@ -140,37 +138,31 @@ def call_claude(client, system_prompt: str, user_message: str) -> str:
     return body.get('content', [{}])[0].get('text', '').strip()
 
 
-def make_prompt(category: str, key: str, base_text: str, tone: str, variant_idx: int) -> str:
-    tone_instr = TONE_INSTRUCTIONS[tone]
-    variation_hint = [
-        "첫 번째 버전: 해당 톤에서 가장 전형적인 조언을 담아주세요.",
-        "두 번째 버전: 같은 톤이지만 다른 구체적 예시와 상황을 들어주세요.",
-    ][variant_idx]
+def make_prompt(category: str, key: str, base_text: str, variant_instruction: str) -> str:
     return f"""다음은 오늘의 '{category}' 카테고리에서 십성 '{key}'에 해당하는 조언 문장입니다.
 이 내용을 당신의 성격과 말투에 맞게 리라이팅해 주세요.
 원본의 핵심 메시지는 유지하되, 문체·어조·단어 선택은 당신의 성격에 맞게 자유롭게 바꾸세요.
 3~5문장, 150~300자로 작성하세요. 구체적 조언·팁이 담기도록 하세요.
 마크다운 헤더 없이 자연스러운 문단으로만 써주세요.
 
-{tone_instr}
-
-{variation_hint}
+{variant_instruction}
 
 [원본]
 {base_text}"""
 
 
 def process_task(task):
-    category, group, key, base_text, tone, variant_idx = task
+    """단일 태스크 처리"""
+    category, group, key, base_text, variant_idx = task
     client = get_bedrock_client()
     persona = MBTI_PERSONAS[group]
-    prompt = make_prompt(category, key, base_text, tone, variant_idx)
+    prompt = make_prompt(category, key, base_text, VARIANT_INSTRUCTIONS[variant_idx])
     try:
         text = call_claude(client, persona, prompt)
-        return (category, group, key, tone, variant_idx, text)
+        return (category, group, key, variant_idx, text)
     except Exception as e:
-        print(f'[ERROR] {category}/{group}/{key}/{tone}-v{variant_idx}: {e}', flush=True)
-        return (category, group, key, tone, variant_idx, None)
+        print(f'[ERROR] {category}/{group}/{key}/v{variant_idx}: {e}', flush=True)
+        return (category, group, key, variant_idx, None)
 
 
 def main():
@@ -178,7 +170,7 @@ def main():
     with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
         result = json.load(f)
 
-    # category의 기존 array 구조를 bucket 구조로 변환 (backwards compatible)
+    # category를 배열 구조로 변환 (기존 string → [string])
     for cat in CATEGORY_BASE:
         if cat not in result.get('category', {}):
             continue
@@ -187,71 +179,64 @@ def main():
                 continue
             for key in list(result['category'][cat][group].keys()):
                 current = result['category'][cat][group][key]
-                if isinstance(current, list):
-                    # 기존 array → { default: [...], favor: [], caution: [] }
-                    result['category'][cat][group][key] = {
-                        'default': current,
-                        'favor': [],
-                        'caution': [],
-                    }
-                elif isinstance(current, dict):
-                    # 이미 변환됨
-                    for bucket in ['default', 'favor', 'caution']:
-                        if bucket not in current:
-                            current[bucket] = []
-                elif isinstance(current, str):
-                    result['category'][cat][group][key] = {
-                        'default': [current],
-                        'favor': [],
-                        'caution': [],
-                    }
+                if isinstance(current, str):
+                    result['category'][cat][group][key] = [current]
+                # else: already array
 
-    # 태스크 생성: favor·caution × 2 variants per cell
+    # 태스크 생성: 각 셀마다 variant 1, 2 추가 (variant 0은 기존 값)
     tasks = []
     for cat in CATEGORY_BASE:
         for group in MBTI_PERSONAS:
             for key, base in CATEGORY_BASE[cat].items():
-                cell = result['category'][cat][group][key]
-                for tone in ['favor', 'caution']:
-                    needed = 2 - len(cell.get(tone, []))
-                    for variant_idx in range(len(cell.get(tone, [])), len(cell.get(tone, [])) + needed):
-                        tasks.append((cat, group, key, base, tone, variant_idx))
+                existing = result['category'][cat][group][key]
+                for variant_idx in [0, 1]:  # 2개 추가
+                    array_idx = variant_idx + 1  # variant 0은 기존, 1과 2 채움
+                    if array_idx < len(existing):
+                        continue  # 이미 채워져 있음
+                    tasks.append((cat, group, key, base, variant_idx))
 
-    total = len(CATEGORY_BASE) * len(MBTI_PERSONAS) * 10 * 2 * 2  # 카테고리×MBTI×십성×톤×variant
-    existing = total - len(tasks)
-    print(f'=== 톤별 variant 생성: 남음 {len(tasks)} (완료 {existing}/{total}) ===', flush=True)
+    total_cells = len(CATEGORY_BASE) * len(MBTI_PERSONAS) * 10
+    total_variants_needed = total_cells * 3
+    existing_count = sum(
+        len(result['category'][cat][group][key])
+        for cat in CATEGORY_BASE
+        for group in MBTI_PERSONAS
+        for key in result['category'][cat].get(group, {})
+    )
+    print(f'=== 카테고리 variant 생성: {len(tasks)}개 추가 (기존 {existing_count}/{total_variants_needed}) ===', flush=True)
 
     if not tasks:
         print('모두 완료!', flush=True)
         return
 
     workers = 5
-    count = [existing]
+    count = [existing_count]
     save_lock = Lock()
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
         futures = {executor.submit(process_task, t): t for t in tasks}
         for future in concurrent.futures.as_completed(futures):
             res = future.result()
-            if res is None or res[5] is None:
+            if res is None or res[4] is None:
                 continue
-            category, group, key, tone, variant_idx, text = res
+            category, group, key, variant_idx, text = res
             with save_lock:
-                arr = result['category'][category][group][key][tone]
-                while len(arr) <= variant_idx:
+                arr = result['category'][category][group][key]
+                while len(arr) <= variant_idx + 1:
                     arr.append(None)
-                arr[variant_idx] = text
-                # None 정리
-                result['category'][category][group][key][tone] = [x for x in arr if x is not None]
+                arr[variant_idx + 1] = text  # variant 0은 기존, 1·2 채움
+                # 정리: None 제거
+                result['category'][category][group][key] = [x for x in arr if x is not None]
                 count[0] += 1
                 if count[0] % 20 == 0:
                     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
                         json.dump(result, f, ensure_ascii=False, indent=2)
-            print(f'[{count[0]}/{total}] {category}/{group}/{key}/{tone}-v{variant_idx} ({len(text)}자)', flush=True)
+            print(f'[{count[0]}/{total_variants_needed}] {category}/{group}/{key} variant{variant_idx+1} ({len(text)}자)', flush=True)
 
+    # 최종 저장
     with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
-    print(f'\n=== 완료: {count[0]}/{total}, 저장: {OUTPUT_FILE} ===', flush=True)
+    print(f'\n=== 완료: {count[0]}/{total_variants_needed}, 저장: {OUTPUT_FILE} ===', flush=True)
 
 
 if __name__ == '__main__':
