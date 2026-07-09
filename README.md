@@ -24,9 +24,8 @@
 
 - **만세력 계산**: `@fullstackfamily/manseryeok` npm 패키지로 브라우저에서 천간·지지·대운·일진 산출
 - **해석 캐시**: [scripts/backend/generate_parallel.py](scripts/backend/generate_parallel.py) 등으로 Bedrock Claude 를 미리 호출해 한국어·영어 해석 JSON 을 생성 → `frontend/public/saju-cache/{chongun,today-parts,today}.json` 으로 번들
-- **경제 뉴스**: 재운/커리어 페이지의 관련 뉴스 패널은 MBTI 백엔드의 `/api/search` Lambda 를 호출 (별도 레포 `AI-CUSTOMIZED-MBTI` 에서 관리)
 - **챗봇**: `/chat` 에서 [scripts/backend/lambda/chat-bedrock/](scripts/backend/lambda/chat-bedrock/) Function URL Lambda 로 자유 입력을 Bedrock 처리
-- **블로그 발행**: `/blog/admin` 에서 [scripts/backend/lambda/blog-publish/](scripts/backend/lambda/blog-publish/) Lambda Function URL 로 POST → S3 에 포스트 JSON 업로드 + CloudFront 무효화
+- **블로그 발행**: 수동 발행은 [scripts/backend/upload_blog_post.py](scripts/backend/upload_blog_post.py) CLI로 S3 직접 업로드. `/blog/admin` UI와 MBTI 사이트 동시 발행(blog-publish Lambda)은 2026-07-09 제거됨 (비밀번호 노출 문제 + 서비스 리디자인, MBTI 사이트와 코드/인프라 비공유 방침)
 
 ## 라우트
 
@@ -34,13 +33,12 @@
 |------|------|
 | `/` | 랜딩 페이지 |
 | `/saju` | 사주팔자 원국·오늘의 운세·총운 해석 |
-| `/chaeun` | 재운 흐름 (대운·세운·월운 + 관련 경제 뉴스) |
-| `/career` | 커리어 운 (관성 경로 + 관련 경제 뉴스) |
+| `/chaeun` | 재운 흐름 (대운·세운·월운) |
+| `/career` | 커리어 운 (관성 경로) |
 | `/compatibility` | 이상형 사주 역산 (상대 없이) |
 | `/couple` | 커플 궁합 (두 사람 생년월일시) |
-| `/news` | 키워드 기반 경제 뉴스 |
+| `/news` | 점검 안내 화면 (뉴스 검색 API 회귀로 임시 대체 중) |
 | `/blog` | 데일리 별자리·주간 사주·명리 노트 |
-| `/blog/admin` | 블로그 글 발행 (비밀번호 보호) |
 
 ## 명령어
 
@@ -64,8 +62,7 @@ npx eslint src/**/*.{ts,tsx}
 |------|------|
 | 프런트 S3 | `saju-oracle-frontend-887078546492` (ap-northeast-2) |
 | CloudFront | `E2ZDGPQU5JXQKC` → `saju.sedaily.ai` |
-| 블로그 발행 Lambda | Function URL `2ranuwiguucfnrw7ks5jkjhami0zupuu.lambda-url.us-east-1.on.aws` |
-| 경제뉴스 API | `chzwwtjtgk.execute-api.us-east-1.amazonaws.com/dev` (MBTI 백엔드 공용) |
+| 블로그 발행 Lambda (미사용) | Function URL `2ranuwiguucfnrw7ks5jkjhami0zupuu.lambda-url.us-east-1.on.aws` — admin UI 삭제로 호출자 없음 |
 | Bedrock 태깅 | Application Inference Profile `cc-opus-47`, `cc-haiku-45` (참고: [docs/bedrock-claude-code-tagging.md](docs/bedrock-claude-code-tagging.md)) |
 
 ## 사주 해석 캐시

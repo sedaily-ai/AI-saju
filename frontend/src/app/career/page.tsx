@@ -17,7 +17,7 @@ import {
   type WealthPathKey,
 } from '@/features/fortune/lib/engine-chaeun';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
-import { CareerNewsSection, SaveProfileButton } from '@/features/fortune';
+import { SaveProfileButton } from '@/features/fortune';
 import { useLang } from '@/shared/lib/LangContext';
 import { PageShell } from '@/shared/ui/PageShell';
 import { PageHeader } from '@/shared/ui/PageHeader';
@@ -1038,12 +1038,6 @@ export default function CareerPage() {
                 </div>
               );
             })()}
-
-            <CareerNewsSection
-              periodChaeun={periodChaeun}
-              careerOverall={careerOverall}
-              monthSeries={monthSeries}
-            />
 
             <SaveProfileButton
               profile={{

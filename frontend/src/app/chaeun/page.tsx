@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import {
   buildStructureAnalysis,
   CG_OH,
-  OH_HJ,
   REGION_OPTIONS,
   type Pillar,
   type DaeunEntry,
@@ -12,14 +11,12 @@ import {
 import {
   calculateChaeseongProfile,
   calculateWealthPaths,
-  buildMonthWealthSeries,
   computeCurrentPeriodChaeun,
   diagnoseChaeun,
   evaluateDaeunChaeun,
-  buildPathPeriodSynergy,
 } from '@/features/fortune/lib/engine-chaeun';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
-import { WealthNewsSection, SaveProfileButton } from '@/features/fortune';
+import { SaveProfileButton } from '@/features/fortune';
 import { PageShell } from '@/shared/ui/PageShell';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { BottomNav } from '@/shared/ui/BottomNav';
@@ -78,7 +75,6 @@ export default function ChaeunPage() {
   const chaeseong = saju ? calculateChaeseongProfile(pillars) : null;
   const wealthPaths = saju ? calculateWealthPaths(pillars) : null;
   const periodChaeun = saju && ilgan ? computeCurrentPeriodChaeun(ilgan, pillars) : null;
-  const monthSeries = saju && ilgan ? buildMonthWealthSeries(ilgan, pillars) : [];
   const diagnosis = structure?.singangyak && chaeseong ? diagnoseChaeun(structure.singangyak, chaeseong, pillars) : null;
   const timeline = saju ? evaluateDaeunChaeun(daeuns, ilgan) : [];
 
@@ -113,7 +109,6 @@ export default function ChaeunPage() {
 
   if (!loaded) return null;
 
-  const chaeOh = chaeseong?.chaeOh ?? '';
   const total = chaeseong ? (chaeseong.totalCount || 1) : 1;
   const pyeonPct = chaeseong ? (chaeseong.pyeonJae / total) * 100 : 0;
   const jeongPct = chaeseong ? (chaeseong.jeongJae / total) * 100 : 0;
@@ -653,13 +648,7 @@ export default function ChaeunPage() {
           </div>
         )}
 
-        {/* 뉴스 + 저장 + 네비게이션 */}
-        <WealthNewsSection
-          periodChaeun={periodChaeun}
-          chaeseong={chaeseong}
-          monthSeries={monthSeries}
-        />
-
+        {/* 저장 + 네비게이션 */}
         <SaveProfileButton
           profile={{
             year: saju.year,

@@ -15,7 +15,7 @@
 
 - **만세력**: `@fullstackfamily/manseryeok` npm 패키지 — 천간/지지/대운/일진 계산
 - **해석**: [scripts/backend/generate_parallel*.py](scripts/backend/) 로 Bedrock Claude 를 미리 호출해 생성한 JSON → `frontend/public/saju-cache/` 에서 읽음
-- **경제 뉴스**: 재운/커리어 페이지가 MBTI 백엔드의 `/api/search` Lambda (`chzwwtjtgk.execute-api…`) 를 호출 — 이 Lambda 는 별도 레포 `AI-CUSTOMIZED-MBTI` 에서 관리됨. 이 레포에는 소스가 없음
+- **경제 뉴스**: 2026-07-09 삭제됨 — 재운/커리어 페이지가 MBTI 백엔드의 `/api/search` Lambda를 호출하던 뉴스 패널(`WealthNewsSection`/`CareerNewsSection`)과 `shared/config/api.ts`를 서비스 리디자인 방침(MBTI 사이트와 코드/인프라 비공유)에 따라 전부 제거. `/news` 페이지는 이미 점검 안내 화면으로 대체돼 있던 상태 유지
 - **챗봇**: [scripts/backend/lambda/chat-bedrock/](scripts/backend/lambda/chat-bedrock/) — 사주 챗봇 자유 입력을 Bedrock 으로 처리하는 Function URL Lambda
 - **블로그 발행**: `/blog/admin` UI는 2026-07-09 삭제됨(비밀번호 클라이언트 노출 문제 + 서비스 리디자인). [scripts/backend/lambda/blog-publish/](scripts/backend/lambda/blog-publish/) Lambda 소스는 남아있으나 호출하는 곳이 없어 사실상 미사용. 발행이 필요하면 [scripts/backend/upload_blog_post.py](scripts/backend/upload_blog_post.py) CLI(Lambda 안 거치고 S3 직접 업로드) 사용
 
@@ -68,8 +68,8 @@ src/
 ├── app/                    # App Router 라우트 (정적 export, client components)
 │   ├── page.tsx            # 랜딩
 │   ├── saju/               # 사주팔자 원국·총운·오늘의 운세
-│   ├── chaeun/             # 재운 흐름 (대운·세운·월운 + 경제뉴스)
-│   ├── career/             # 커리어 운 (관성 + 경제뉴스)
+│   ├── chaeun/             # 재운 흐름 (대운·세운·월운)
+│   ├── career/             # 커리어 운 (관성 경로)
 │   ├── compatibility/      # 이상형 역산
 │   ├── couple/             # 커플 궁합
 │   ├── news/               # 키워드 경제뉴스

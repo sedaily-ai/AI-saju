@@ -4,6 +4,13 @@
 대상 도메인: `mbti.sedaily.ai`, `saju.sedaily.ai`
 스택 한 줄 요약: **Next.js 16 (App Router · static export) + AWS Lambda/DynamoDB + S3/CloudFront**
 
+> **2026-07-09 안내**: 이 문서는 사주가 MBTI 사이트와 한 코드베이스로 융합돼 있던 시점(작성일 기준)의 스냅샷이다.
+> 이후 `/editors`, `/timeline`, `/login` 등 MBTI 전용 라우트와 `backend/handlers/` Python Lambda 구조를 가진
+> 원 레포에서 사주 도메인만 분리해 이 레포(`saju2`, 현재 `frontend/` + `scripts/frontend/` + `scripts/backend/`
+> 구조)가 됐고, 2026-07-09에는 `WealthNewsSection`/`CareerNewsSection`(MBTI 백엔드 뉴스 API 호출)과
+> `/blog/admin` 발행 UI까지 제거해 MBTI 사이트와의 코드·인프라 공유를 완전히 끊었다.
+> **아래 본문은 그 이전 상태를 설명하므로 현재 라우트·컴포넌트 구성과 다르다** — 현재 구조는 루트 `CLAUDE.md` 참고.
+
 ---
 
 ## 1. 개요
