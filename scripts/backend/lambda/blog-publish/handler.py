@@ -20,10 +20,10 @@
 동작:
 1. 비밀번호 검증 (틀리면 401)
 2. post 필수 필드 검증 (부족하면 400)
-3. mbti + saju 두 S3 버킷에:
+3. saju S3 버킷에:
    - blog-content/posts/{slug}.json (post 그대로)
    - blog-content/index.json (기존 읽어와 동일 slug 교체/최신 insert)
-4. 각 CloudFront 배포에 /blog-content/* 무효화
+4. CloudFront 배포에 /blog-content/* 무효화
 5. 200 + {ok, slug}
 """
 import json
@@ -35,7 +35,6 @@ from datetime import datetime, timezone, timedelta
 import boto3
 
 S3_TARGETS = [
-    {'bucket': 'sedaily-mbti-frontend-dev',         'region': 'us-east-1',      'cf_id': 'E1QS7PY350VHF6'},
     {'bucket': 'saju-oracle-frontend-887078546492', 'region': 'ap-northeast-2', 'cf_id': 'E2ZDGPQU5JXQKC'},
 ]
 

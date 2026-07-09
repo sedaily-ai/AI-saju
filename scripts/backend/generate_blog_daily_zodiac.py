@@ -5,7 +5,7 @@
 1. Bedrock Claude Sonnet 4 로 오늘 날짜(KST) 기준 12별자리 운세 작성.
 2. 로컬 `frontend/public/blog-content/posts/{slug}.json` 저장.
 3. `frontend/public/blog-content/index.json` 의 posts 배열 맨 앞에 삽입 (dedupe).
-4. 두 파일을 S3 에 동시 업로드 (mbti + saju 버킷).
+4. 두 파일을 saju S3 버킷에 업로드.
 
 사용 예:
   python scripts/generate_blog_daily_zodiac.py                 # 오늘자
@@ -25,9 +25,7 @@ from botocore.config import Config
 BEDROCK_MODEL = 'arn:aws:bedrock:us-east-1:887078546492:application-inference-profile/cybevkpbbz32'
 BEDROCK_REGION = 'us-east-1'
 
-# 정적 컨텐츠는 두 버킷 모두에 배포한다 (mbti.sedaily.ai + saju.sedaily.ai).
 S3_TARGETS = [
-    {'bucket': 'sedaily-mbti-frontend-dev',      'region': 'us-east-1',      'cf_id': 'E1QS7PY350VHF6'},
     {'bucket': 'saju-oracle-frontend-887078546492', 'region': 'ap-northeast-2', 'cf_id': 'E2ZDGPQU5JXQKC'},
 ]
 

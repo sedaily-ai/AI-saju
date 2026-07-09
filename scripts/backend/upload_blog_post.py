@@ -1,5 +1,5 @@
 """
-/admin 에서 다운받은 포스트 JSON 을 index.json 에 반영하고 S3 에 업로드.
+로컬 포스트 JSON 을 index.json 에 반영하고 S3 에 업로드 (수동 발행 CLI).
 
 사용:
   python scripts/upload_blog_post.py path/to/{slug}.json
@@ -9,8 +9,8 @@
 1. JSON 로드 + 스키마 검증 (slug, title, published_at, body_md 필수).
 2. 로컬 repo 의 public/blog-content/posts/{slug}.json 에 복사 저장.
 3. public/blog-content/index.json 을 갱신 (동일 slug 가 있으면 교체, 없으면 최상단에 insert).
-4. 두 파일을 mbti + saju S3 버킷에 put_object.
-5. 각 CloudFront 배포에 /blog-content/* 무효화.
+4. saju S3 버킷에 put_object.
+5. CloudFront 배포에 /blog-content/* 무효화.
 """
 import argparse
 import json
@@ -21,7 +21,6 @@ from pathlib import Path
 import boto3
 
 S3_TARGETS = [
-    {'bucket': 'sedaily-mbti-frontend-dev',         'region': 'us-east-1',      'cf_id': 'E1QS7PY350VHF6'},
     {'bucket': 'saju-oracle-frontend-887078546492', 'region': 'ap-northeast-2', 'cf_id': 'E2ZDGPQU5JXQKC'},
 ]
 
