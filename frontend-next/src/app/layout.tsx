@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import { Providers } from "./providers";
 import { GoogleAnalytics } from "@/shared/lib/GoogleAnalytics";
@@ -80,18 +81,6 @@ export default function RootLayout({
         {/* phase-03 (2026-05-24): 점신 톤 라이트 단일.
             dark 클래스 절대 추가하지 않음. localStorage 의 옛 'theme=dark' 도 정리.
             (ThemeToggle UI 는 phase-04 에서 제거 예정 — 일단 클릭해도 시각 변화 없음) */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(){try{
-                document.documentElement.classList.remove('dark');
-                if(localStorage.getItem('theme')==='dark'){
-                  localStorage.removeItem('theme');
-                }
-              }catch(e){}})();
-            `,
-          }}
-        />
       </head>
       <body
         className="min-h-screen flex flex-col"
@@ -101,6 +90,10 @@ export default function RootLayout({
           colorScheme: 'light',
         }}
       >
+        <Script
+          id="remove-dark-mode"
+          strategy="beforeInteractive"
+        >{`(function(){try{document.documentElement.classList.remove('dark');if(localStorage.getItem('theme')==='dark'){localStorage.removeItem('theme')}}catch(e){}})();`}</Script>
         <JsonLd data={siteWebSiteSchema()} />
         <JsonLd data={siteOrganizationSchema()} />
         <Providers>

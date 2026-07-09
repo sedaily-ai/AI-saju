@@ -4,3 +4,4 @@
 
 export { FeatureTabs } from './FeatureTabs';
 export { ChatBot } from './ChatBot';
+export { HeroBanner } from './HeroBanner';

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
 import { JsonLd, faqSchema } from '@/shared/lib/jsonLd';
-import { CharacterCarousel } from '@/widgets/CharacterCarousel';
+import { HeroBanner } from '@/widgets/HeroBanner';
 
 // 명조체 인라인 (한자/특수 강조용) — globals.css 안 건드림, 시스템 fallback chain
 const SERIF = '"Noto Serif KR", "Nanum Myeongjo", "Apple SD Gothic Neo", serif';
@@ -76,11 +76,23 @@ const PRIMARY_GRID: Tile[] = [
   { href: '/news',          ko: '경제 뉴스',   en: 'News',            subKo: '오늘의 경제 소식', subEn: "Today's economy",          Icon: Newspaper,  group: 'info',   kanji: '報' },
 ];
 
+// 카드별 개별 색상 — 각 메뉴마다 고유한 톤
+const TILE_TONE: Record<string, { bg: string; fg: string }> = {
+  '/saju':          { bg: '#E8F5E9', fg: '#2E7D32' },   // 녹색 — 사주 핵심
+  '/today':         { bg: '#E0F2F1', fg: '#00796B' },   // 틸 — 오늘 운세
+  '/zodiac':        { bg: '#FFF3E0', fg: '#E65100' },   // 주황 — 띠별 운세
+  '/chaeun':        { bg: '#FFF8E1', fg: '#F57F17' },   // 골드 — 재물
+  '/career':        { bg: '#EDE7F6', fg: '#5E35B1' },   // 보라 — 커리어
+  '/compatibility': { bg: '#FCE4EC', fg: '#C62828' },   // 핑크 — 연애
+  '/couple':        { bg: '#F3E5F5', fg: '#8E24AA' },   // 라벤더 — 커플
+  '/news':          { bg: '#E3F2FD', fg: '#1565C0' },   // 블루 — 뉴스
+};
+
 const GROUP_TONE: Record<Tile['group'], { bg: string; fg: string }> = {
-  core:   { bg: C.warmSoft, fg: C.warmDeep   },
-  wealth: { bg: C.cream,    fg: C.warmDeep   },
-  love:   { bg: C.warmSoft, fg: C.warmDeep   },
-  info:   { bg: C.warmSoft, fg: C.warmDeep   },
+  core:   { bg: '#E8F5E9', fg: '#2E7D32' },
+  wealth: { bg: '#FFF8E1', fg: '#F57F17' },
+  love:   { bg: '#FCE4EC', fg: '#C62828' },
+  info:   { bg: '#E3F2FD', fg: '#1565C0' },
 };
 
 
@@ -222,96 +234,8 @@ export default function LandingPage() {
           </div>
         </header>
 
-        {/* Hero — 사주 캐릭터 슬라이드 + 사이드 카드 (이상형·주역점·챗봇) */}
-        <div className="mt-6 lg:flex lg:gap-[12px] lg:items-stretch lg:px-3">
-          {/* 좌: 캐러셀 */}
-          <div className="lg:flex-1 lg:min-w-0 lg:self-stretch">
-            <CharacterCarousel />
-          </div>
-
-          {/* 우: 이상형 + 주역점 (2×1) + 챗봇 (납작) */}
-          <aside className="mt-3 lg:mt-0 lg:flex-1 lg:min-w-0 flex flex-col gap-2">
-            {/* 상단 2카드 행 */}
-            <div className="grid grid-cols-2 gap-2 flex-1">
-              {/* 이상형 역산 */}
-              <Link
-                href={localePath('/compatibility')}
-                className="flex flex-col justify-between rounded-2xl border border-[#34D399] bg-white p-4 transition-all hover:-translate-y-0.5 hover:shadow-md"
-              >
-                <div>
-                  <span
-                    className="w-9 h-9 rounded-xl flex items-center justify-center mb-2.5"
-                    style={{ background: C.warmSoft }}
-                  >
-                    <Heart size={18} strokeWidth={2.2} style={{ color: C.warmDeep }} />
-                  </span>
-                  <h4 className="text-[13px] font-bold text-gray-900 leading-tight">
-                    {t('이상형 역산', 'Ideal Match')}
-                  </h4>
-                  <p className="text-[11px] text-gray-500 leading-relaxed mt-1.5">
-                    {t('내 사주에 딱 맞는 이상형을 찾아드려요', 'Find your ideal match from your chart')}
-                  </p>
-                </div>
-                <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold" style={{ color: C.warmDeep }}>
-                  {t('바로 보기', 'Try now')} <span aria-hidden>→</span>
-                </span>
-              </Link>
-
-              {/* 주역점 (추후 구현) */}
-              <div className="flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-4 relative overflow-hidden">
-                <div>
-                  <span
-                    className="w-9 h-9 rounded-xl flex items-center justify-center mb-2.5"
-                    style={{ background: '#FEF3C7' }}
-                  >
-                    <BookOpen size={18} strokeWidth={2.2} style={{ color: '#92400E' }} />
-                  </span>
-                  <h4 className="text-[13px] font-bold text-gray-900 leading-tight">
-                    {t('주역점', 'I Ching')}
-                  </h4>
-                  <p className="text-[11px] text-gray-500 leading-relaxed mt-1.5">
-                    {t('64괘로 지금 이 순간의 답을 구해요', 'Get answers from 64 hexagrams')}
-                  </p>
-                </div>
-                <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-semibold text-gray-400 w-fit">
-                  {t('준비중', 'Coming soon')}
-                </span>
-              </div>
-            </div>
-
-            {/* 하단 챗봇 (납작) */}
-            <div className="rounded-2xl border border-[#34D399] bg-white px-4 py-3 flex items-center gap-3">
-              <span
-                className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                style={{ background: C.warmSoft }}
-              >
-                <Search size={16} strokeWidth={2.2} style={{ color: C.warmDeep }} />
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder={t('사주에 대해 물어보세요...', 'Ask about your Saju...')}
-                    disabled
-                    className="flex-1 text-[12px] bg-gray-50 rounded-lg px-3 py-1.5 border-none outline-none placeholder:text-gray-400 text-gray-600"
-                  />
-                  <span
-                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: C.warm }}
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="22" y1="2" x2="11" y2="13" />
-                      <polygon points="22 2 15 22 11 13 2 9 22 2" />
-                    </svg>
-                  </span>
-                </div>
-              </div>
-              <span className="text-[10px] text-gray-400 font-medium shrink-0 hidden sm:block">
-                {t('곧 오픈', 'Soon')}
-              </span>
-            </div>
-          </aside>
-        </div>
+        {/* Hero — 히어로 배너 */}
+        <HeroBanner />
 
         {/* 기능 카드 그리드 — 캐러셀 아래 4열 2행 */}
         <section className="relative z-10 mt-6 px-3">
@@ -348,7 +272,7 @@ export default function LandingPage() {
           </div>
           <ul className="grid grid-cols-3 gap-3">
             {PRIMARY_GRID.map(({ href, ko, en, subKo, subEn, Icon, group, kanji }) => {
-              const tt = GROUP_TONE[group];
+              const tt = TILE_TONE[href] ?? GROUP_TONE[group];
               return (
                 <li key={href}>
                   <Link
