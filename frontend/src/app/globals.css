@@ -293,7 +293,7 @@ body {
   display: none;
 }
 
-/* ─ 블로그 본문 스타일 — /blog 상세 + /blog/admin 에디터 공용 ─ */
+/* ─ 블로그 본문 스타일 — /blog 상세 페이지 ─ */
 .blog-body h1,
 .blog-body h2 {
   margin: 1.5rem 0 0.75rem;
@@ -354,12 +354,6 @@ body {
 .dark .blog-body hr { border-top-color: #374151; }
 .blog-body a { color: #059669; text-decoration: underline; }
 .dark .blog-body a { color: #6EE7B7; }
-
-.admin-editor:empty::before {
-  content: attr(data-placeholder);
-  color: #9CA3AF;
-}
-.admin-editor:focus { outline: none; }
 
 /* 사주 챗봇 말풍선 등장 애니메이션 — 아래에서 부드럽게 떠오름 */
 @keyframes chat-bubble-in {

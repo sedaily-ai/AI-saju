@@ -17,7 +17,7 @@
 - **해석**: [scripts/backend/generate_parallel*.py](scripts/backend/) 로 Bedrock Claude 를 미리 호출해 생성한 JSON → `frontend/public/saju-cache/` 에서 읽음
 - **경제 뉴스**: 재운/커리어 페이지가 MBTI 백엔드의 `/api/search` Lambda (`chzwwtjtgk.execute-api…`) 를 호출 — 이 Lambda 는 별도 레포 `AI-CUSTOMIZED-MBTI` 에서 관리됨. 이 레포에는 소스가 없음
 - **챗봇**: [scripts/backend/lambda/chat-bedrock/](scripts/backend/lambda/chat-bedrock/) — 사주 챗봇 자유 입력을 Bedrock 으로 처리하는 Function URL Lambda
-- **블로그 발행**: [scripts/backend/lambda/blog-publish/](scripts/backend/lambda/blog-publish/) 의 Function URL Lambda 하나만 이 레포에서 관리
+- **블로그 발행**: `/blog/admin` UI는 2026-07-09 삭제됨(비밀번호 클라이언트 노출 문제 + 서비스 리디자인). [scripts/backend/lambda/blog-publish/](scripts/backend/lambda/blog-publish/) Lambda 소스는 남아있으나 호출하는 곳이 없어 사실상 미사용. 발행이 필요하면 [scripts/backend/upload_blog_post.py](scripts/backend/upload_blog_post.py) CLI(Lambda 안 거치고 S3 직접 업로드) 사용
 
 재운/커리어에서 뉴스 검색 로직을 고쳐야 한다면 이 레포가 아니라 `AI-CUSTOMIZED-MBTI` 레포에서 작업해야 합니다.
 
@@ -52,7 +52,7 @@ npm run deploy       # 빌드 + saju.sedaily.ai 배포 + CloudFront invalidation
 │       ├── merge_chongun_en.py / clean_today_cache.py  # 캐시 병합/정리
 │       ├── lambda/
 │       │   ├── chat-bedrock/      # 사주 챗봇 실시간 LLM Function URL Lambda
-│       │   └── blog-publish/      # /blog/admin 발행 Lambda 소스
+│       │   └── blog-publish/      # (미사용) 블로그 발행 Lambda 소스 — 프론트 admin 삭제로 호출자 없음
 │       └── saju-cache-local/      # Bedrock 생성 결과물 (한국어/영어)
 ├── docs/              # architecture, i18n-scope, next-modules, codebase-audit
 ├── .github/workflows/daily-blog.yml   # 매일 07:00 KST 블로그 자동 발행
@@ -73,13 +73,17 @@ src/
 │   ├── compatibility/      # 이상형 역산
 │   ├── couple/             # 커플 궁합
 │   ├── news/               # 키워드 경제뉴스
-│   ├── blog/               # 블로그 목록·상세
-│   ├── blog/admin/         # 블로그 발행 (비밀번호 보호)
+│   ├── blog/               # 블로그 목록·상세 (admin 발행 UI는 2026-07-09 삭제, 하단 참고)
 │   └── about/              # / 로 redirect 하는 래퍼
-├── features/               # Feature-Sliced Design (3개만 현재 존재)
-│   ├── fortune/            # 사주 계산·총운·오늘의 운세 (engine.ts, engine-chaeun.ts 등)
+├── features/               # Feature-Sliced Design (8개)
+│   ├── fortune/            # 사주 계산·총운·오늘의 운세 (engine.ts, engine-chaeun.ts 등, 다른 feature 다수가 의존)
 │   ├── couple-match/       # 커플 궁합 스코어링
-│   └── ideal-match/        # 이상형 역산 매칭 엔진
+│   ├── ideal-match/        # 이상형 역산 매칭 엔진
+│   ├── characters/         # 60갑자 캐릭터 그리드
+│   ├── chatbot/            # 사주 챗봇 UI + 대화 흐름
+│   ├── concern-card/       # 고민 카드(오행 부적) 생성
+│   ├── iching/             # 팔괘 주역점
+│   └── points/             # 출석 포인트/주간 체크인
 ├── widgets/
 │   └── FeatureTabs.tsx     # 상단 사주/재운/커리어/이상형/커플/뉴스/블로그 탭
 └── shared/
@@ -106,10 +110,10 @@ Features 는 `index.ts` 배럴로만 외부에 노출됩니다 (`import { Fortun
 |------|-----|------|
 | 프런트 S3 | `saju-oracle-frontend-887078546492` | ap-northeast-2 |
 | CloudFront | `E2ZDGPQU5JXQKC` → `saju.sedaily.ai` | (글로벌) |
-| 블로그 Lambda | Function URL `2ranuwiguucfnrw7ks5jkjhami0zupuu.lambda-url.us-east-1.on.aws` | us-east-1 |
+| 블로그 Lambda (미사용) | Function URL `2ranuwiguucfnrw7ks5jkjhami0zupuu.lambda-url.us-east-1.on.aws` — `AuthType=NONE`, 프론트 admin 삭제로 호출자 없음. 삭제 여부 미결정 | us-east-1 |
 | Bedrock Application Inference Profile | `cc-opus-47`, `cc-haiku-45` (Claude Code 사용량 태깅용) | us-east-1 |
 
-블로그 Lambda 는 발행 시 **두 S3 버킷 모두**에 업로드합니다 — `saju-oracle-frontend-887078546492` (사주) + `sedaily-mbti-frontend-dev` (MBTI). 두 사이트가 동일한 블로그를 공유하는 구조라 변경 시 주의.
+블로그 Lambda 는 (호출된다면) **두 S3 버킷 모두**에 업로드합니다 — `saju-oracle-frontend-887078546492` (사주) + `sedaily-mbti-frontend-dev` (MBTI). 두 사이트가 동일한 블로그를 공유하는 구조라 변경 시 주의. 현재는 `scripts/backend/upload_blog_post.py` CLI가 이 Lambda를 거치지 않고 두 버킷에 직접 업로드하는 유일한 수동 발행 경로.
 
 ## 주요 기술 결정
 
@@ -134,7 +138,7 @@ Features 는 `index.ts` 배럴로만 외부에 노출됩니다 (`import { Fortun
 2. 정적 export 제약 위반 금지 (Server Components, API Routes, dynamic route 에 generateStaticParams 없이 사용 등)
 3. `features/` 간 직접 import 금지 — `shared/` 경유하거나 로직이 한 feature 안에 머물러야 함
 4. `shared/` 에 특정 feature 전용 코드 넣지 말 것
-5. 블로그 발행 Lambda 수정 시 `scripts/backend/lambda/blog-publish/fn.zip` 재패킹 + 수동 배포 필요
+5. 블로그 발행: `/blog/admin` UI는 삭제됨. 필요하면 `scripts/backend/upload_blog_post.py` CLI 사용 (blog-publish Lambda는 현재 미사용, `fn.zip` 재패킹 규칙은 Lambda를 되살릴 때만 해당)
 6. Bedrock 으로 캐시 생성하는 `generate_*.py` 는 비용이 큼 — 실행 전 구간을 명확히 제한
 
 ## 참고 문서
