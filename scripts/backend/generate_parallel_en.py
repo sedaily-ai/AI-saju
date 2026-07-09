@@ -5,7 +5,6 @@ so terminology stays consistent with frontend sajuGlossary.ts.
 
 Output:
 - Local: scripts/saju-cache-local/chongun_en/{stem}_{dayBranch}_{monthBranch}.json
-- S3:    s3://sedaily-mbti-frontend-dev/saju-cache/chongun_en/...
 - Progress: scripts/saju-cache-local/_progress_en.txt
 """
 import json
@@ -19,8 +18,6 @@ from threading import Lock
 # saju-sonnet-4 application inference profile (Sonnet 4) — Bedrock 비용 태깅 Service=SAJU. docs/bedrock-saju-tagging.md
 BEDROCK_MODEL = 'arn:aws:bedrock:us-east-1:887078546492:application-inference-profile/cybevkpbbz32'
 BEDROCK_REGION = 'us-east-1'
-S3_BUCKET = 'sedaily-mbti-frontend-dev'
-S3_PREFIX = 'saju-cache'
 LOCAL_CACHE_DIR = Path(__file__).parent / 'saju-cache-local'
 PROGRESS_FILE = LOCAL_CACHE_DIR / '_progress_en.txt'
 OUTPUT_SUBDIR = 'chongun_en'
@@ -148,10 +145,6 @@ def get_bedrock_client():
     )
 
 
-def get_s3_client():
-    return boto3.client('s3', region_name='us-east-1')
-
-
 def call_claude(client, system_prompt, user_message):
     request_body = json.dumps({
         "anthropic_version": "bedrock-2023-05-31",
@@ -187,7 +180,6 @@ def process_chongun(ilgan, ilji, wolji, done):
         return None
 
     bedrock = get_bedrock_client()
-    s3 = get_s3_client()
 
     base_info = f"""Chart inputs:
 - Day Stem (일간, Day Master): {STEM_EN[ilgan]}, element: {CG_OH_EN[ilgan]}
@@ -208,11 +200,6 @@ Write the Chongun (overall reading) for this chart — the person's core tempera
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(data_json, encoding='utf-8')
 
-    s3.put_object(
-        Bucket=S3_BUCKET, Key=f"{S3_PREFIX}/{key}",
-        Body=data_json, ContentType='application/json',
-        CacheControl='public, max-age=86400',
-    )
     save_progress(key)
     return key
 
