@@ -27,7 +27,7 @@
 | 15 | 블로그 이중 업로드(mbti 버킷+CloudFront) 제거 — blog-publish Lambda/generate_blog_daily_zodiac.py/upload_blog_post.py | ✅ | `69f1e6d` |
 | 16 | 사주 캐시 생성 스크립트(`generate_parallel.py`/`_en.py`)의 mbti 버킷 write 제거 — 다운스트림에서 안 읽던 죽은 side effect였음 | ✅ | `afbfe68` |
 | 17 | `WealthNewsSection`/`CareerNewsSection`/`TopicNewsSection`(mbti 백엔드 뉴스 API 호출) + `shared/config/api.ts` 삭제 | ✅ | `6fe5290` |
-| 18 | `scripts/backend/lambda/chat-bedrock/handler.py`의 `SEARCH_API_URL`도 같은 mbti API를 호출 — 이번 범위엔 미포함, 챗봇 뉴스 컨텍스트 기능이 걸려있어 별도 확인 필요 | ⬜ 미착수 | 후속 결정 필요 |
+| 18 | `scripts/backend/lambda/chat-bedrock/handler.py`의 `SEARCH_API_URL`(챗봇 시대 팩트 뉴스 프록시)도 같은 mbti API 제거. 프론트는 이미 ERA_FACTS placeholder 폴백 설계라 안전하게 제거 | ✅ 코드는 제거됨, **배포된 Lambda는 아직 구버전** — fn.zip 재패킹+수동 배포 별도 필요(당장 지장 없음, 프론트가 더는 호출 안 함) | `fbf2d9d` |
 
 아래 본문은 조사 시점 원문에 **경로만** 현재 구조로 맞춰 갱신한 것이다. 분석 내용·근거·수치는 조사 시점 그대로다 (위 표에서 처리 상태 확인).
 
