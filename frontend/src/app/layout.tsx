@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Noto_Serif_KR } from "next/font/google";
 import "./globals.css";
+
+// 명패(목재) 타일 갑자 서예체 — /saju/chart 대운·세운·월운 UnCard 전용
+const notoSerifKR = Noto_Serif_KR({
+  weight: ["700", "900"],
+  subsets: ["latin"],
+  variable: "--font-serif-kr",
+  display: "swap",
+});
 import { Providers } from "./providers";
 import { GoogleAnalytics } from "@/shared/lib/GoogleAnalytics";
 import { ClarityAnalytics } from "@/shared/lib/ClarityAnalytics";
@@ -73,7 +82,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="antialiased" suppressHydrationWarning>
+    <html lang="ko" className={`antialiased ${notoSerifKR.variable}`} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         {/* phase-03 (2026-05-24): 점신 톤 라이트 단일.

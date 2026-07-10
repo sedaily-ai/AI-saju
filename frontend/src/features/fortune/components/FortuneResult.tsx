@@ -22,6 +22,28 @@ const EL_BADGE: Record<string, string> = {
   '수': 'border-gray-400 dark:border-gray-600 bg-gray-100 dark:bg-gray-900',
 };
 
+// 명패(목재) 타일 — 단청 톤 오행 포인트색 (밝은 원색 대신 안료색)
+const DANCHEONG_OH: Record<Ohaeng, string> = {
+  '목': '#4A7C59', // 청록
+  '화': '#B7472A', // 주홍
+  '토': '#C9A227', // 황토
+  '금': '#B8B0A0', // 소색(연회)
+  '수': '#2C3E50', // 먹색
+};
+const WOOD = {
+  base: 'linear-gradient(155deg, #8B6339 0%, #6E4A28 55%, #5C3B1E 100%)',
+  grain: 'repeating-linear-gradient(3deg, rgba(0,0,0,0.10) 0px, transparent 1.5px, transparent 4px, rgba(255,255,255,0.035) 5px, transparent 6px)',
+  grainCross: 'repeating-linear-gradient(91deg, rgba(0,0,0,0.03) 0px, transparent 3px, transparent 14px)',
+  knot: 'radial-gradient(ellipse 60% 40% at 78% 22%, rgba(0,0,0,0.16) 0%, transparent 60%)',
+  vignette: 'radial-gradient(ellipse 90% 80% at 50% 40%, transparent 55%, rgba(0,0,0,0.22) 100%)',
+  sheen: 'linear-gradient(115deg, rgba(255,255,255,0.10) 0%, transparent 30%)',
+  brass: '#C9A227',
+  brassBright: '#E8CB6B',
+  brassDim: 'rgba(201, 162, 39, 0.35)',
+  ink: '#F3E6C8', // 음각 글자 바탕색(상아빛)
+  serif: "var(--font-serif-kr), 'Noto Serif KR', serif",
+};
+
 interface Props {
   data: {
     pillars: Pillar[]; ilgan: string;
@@ -281,60 +303,84 @@ function UnCard({ title, subtitle, hint, cols, ilgan, activeCheck, variant, yong
             const jjOh = (JJ_OH[col.j] || '금') as Ohaeng;
             const cgSS = ilgan ? sipsung(ilgan, col.c) : '';
             const yEval = yongsinOh ? evaluateForYongsin(col.c, col.j, yongsinOh) : null;
-            const rateColor: Record<YongsinRating, string> = {
-              favor: '#2D7A1F', neutral: V3_TOKENS.line, caution: '#C33A1F',
-            };
-            const edgeColor = isActive || isOpen
-              ? V3_TOKENS.accent
-              : yEval && yEval.rating !== 'neutral'
-                ? rateColor[yEval.rating]
-                : V3_TOKENS.line;
+            const isSelected = isActive || isOpen;
+            const isFavor = yEval?.rating === 'favor';
 
             return (
               <button
                 key={i}
                 type="button"
                 onClick={() => setExpandedIdx(isOpen ? null : i)}
-                className="flex flex-col items-center rounded-[14px] cursor-pointer text-center flex-shrink-0"
+                className="relative flex flex-col items-center rounded-[8px] cursor-pointer text-center flex-shrink-0"
                 style={{
                   width: tileWidth,
-                  padding: variant === 'wolun' ? '6px 4px' : '10px 6px',
-                  background: isOpen ? 'var(--accent-blue-bg)' : V3_TOKENS.panel,
-                  color: V3_TOKENS.ink,
-                  border: `2px solid ${edgeColor}`,
+                  padding: variant === 'wolun' ? '7px 4px 6px' : '11px 6px 8px',
+                  backgroundImage: [WOOD.sheen, WOOD.vignette, WOOD.knot, WOOD.grainCross, WOOD.grain, WOOD.base].join(', '),
+                  border: `${isSelected ? 2 : 1}px solid ${isSelected ? WOOD.brassBright : WOOD.brassDim}`,
+                  boxShadow: isSelected
+                    ? 'inset 0 1px 2px rgba(0,0,0,0.4), 0 0 0 1px rgba(232,203,107,0.3), 0 3px 8px rgba(0,0,0,0.28)'
+                    : 'inset 0 1px 3px rgba(0,0,0,0.4), inset 0 -1px 0 rgba(255,255,255,0.05), 0 2px 5px rgba(59,38,15,0.22)',
                   transition: 'all .15s',
                 }}
               >
-                <div style={{ fontSize: 10, opacity: 0.7 }}>{col.label}</div>
-                <div
-                  className="w-full my-1"
+                {/* 상단 못머리(리벳) — 명패 고정 디테일 */}
+                <span
+                  aria-hidden
+                  className="absolute rounded-full"
                   style={{
-                    color: OHAENG_SETS.default[cgOh].text,
-                    fontSize: charFont, fontWeight: 800, padding: '3px 0',
+                    top: 3, left: 5, width: 3, height: 3,
+                    background: 'radial-gradient(circle at 35% 30%, #F3E0A0, #8A6B1F 70%)',
+                    boxShadow: '0 0.5px 0.5px rgba(0,0,0,0.5)',
                   }}
-                >
-                  {col.c}
+                />
+                <span
+                  aria-hidden
+                  className="absolute rounded-full"
+                  style={{
+                    top: 3, right: 5, width: 3, height: 3,
+                    background: 'radial-gradient(circle at 35% 30%, #F3E0A0, #8A6B1F 70%)',
+                    boxShadow: '0 0.5px 0.5px rgba(0,0,0,0.5)',
+                  }}
+                />
+                <div style={{ fontSize: 9.5, opacity: 0.72, color: WOOD.ink, fontFamily: WOOD.serif, letterSpacing: 0.2 }}>{col.label}</div>
+                <div className="w-full my-1">
+                  <div
+                    style={{
+                      color: WOOD.ink,
+                      fontFamily: WOOD.serif,
+                      fontSize: charFont, fontWeight: 900, padding: '3px 0 0',
+                      textShadow: '0 1px 1.5px rgba(0,0,0,0.65), 0 -1px 0 rgba(255,255,255,0.10), 0 0 10px rgba(0,0,0,0.15)',
+                    }}
+                  >
+                    {col.c}
+                  </div>
+                  <div style={{ height: 1.5, borderRadius: 1, marginTop: 3, marginInline: 8, background: DANCHEONG_OH[cgOh], opacity: 0.8, boxShadow: `0 0 4px ${DANCHEONG_OH[cgOh]}` }} />
                 </div>
-                <div
-                  className="w-full"
-                  style={{
-                    color: OHAENG_SETS.default[jjOh].text,
-                    fontSize: charFont, fontWeight: 800, padding: '3px 0',
-                  }}
-                >
-                  {col.j}
+                <div className="w-full">
+                  <div
+                    style={{
+                      color: WOOD.ink,
+                      fontFamily: WOOD.serif,
+                      fontSize: charFont, fontWeight: 900, padding: '3px 0 0',
+                      textShadow: '0 1px 1.5px rgba(0,0,0,0.65), 0 -1px 0 rgba(255,255,255,0.10), 0 0 10px rgba(0,0,0,0.15)',
+                    }}
+                  >
+                    {col.j}
+                  </div>
+                  <div style={{ height: 1.5, borderRadius: 1, marginTop: 3, marginInline: 8, background: DANCHEONG_OH[jjOh], opacity: 0.8, boxShadow: `0 0 4px ${DANCHEONG_OH[jjOh]}` }} />
                 </div>
                 {showSipsung && cgSS && (
-                  <div style={{ fontSize: 9, opacity: 0.7, marginTop: 3 }}>{cgSS}</div>
+                  <div style={{ fontSize: 9, opacity: 0.72, marginTop: 4, color: WOOD.ink, fontFamily: WOOD.serif }}>{cgSS}</div>
                 )}
                 {yEval && yEval.rating !== 'neutral' && (
                   <div
                     style={{
-                      fontSize: 9, fontWeight: 700, marginTop: 2,
-                      color: yEval.rating === 'favor' ? '#2D7A1F' : '#C33A1F',
+                      fontSize: 9, fontWeight: 700, marginTop: 3,
+                      color: isFavor ? WOOD.brassBright : '#E8846B',
+                      textShadow: '0 1px 1px rgba(0,0,0,0.5)',
                     }}
                   >
-                    {yEval.rating === 'favor' ? t('용신↑', 'Yong↑') : t('용신↓', 'Yong↓')}
+                    {isFavor ? t('용신↑', 'Yong↑') : t('용신↓', 'Yong↓')}
                   </div>
                 )}
               </button>
