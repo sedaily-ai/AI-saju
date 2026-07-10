@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { isBeforeLichun, getSajuMonth } from '@fullstackfamily/manseryeok';
+import { toPng } from 'html-to-image';
 import { CG_OH, JJ_OH, OH_HJ, JJG, sipsung, unsung, buildStructureAnalysis, detectDayHapChung, evaluateForYongsin, generateDailyInsights, type Pillar, type ChongunResult, type TodayFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry, type YongsinRating } from '../lib/engine';
 import { OHAENG_SETS, V3_TOKENS, type Ohaeng } from '../lib/ohaeng';
 import { SajuTable } from './SajuTable';
@@ -29,6 +30,22 @@ const DANCHEONG_OH: Record<Ohaeng, string> = {
   '토': '#C9A227', // 황토
   '금': '#B8B0A0', // 소색(연회)
   '수': '#2C3E50', // 먹색
+};
+
+/** 오행별 셀 배경색 — SajuTable EL_CELL과 동일 톤 */
+const OH_CELL_BG: Record<Ohaeng, string> = {
+  '목': '#34D399',
+  '화': '#FD0002',
+  '토': '#EDCE01',
+  '금': '#EAEAEA',
+  '수': '#000000',
+};
+const OH_CELL_TEXT: Record<Ohaeng, string> = {
+  '목': '#FFFFFF',
+  '화': '#FFFFFF',
+  '토': '#1F2937',
+  '금': '#374151',
+  '수': '#FFFFFF',
 };
 const WOOD = {
   base: 'linear-gradient(155deg, #8B6339 0%, #6E4A28 55%, #5C3B1E 100%)',
@@ -311,73 +328,50 @@ function UnCard({ title, subtitle, hint, cols, ilgan, activeCheck, variant, yong
                 key={i}
                 type="button"
                 onClick={() => setExpandedIdx(isOpen ? null : i)}
-                className="relative flex flex-col items-center rounded-[8px] cursor-pointer text-center flex-shrink-0"
+                className="relative flex flex-col items-center rounded-[10px] cursor-pointer text-center flex-shrink-0"
                 style={{
                   width: tileWidth,
-                  padding: variant === 'wolun' ? '7px 4px 6px' : '11px 6px 8px',
-                  backgroundImage: [WOOD.sheen, WOOD.vignette, WOOD.knot, WOOD.grainCross, WOOD.grain, WOOD.base].join(', '),
-                  border: `${isSelected ? 2 : 1}px solid ${isSelected ? WOOD.brassBright : WOOD.brassDim}`,
+                  padding: variant === 'wolun' ? '7px 4px 6px' : '10px 6px 8px',
+                  background: '#FFFFFF',
+                  border: isSelected ? '2px solid #1F2937' : '1px solid #E5E7EB',
                   boxShadow: isSelected
-                    ? 'inset 0 1px 2px rgba(0,0,0,0.4), 0 0 0 1px rgba(232,203,107,0.3), 0 3px 8px rgba(0,0,0,0.28)'
-                    : 'inset 0 1px 3px rgba(0,0,0,0.4), inset 0 -1px 0 rgba(255,255,255,0.05), 0 2px 5px rgba(59,38,15,0.22)',
+                    ? '0 2px 8px rgba(0,0,0,0.12)'
+                    : '0 1px 3px rgba(0,0,0,0.04)',
                   transition: 'all .15s',
                 }}
               >
-                {/* 상단 못머리(리벳) — 명패 고정 디테일 */}
-                <span
-                  aria-hidden
-                  className="absolute rounded-full"
+                <div style={{ fontSize: 9.5, color: '#9CA3AF', fontWeight: 600, letterSpacing: 0.2, marginBottom: 4 }}>{col.label}</div>
+                {/* 천간 — 오행 배경 */}
+                <div
+                  className="w-full rounded-[6px] flex items-center justify-center"
                   style={{
-                    top: 3, left: 5, width: 3, height: 3,
-                    background: 'radial-gradient(circle at 35% 30%, #F3E0A0, #8A6B1F 70%)',
-                    boxShadow: '0 0.5px 0.5px rgba(0,0,0,0.5)',
+                    padding: '5px 2px',
+                    marginBottom: 3,
+                    background: OH_CELL_BG[cgOh],
+                    color: OH_CELL_TEXT[cgOh],
                   }}
-                />
-                <span
-                  aria-hidden
-                  className="absolute rounded-full"
-                  style={{
-                    top: 3, right: 5, width: 3, height: 3,
-                    background: 'radial-gradient(circle at 35% 30%, #F3E0A0, #8A6B1F 70%)',
-                    boxShadow: '0 0.5px 0.5px rgba(0,0,0,0.5)',
-                  }}
-                />
-                <div style={{ fontSize: 9.5, opacity: 0.72, color: WOOD.ink, fontFamily: WOOD.serif, letterSpacing: 0.2 }}>{col.label}</div>
-                <div className="w-full my-1">
-                  <div
-                    style={{
-                      color: WOOD.ink,
-                      fontFamily: WOOD.serif,
-                      fontSize: charFont, fontWeight: 900, padding: '3px 0 0',
-                      textShadow: '0 1px 1.5px rgba(0,0,0,0.65), 0 -1px 0 rgba(255,255,255,0.10), 0 0 10px rgba(0,0,0,0.15)',
-                    }}
-                  >
-                    {col.c}
-                  </div>
-                  <div style={{ height: 1.5, borderRadius: 1, marginTop: 3, marginInline: 8, background: DANCHEONG_OH[cgOh], opacity: 0.8, boxShadow: `0 0 4px ${DANCHEONG_OH[cgOh]}` }} />
+                >
+                  <span style={{ fontSize: charFont, fontWeight: 800 }}>{col.c}</span>
                 </div>
-                <div className="w-full">
-                  <div
-                    style={{
-                      color: WOOD.ink,
-                      fontFamily: WOOD.serif,
-                      fontSize: charFont, fontWeight: 900, padding: '3px 0 0',
-                      textShadow: '0 1px 1.5px rgba(0,0,0,0.65), 0 -1px 0 rgba(255,255,255,0.10), 0 0 10px rgba(0,0,0,0.15)',
-                    }}
-                  >
-                    {col.j}
-                  </div>
-                  <div style={{ height: 1.5, borderRadius: 1, marginTop: 3, marginInline: 8, background: DANCHEONG_OH[jjOh], opacity: 0.8, boxShadow: `0 0 4px ${DANCHEONG_OH[jjOh]}` }} />
+                {/* 지지 — 오행 배경 */}
+                <div
+                  className="w-full rounded-[6px] flex items-center justify-center"
+                  style={{
+                    padding: '5px 2px',
+                    background: OH_CELL_BG[jjOh],
+                    color: OH_CELL_TEXT[jjOh],
+                  }}
+                >
+                  <span style={{ fontSize: charFont, fontWeight: 800 }}>{col.j}</span>
                 </div>
                 {showSipsung && cgSS && (
-                  <div style={{ fontSize: 9, opacity: 0.72, marginTop: 4, color: WOOD.ink, fontFamily: WOOD.serif }}>{cgSS}</div>
+                  <div style={{ fontSize: 9, color: '#6B7280', marginTop: 4, fontWeight: 600 }}>{cgSS}</div>
                 )}
                 {yEval && yEval.rating !== 'neutral' && (
                   <div
                     style={{
                       fontSize: 9, fontWeight: 700, marginTop: 3,
-                      color: isFavor ? WOOD.brassBright : '#E8846B',
-                      textShadow: '0 1px 1px rgba(0,0,0,0.5)',
+                      color: isFavor ? '#059669' : '#EF4444',
                     }}
                   >
                     {isFavor ? t('용신↑', 'Yong↑') : t('용신↓', 'Yong↓')}
@@ -583,6 +577,9 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
           </div>
         </div>
       </div>
+
+      {/* 캐릭터 카드 — 일간·진태양시 아래, 풀이스타일 위 */}
+      <CharacterCard />
 
       {/* 풀이 스타일 선택 */}
       {onMbtiChange && (
@@ -1343,6 +1340,243 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
           )}
         </CollapsibleSection>
       )}
+    </div>
+  );
+}
+
+/** 사주 캐릭터 카드 — 이미지 저장 가능 */
+function CharacterCard() {
+  const { t } = useLang();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!cardRef.current || saving) return;
+    setSaving(true);
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: '#F0FDF9',
+      });
+      const link = document.createElement('a');
+      link.download = `my-saju-character-${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('character card export failed', err);
+      alert(t('이미지 저장에 실패했어요. 잠시 후 다시 시도해주세요.', 'Failed to save. Please try again.'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!cardRef.current || saving) return;
+    setSaving(true);
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: '#F0FDF9',
+      });
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], 'my-saju-character.png', { type: 'image/png' });
+      const canShare = typeof navigator !== 'undefined' && 'share' in navigator
+        && 'canShare' in navigator
+        && (navigator as Navigator & { canShare: (d: ShareData) => boolean }).canShare({ files: [file] });
+      if (canShare) {
+        await (navigator as Navigator & { share: (d: ShareData) => Promise<void> }).share({
+          files: [file],
+          title: t('나의 사주 캐릭터', 'My Saju Character'),
+          text: t('나는 하얀 양이래요! 🐏', "I'm a White Sheep! 🐏"),
+        });
+      } else {
+        await handleSave();
+      }
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        console.error('native share failed', err);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mb-4 flex flex-col items-center">
+      {/* 캡처 대상 카드 */}
+      <div
+        ref={cardRef}
+        style={{
+          width: 280,
+          background: '#FFFFFF',
+          borderRadius: 24,
+          padding: '24px 20px 20px',
+          position: 'relative',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+          boxShadow: '0 2px 24px rgba(0,0,0,0.06)',
+        }}
+      >
+        {/* 캐릭터 이미지 — 연초록 배경 박스 */}
+        <div
+          style={{
+            width: 120,
+            height: 120,
+            borderRadius: 16,
+            background: 'linear-gradient(145deg, #E8FFF4 0%, #F0FDF9 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 16,
+            boxShadow: '0 2px 8px rgba(52,211,153,0.1)',
+          }}
+        >
+          <img
+            src="/characters/white-sheep.png"
+            alt={t('하얀 양 캐릭터', 'White Sheep Character')}
+            width={100}
+            height={100}
+            style={{ objectFit: 'contain' }}
+          />
+        </div>
+
+        {/* 메인 텍스트 */}
+        <div
+          style={{
+            fontSize: 18,
+            fontWeight: 900,
+            color: '#1A1A1A',
+            textAlign: 'center',
+            lineHeight: 1.3,
+            marginBottom: 6,
+            fontFamily: '"Noto Serif KR", serif',
+          }}
+        >
+          {t('당신은 ', 'You are ')}<span style={{ fontWeight: 900 }}>{t('하얀 양', 'a White Sheep')}</span>{t('입니다!', '!')}
+        </div>
+
+        {/* 부제 */}
+        <div
+          style={{
+            fontSize: 11,
+            color: '#9CA3AF',
+            textAlign: 'center',
+            lineHeight: 1.5,
+            marginBottom: 18,
+          }}
+        >
+          {t(
+            '순수하고 따뜻한 마음으로 주변에 편안함을 주는 사람',
+            'A warm soul who brings comfort to those around',
+          )}
+        </div>
+
+        {/* 장점 박스 */}
+        <div
+          style={{
+            width: '100%',
+            background: '#F0FDF4',
+            borderRadius: 14,
+            padding: '12px 14px',
+            marginBottom: 10,
+          }}
+        >
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#059669', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ color: '#059669' }}>✦</span> {t('장점', 'Strengths')}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {[
+              { ko: '온화하고 배려심 깊음', en: 'Warm & caring' },
+              { ko: '협동심과 공동체 의식', en: 'Team spirit' },
+              { ko: '성실하고 꾸준함', en: 'Diligent & steady' },
+            ].map((item) => (
+              <span
+                key={item.ko}
+                style={{
+                  background: '#FFFFFF',
+                  color: '#1F2937',
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  padding: '5px 10px',
+                  borderRadius: 7,
+                  border: '1px solid #E5E7EB',
+                }}
+              >
+                {t(item.ko, item.en)}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* 단점 박스 */}
+        <div
+          style={{
+            width: '100%',
+            background: '#FFF5F5',
+            borderRadius: 14,
+            padding: '12px 14px',
+            marginBottom: 18,
+          }}
+        >
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#EF4444', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ color: '#EF4444' }}>✦</span> {t('단점', 'Weaknesses')}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {[
+              { ko: '우유부단함', en: 'Indecisive' },
+              { ko: '소극적 리더십', en: 'Passive leadership' },
+              { ko: '거절을 잘 못함', en: "Can't say no" },
+            ].map((item) => (
+              <span
+                key={item.ko}
+                style={{
+                  background: '#FFFFFF',
+                  color: '#1F2937',
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  padding: '5px 10px',
+                  borderRadius: 7,
+                  border: '1px solid #E5E7EB',
+                }}
+              >
+                {t(item.ko, item.en)}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* 브랜드 풋터 */}
+        <div style={{ fontSize: 9, color: '#C0C0C0', fontWeight: 500, letterSpacing: '0.02em' }}>
+          saju.sedaily.ai
+        </div>
+      </div>
+
+      {/* 저장/공유 버튼 */}
+      <div className="flex gap-2 mt-3 w-[280px]">
+        <button
+          type="button"
+          onClick={handleShare}
+          disabled={saving}
+          className="flex-1 h-9 rounded-full text-[11.5px] font-bold transition-colors disabled:opacity-50"
+          style={{ background: '#FFFFFF', color: '#1A1A1A', border: '1px solid #E5E7EB' }}
+        >
+          {saving ? t('생성 중…', 'Generating…') : t('공유하기', 'Share')}
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="flex-1 h-9 rounded-full text-[11.5px] font-bold transition-colors disabled:opacity-50"
+          style={{ background: '#059669', color: '#FFFFFF' }}
+        >
+          {t('이미지 저장', 'Save image')}
+        </button>
+      </div>
     </div>
   );
 }
