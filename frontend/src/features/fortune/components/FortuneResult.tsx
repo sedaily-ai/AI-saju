@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { isBeforeLichun, getSajuMonth } from '@fullstackfamily/manseryeok';
-import { CG_OH, JJ_OH, OH_HJ, JJG, sipsung, unsung, buildStructureAnalysis, detectDayHapChung, evaluateForYongsin, generateDailyInsights, type Pillar, type ChongunResult, type TodayFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry, type YongsinRating } from '../lib/engine';
+import { CG_OH, OH_HJ, buildStructureAnalysis, detectDayHapChung, generateDailyInsights, SS_MEANING, US_MEANING, type Pillar, type ChongunResult, type TodayFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry } from '../lib/engine';
 import { OHAENG_SETS, V3_TOKENS, type Ohaeng } from '../lib/ohaeng';
 import { SajuTable } from './SajuTable';
+import { UnFlowSection } from './UnFlowSection';
 
 import { useLang } from '@/shared/lib/LangContext';
 
@@ -20,28 +21,6 @@ const EL_BADGE: Record<string, string> = {
   '토': 'border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-950/40',
   '금': 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800',
   '수': 'border-gray-400 dark:border-gray-600 bg-gray-100 dark:bg-gray-900',
-};
-
-// 명패(목재) 타일 — 단청 톤 오행 포인트색 (밝은 원색 대신 안료색)
-const DANCHEONG_OH: Record<Ohaeng, string> = {
-  '목': '#4A7C59', // 청록
-  '화': '#B7472A', // 주홍
-  '토': '#C9A227', // 황토
-  '금': '#B8B0A0', // 소색(연회)
-  '수': '#2C3E50', // 먹색
-};
-const WOOD = {
-  base: 'linear-gradient(155deg, #8B6339 0%, #6E4A28 55%, #5C3B1E 100%)',
-  grain: 'repeating-linear-gradient(3deg, rgba(0,0,0,0.10) 0px, transparent 1.5px, transparent 4px, rgba(255,255,255,0.035) 5px, transparent 6px)',
-  grainCross: 'repeating-linear-gradient(91deg, rgba(0,0,0,0.03) 0px, transparent 3px, transparent 14px)',
-  knot: 'radial-gradient(ellipse 60% 40% at 78% 22%, rgba(0,0,0,0.16) 0%, transparent 60%)',
-  vignette: 'radial-gradient(ellipse 90% 80% at 50% 40%, transparent 55%, rgba(0,0,0,0.22) 100%)',
-  sheen: 'linear-gradient(115deg, rgba(255,255,255,0.10) 0%, transparent 30%)',
-  brass: '#C9A227',
-  brassBright: '#E8CB6B',
-  brassDim: 'rgba(201, 162, 39, 0.35)',
-  ink: '#F3E6C8', // 음각 글자 바탕색(상아빛)
-  serif: "var(--font-serif-kr), 'Noto Serif KR', serif",
 };
 
 interface Props {
@@ -97,63 +76,6 @@ function CollapsibleSection({ title, subtitle, children, defaultOpen = false }: 
 }
 
 // 일반 사용자용 십성 풀이 (한 줄 설명)
-const SS_MEANING: Record<string, string> = {
-  '비견': '동료·경쟁자 기운',
-  '겁재': '경쟁·지출 기운',
-  '식신': '표현·여유 기운',
-  '상관': '재능·비판 기운',
-  '편재': '활동적 재물 기운',
-  '정재': '성실한 재물 기운',
-  '편관': '압박·도전 기운',
-  '정관': '명예·규율 기운',
-  '편인': '직관·영감 기운',
-  '정인': '학문·지혜 기운',
-};
-
-// 12운성 한 줄 풀이
-const US_MEANING: Record<string, string> = {
-  '장생': '새로운 시작',
-  '목욕': '불안정한 변화',
-  '관대': '자신감·성장',
-  '건록': '전성기 시작',
-  '제왕': '에너지의 정점',
-  '쇠': '기운이 쇠약해짐',
-  '병': '쇠약한 상태',
-  '사': '정체와 막힘',
-  '묘': '내면의 회고',
-  '절': '단절과 전환',
-  '태': '잉태와 준비',
-  '양': '조용한 성장',
-};
-
-const SS_DETAIL: Record<string, string> = {
-  '비견': '나와 같은 기운이 작용합니다. 동료, 형제와의 관계가 부각되고 자립심이 강해집니다. 경쟁 속에서 성장하되 독선을 경계하세요.',
-  '겁재': '경쟁과 도전의 기운입니다. 재물 지출에 주의하고 승부욕을 긍정적으로 활용하세요. 공동 사업보다 단독 판단이 유리합니다.',
-  '식신': '여유와 창의력의 시기입니다. 먹을 복이 있고 취미가 잘 풀리며 표현력이 좋아집니다. 안정적인 수입과 건강이 따릅니다.',
-  '상관': '표현욕과 재능이 폭발하는 시기입니다. 예술, 글쓰기에 좋으나 날카로운 말로 갈등이 생길 수 있으니 언행에 주의하세요.',
-  '편재': '활동적 재물운과 사교의 시기입니다. 사업 기회가 오고 인맥이 넓어지지만 과욕을 부리면 손실이 생깁니다.',
-  '정재': '안정적인 재물 축적의 시기입니다. 성실한 노력이 결실을 맺고, 가정 경제가 안정됩니다. 저축과 재테크에 유리합니다.',
-  '편관': '변화와 도전의 시기입니다. 갑작스러운 업무나 책임이 주어지지만, 잘 넘기면 큰 성장으로 이어집니다. 건강 관리 필요.',
-  '정관': '질서와 인정의 시기입니다. 사회적 지위가 올라가고 공식적인 성과가 나타납니다. 규칙을 지키면 좋은 결과가 옵니다.',
-  '편인': '직관과 영감의 시기입니다. 학문이나 연구에 몰입하기 좋고 새로운 시각이 열립니다. 다만 고독감이나 건강 이상에 주의.',
-  '정인': '학습과 성장의 시기입니다. 자격증, 학위 등 배움의 결실이 맺어지고 윗사람의 도움이 있습니다. 내적 성숙의 시간.',
-};
-
-const US_DETAIL: Record<string, string> = {
-  '장생': '새로운 출발의 에너지입니다. 시작한 일이 순조롭게 성장하며 희망적인 기운이 감돕니다.',
-  '목욕': '변화와 불안정의 시기입니다. 감정 기복이 심하고 유혹이 많으니 신중하게 행동하세요.',
-  '관대': '자신감과 사회 활동이 최고조입니다. 적극적으로 나서면 인정받고 기회를 잡을 수 있습니다.',
-  '건록': '실력이 완전히 발휘되는 시기입니다. 독립적으로 일을 추진하면 큰 성과를 거둡니다.',
-  '제왕': '모든 기운이 정점에 달합니다. 리더십을 발휘하기 좋으나 정점 이후 하락에 대비하세요.',
-  '쇠': '기운이 서서히 빠지는 시기입니다. 새로운 일보다 기존 일을 정리하고 체력을 관리하세요.',
-  '병': '쇠약함의 시기입니다. 건강 관리에 집중하고 무리한 계획은 피하세요. 휴식이 최선입니다.',
-  '사': '정체와 막힘의 시기입니다. 억지로 밀어붙이면 손해가 커지니 때를 기다리세요.',
-  '묘': '내면을 돌아보는 시기입니다. 과거를 정리하고 다음을 준비하는 잠복기로 활용하세요.',
-  '절': '단절과 전환의 시기입니다. 낡은 것을 과감히 버리고 새 방향을 모색하세요.',
-  '태': '새로운 가능성이 잉태되는 시기입니다. 눈에 보이지 않지만 씨앗이 뿌려지고 있습니다.',
-  '양': '성장을 준비하는 시기입니다. 조용하지만 확실한 발전이 이루어지고 있습니다.',
-};
-
 /** 마크다운 텍스트를 간단한 HTML로 변환 */
 function parseBold(text: string) {
   return text.split(/(\*\*[^*]+\*\*)/g).map((part, j) => {
@@ -256,207 +178,6 @@ const US_FLOW: Record<string, string> = {
   '태': '조용히 잉태하는 태',
   '양': '차분히 자라는 양',
 };
-
-type UnVariant = 'daeun' | 'yeonun' | 'wolun';
-
-interface UnCol { c: string; j: string; ck: string; jk: string; label: string }
-
-function UnCard({ title, subtitle, hint, cols, ilgan, activeCheck, variant, yongsinOh }: {
-  title: string;
-  subtitle?: string;
-  hint?: string;
-  cols: UnCol[];
-  ilgan: string;
-  activeCheck?: (col: UnCol) => boolean;
-  variant: UnVariant;
-  yongsinOh?: string;
-}) {
-  const { t } = useLang();
-  const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
-  const periodName = variant === 'daeun' ? t('10년', '10 yrs') : variant === 'yeonun' ? t('1년', '1 yr') : t('1개월', '1 mo');
-
-  // 스크린샷 규격: 대운 넓게, 연운 중간, 월운 좁게
-  const tileWidth = variant === 'daeun' ? 62 : variant === 'yeonun' ? 58 : 52;
-  const charFont = variant === 'wolun' ? 14 : 16;
-  const showSipsung = variant !== 'wolun'; // 월운은 하단 십성 생략 (스크린샷 기준)
-
-  return (
-    <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-4">
-      <div className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{title}</div>
-      {subtitle && <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5 mb-3">{subtitle}</div>}
-      {!subtitle && <div className="mb-3" />}
-      {hint && (
-        <div className="text-[11px] text-gray-400 dark:text-gray-400 mb-2.5 flex items-center gap-1">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-60">
-            <path d="M15 15l-2 5L9 9l11 4-5 2z" />
-          </svg>
-          {hint}
-        </div>
-      )}
-
-      <div className="overflow-x-auto -mx-1 px-1">
-        <div className="flex gap-2 min-w-max pb-1">
-          {cols.map((col, i) => {
-            const isActive = activeCheck ? activeCheck(col) : false;
-            const isOpen = expandedIdx === i;
-            const cgOh = (CG_OH[col.c] || '금') as Ohaeng;
-            const jjOh = (JJ_OH[col.j] || '금') as Ohaeng;
-            const cgSS = ilgan ? sipsung(ilgan, col.c) : '';
-            const yEval = yongsinOh ? evaluateForYongsin(col.c, col.j, yongsinOh) : null;
-            const isSelected = isActive || isOpen;
-            const isFavor = yEval?.rating === 'favor';
-
-            return (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setExpandedIdx(isOpen ? null : i)}
-                className="relative flex flex-col items-center rounded-[8px] cursor-pointer text-center flex-shrink-0"
-                style={{
-                  width: tileWidth,
-                  padding: variant === 'wolun' ? '7px 4px 6px' : '11px 6px 8px',
-                  backgroundImage: [WOOD.sheen, WOOD.vignette, WOOD.knot, WOOD.grainCross, WOOD.grain, WOOD.base].join(', '),
-                  border: `${isSelected ? 2 : 1}px solid ${isSelected ? WOOD.brassBright : WOOD.brassDim}`,
-                  boxShadow: isSelected
-                    ? 'inset 0 1px 2px rgba(0,0,0,0.4), 0 0 0 1px rgba(232,203,107,0.3), 0 3px 8px rgba(0,0,0,0.28)'
-                    : 'inset 0 1px 3px rgba(0,0,0,0.4), inset 0 -1px 0 rgba(255,255,255,0.05), 0 2px 5px rgba(59,38,15,0.22)',
-                  transition: 'all .15s',
-                }}
-              >
-                {/* 상단 못머리(리벳) — 명패 고정 디테일 */}
-                <span
-                  aria-hidden
-                  className="absolute rounded-full"
-                  style={{
-                    top: 3, left: 5, width: 3, height: 3,
-                    background: 'radial-gradient(circle at 35% 30%, #F3E0A0, #8A6B1F 70%)',
-                    boxShadow: '0 0.5px 0.5px rgba(0,0,0,0.5)',
-                  }}
-                />
-                <span
-                  aria-hidden
-                  className="absolute rounded-full"
-                  style={{
-                    top: 3, right: 5, width: 3, height: 3,
-                    background: 'radial-gradient(circle at 35% 30%, #F3E0A0, #8A6B1F 70%)',
-                    boxShadow: '0 0.5px 0.5px rgba(0,0,0,0.5)',
-                  }}
-                />
-                <div style={{ fontSize: 9.5, opacity: 0.72, color: WOOD.ink, fontFamily: WOOD.serif, letterSpacing: 0.2 }}>{col.label}</div>
-                <div className="w-full my-1">
-                  <div
-                    style={{
-                      color: WOOD.ink,
-                      fontFamily: WOOD.serif,
-                      fontSize: charFont, fontWeight: 900, padding: '3px 0 0',
-                      textShadow: '0 1px 1.5px rgba(0,0,0,0.65), 0 -1px 0 rgba(255,255,255,0.10), 0 0 10px rgba(0,0,0,0.15)',
-                    }}
-                  >
-                    {col.c}
-                  </div>
-                  <div style={{ height: 1.5, borderRadius: 1, marginTop: 3, marginInline: 8, background: DANCHEONG_OH[cgOh], opacity: 0.8, boxShadow: `0 0 4px ${DANCHEONG_OH[cgOh]}` }} />
-                </div>
-                <div className="w-full">
-                  <div
-                    style={{
-                      color: WOOD.ink,
-                      fontFamily: WOOD.serif,
-                      fontSize: charFont, fontWeight: 900, padding: '3px 0 0',
-                      textShadow: '0 1px 1.5px rgba(0,0,0,0.65), 0 -1px 0 rgba(255,255,255,0.10), 0 0 10px rgba(0,0,0,0.15)',
-                    }}
-                  >
-                    {col.j}
-                  </div>
-                  <div style={{ height: 1.5, borderRadius: 1, marginTop: 3, marginInline: 8, background: DANCHEONG_OH[jjOh], opacity: 0.8, boxShadow: `0 0 4px ${DANCHEONG_OH[jjOh]}` }} />
-                </div>
-                {showSipsung && cgSS && (
-                  <div style={{ fontSize: 9, opacity: 0.72, marginTop: 4, color: WOOD.ink, fontFamily: WOOD.serif }}>{cgSS}</div>
-                )}
-                {yEval && yEval.rating !== 'neutral' && (
-                  <div
-                    style={{
-                      fontSize: 9, fontWeight: 700, marginTop: 3,
-                      color: isFavor ? WOOD.brassBright : '#E8846B',
-                      textShadow: '0 1px 1px rgba(0,0,0,0.5)',
-                    }}
-                  >
-                    {isFavor ? t('용신↑', 'Yong↑') : t('용신↓', 'Yong↓')}
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {expandedIdx !== null && (() => {
-        const col = cols[expandedIdx];
-        const cgOh = (CG_OH[col.c] || '금') as Ohaeng;
-        const jjOh = (JJ_OH[col.j] || '금') as Ohaeng;
-        const cgSS = ilgan ? sipsung(ilgan, col.c) : '';
-        const us = ilgan ? unsung(ilgan, col.j) : '';
-        const hidden = (col.j && JJG[col.j]) || [];
-        const hiddenItems = hidden.map((h, i) => {
-          const weight = hidden.length === 1 ? '본기' : hidden.length === 2 ? (i === 0 ? '여기' : '본기') : (i === 0 ? '여기' : i === 1 ? '중기' : '본기');
-          return { hanja: h, ss: sipsung(ilgan, h), weight };
-        });
-        return (
-          <div className="mt-3 p-3.5 rounded-xl text-[12px] text-gray-600 dark:text-gray-100 dark:text-gray-300 leading-relaxed" style={{ background: V3_TOKENS.panel }}>
-            <div className="font-semibold text-gray-800 dark:text-gray-100 mb-2">
-              {col.label}
-              <span className="text-[11px] text-gray-400 dark:text-gray-300 ml-1.5">({periodName} {t('기간', 'period')})</span>
-              <span className="ml-2">
-                <span style={{ color: OHAENG_SETS.default[cgOh].text }}>{col.ck}{col.c}</span>{' '}
-                <span style={{ color: OHAENG_SETS.default[jjOh].text }}>{col.jk}{col.j}</span>
-              </span>
-            </div>
-            {cgSS && (
-              <p className="mb-2">
-                <span className="font-medium text-gray-700 dark:text-gray-300">{t('천간 십성', 'Heavenly Stem')} · {cgSS}</span>
-                <span className="text-[11px] text-gray-400 dark:text-gray-300 ml-1">({SS_MEANING[cgSS] || ''})</span>
-                <br />{SS_DETAIL[cgSS] || ''}
-              </p>
-            )}
-            {us && (
-              <p className="mb-2">
-                <span className="font-medium text-gray-700 dark:text-gray-300">{t('12운성', '12 Stages')} · {us}</span>
-                <span className="text-[11px] text-gray-400 dark:text-gray-300 ml-1">({US_MEANING[us] || ''})</span>
-                <br />{US_DETAIL[us] || ''}
-              </p>
-            )}
-            {hiddenItems.length > 0 && (
-              <div className="border-t border-gray-200 dark:border-gray-800 pt-2 mt-2">
-                <div className="text-[11px] text-gray-500 dark:text-gray-100 dark:text-gray-300 mb-1">{t(`지지(${col.j}) 속 숨은 기운:`, `Hidden energies in branch (${col.j}):`)}</div>
-                <div className="flex flex-wrap gap-1">
-                  {hiddenItems.map((h, i) => (
-                    <span key={i} className={`text-[11px] px-1.5 py-0.5 rounded border ${h.weight === '본기' ? 'border-gray-400 dark:border-gray-600 bg-white dark:bg-gray-900 font-medium' : 'border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-100 dark:text-gray-300'}`}>
-                      <span className="text-gray-400 dark:text-gray-300">{h.weight}</span>{' '}
-                      <span>{h.hanja}</span>{' '}
-                      <span className="text-gray-600 dark:text-gray-100 dark:text-gray-300">{h.ss}</span>
-                      <span className="text-gray-400 dark:text-gray-300 ml-0.5">· {SS_MEANING[h.ss] || ''}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-            {variant === 'wolun' && yongsinOh && (() => {
-              const y = evaluateForYongsin(col.c, col.j, yongsinOh);
-              if (y.rating === 'neutral') return null;
-              return (
-                <div className="border-t border-gray-200 dark:border-gray-800 pt-2 mt-2">
-                  <span className={y.rating === 'favor' ? 'text-green-600 font-semibold' : 'text-red-500 font-semibold'}>
-                    {y.rating === 'favor' ? t('✓ 용신 작용', '✓ Yongsin active') : t('! 기신 작용', '! Adverse active')}
-                  </span>
-                  <span className="text-gray-500 dark:text-gray-100 dark:text-gray-300 ml-1.5">{y.reason}</span>
-                </div>
-              );
-            })()}
-          </div>
-        );
-      })()}
-    </div>
-  );
-}
 
 export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: Props) {
   const { t, lang } = useLang();
@@ -894,54 +615,19 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
         </Section>
       )}
 
-      {/* 대운 */}
+      {/* 대운·세운·월운 — 필터 탭 + 흐름 그래프 하나로 통합 */}
       {mode === 'full' && ilgan && daeuns.length > 0 && (
-        <UnCard
-          title={t('대운', 'Major Cycle')}
-          subtitle={t('10년 주기로 보는 큰 흐름', '10-year major life cycles')}
-          hint={t('각 시기를 탭하면 상세 풀이를 볼 수 있어요', 'Tap a period to see detailed interpretation')}
-          variant="daeun"
-          cols={daeuns.map(x => ({ ...x, label: lang === 'en' ? `${x.age}` : `${x.age}세` }))}
+        <UnFlowSection
+          daeuns={daeuns}
+          yeonuns={yeonuns}
+          woluns={woluns}
           ilgan={ilgan}
-          activeCheck={col => {
-            const age = (col as unknown as DaeunEntry).age;
-            return currentAge >= age && currentAge < age + 10;
-          }}
+          yongsinOh={structure?.yongsin?.primary}
+          currentAge={currentAge}
+          sajuYear={sajuYear}
+          wolunActiveMonth={wolunActiveMonth}
+          lang={lang}
         />
-      )}
-
-      {/* 연운 */}
-      {mode === 'full' && ilgan && yeonuns.length > 0 && (
-        <UnCard
-          title={t('세운', 'Annual Cycle')}
-          subtitle={t('1년 단위로 바뀌는 그해의 흐름', 'Year-by-year flow')}
-          variant="yeonun"
-          cols={yeonuns.map(x => ({ ...x, label: `${x.year}` }))}
-          ilgan={ilgan}
-          activeCheck={col => (col as unknown as YeonunEntry).year === sajuYear}
-        />
-      )}
-
-      {/* 월운 */}
-      {mode === 'full' && ilgan && woluns.length > 0 && (
-        <>
-          <UnCard
-            title={t('월운', 'Monthly Cycle')}
-            subtitle={t('한 달 단위의 세부 흐름', 'Month-by-month flow')}
-            variant="wolun"
-            cols={woluns.map(x => ({ ...x, label: lang === 'en' ? `M${String(x.month).padStart(2, '0')}` : `${String(x.month).padStart(2, '0')}월` }))}
-            ilgan={ilgan}
-            yongsinOh={structure?.yongsin?.primary}
-            activeCheck={col => (col as unknown as WolunEntry).month === wolunActiveMonth}
-          />
-          {structure?.yongsin && (
-            <div className="-mt-3 mb-4 px-5 text-[11px] text-gray-500 dark:text-gray-100 dark:text-gray-300">
-              <span className="text-green-600 font-semibold">{t('용신↑', 'Yongsin↑')}</span> {t('내 필요한 기운이 강해지는 달', 'Months where your needed element is strong')} ·
-              <span className="text-red-500 font-semibold ml-1">{t('용신↓', 'Yongsin↓')}</span> {t('용신이 약해지는 달', 'Months where it weakens')}
-              ({t('용신', 'Yongsin')}: <strong className={EL_COLORS[structure.yongsin.primary]}>{structure.yongsin.primary}</strong>)
-            </div>
-          )}
-        </>
       )}
 
       {/* ── 총운 (월운 뒤 배치) ── */}

@@ -356,6 +356,12 @@ body {
 .dark .blog-body a { color: #6EE7B7; }
 
 /* 사주 챗봇 말풍선 등장 애니메이션 — 아래에서 부드럽게 떠오름 */
+/* 대운/세운/월운 흐름 그래프 — 탭 전환 시 크로스페이드 */
+@keyframes flowFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 @keyframes chat-bubble-in {
   from { opacity: 0; transform: translateY(10px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0) scale(1); }
