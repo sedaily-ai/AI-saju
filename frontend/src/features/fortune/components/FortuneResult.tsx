@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { isBeforeLichun, getSajuMonth } from '@fullstackfamily/manseryeok';
+import { toPng } from 'html-to-image';
 import { CG_OH, OH_HJ, buildStructureAnalysis, detectDayHapChung, generateDailyInsights, SS_MEANING, US_MEANING, type Pillar, type ChongunResult, type TodayFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry } from '../lib/engine';
 import { OHAENG_SETS, V3_TOKENS, type Ohaeng } from '../lib/ohaeng';
 import { SajuTable } from './SajuTable';
@@ -304,6 +305,9 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
           </div>
         </div>
       </div>
+
+      {/* 캐릭터 카드 — 일간·진태양시 아래, 풀이스타일 위 */}
+      <CharacterCard />
 
       {/* 풀이 스타일 선택 */}
       {onMbtiChange && (
@@ -1029,6 +1033,243 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
           )}
         </CollapsibleSection>
       )}
+    </div>
+  );
+}
+
+/** 사주 캐릭터 카드 — 이미지 저장 가능 */
+function CharacterCard() {
+  const { t } = useLang();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!cardRef.current || saving) return;
+    setSaving(true);
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: '#F0FDF9',
+      });
+      const link = document.createElement('a');
+      link.download = `my-saju-character-${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('character card export failed', err);
+      alert(t('이미지 저장에 실패했어요. 잠시 후 다시 시도해주세요.', 'Failed to save. Please try again.'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!cardRef.current || saving) return;
+    setSaving(true);
+    try {
+      const dataUrl = await toPng(cardRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+        backgroundColor: '#F0FDF9',
+      });
+      const blob = await (await fetch(dataUrl)).blob();
+      const file = new File([blob], 'my-saju-character.png', { type: 'image/png' });
+      const canShare = typeof navigator !== 'undefined' && 'share' in navigator
+        && 'canShare' in navigator
+        && (navigator as Navigator & { canShare: (d: ShareData) => boolean }).canShare({ files: [file] });
+      if (canShare) {
+        await (navigator as Navigator & { share: (d: ShareData) => Promise<void> }).share({
+          files: [file],
+          title: t('나의 사주 캐릭터', 'My Saju Character'),
+          text: t('나는 하얀 양이래요! 🐏', "I'm a White Sheep! 🐏"),
+        });
+      } else {
+        await handleSave();
+      }
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        console.error('native share failed', err);
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="mb-4 flex flex-col items-center">
+      {/* 캡처 대상 카드 */}
+      <div
+        ref={cardRef}
+        style={{
+          width: 280,
+          background: '#FFFFFF',
+          borderRadius: 24,
+          padding: '24px 20px 20px',
+          position: 'relative',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+          boxShadow: '0 2px 24px rgba(0,0,0,0.06)',
+        }}
+      >
+        {/* 캐릭터 이미지 — 연초록 배경 박스 */}
+        <div
+          style={{
+            width: 120,
+            height: 120,
+            borderRadius: 16,
+            background: 'linear-gradient(145deg, #E8FFF4 0%, #F0FDF9 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 16,
+            boxShadow: '0 2px 8px rgba(52,211,153,0.1)',
+          }}
+        >
+          <img
+            src="/characters/white-sheep.png"
+            alt={t('하얀 양 캐릭터', 'White Sheep Character')}
+            width={100}
+            height={100}
+            style={{ objectFit: 'contain' }}
+          />
+        </div>
+
+        {/* 메인 텍스트 */}
+        <div
+          style={{
+            fontSize: 18,
+            fontWeight: 900,
+            color: '#1A1A1A',
+            textAlign: 'center',
+            lineHeight: 1.3,
+            marginBottom: 6,
+            fontFamily: '"Noto Serif KR", serif',
+          }}
+        >
+          {t('당신은 ', 'You are ')}<span style={{ fontWeight: 900 }}>{t('하얀 양', 'a White Sheep')}</span>{t('입니다!', '!')}
+        </div>
+
+        {/* 부제 */}
+        <div
+          style={{
+            fontSize: 11,
+            color: '#9CA3AF',
+            textAlign: 'center',
+            lineHeight: 1.5,
+            marginBottom: 18,
+          }}
+        >
+          {t(
+            '순수하고 따뜻한 마음으로 주변에 편안함을 주는 사람',
+            'A warm soul who brings comfort to those around',
+          )}
+        </div>
+
+        {/* 장점 박스 */}
+        <div
+          style={{
+            width: '100%',
+            background: '#F0FDF4',
+            borderRadius: 14,
+            padding: '12px 14px',
+            marginBottom: 10,
+          }}
+        >
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#059669', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ color: '#059669' }}>✦</span> {t('장점', 'Strengths')}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {[
+              { ko: '온화하고 배려심 깊음', en: 'Warm & caring' },
+              { ko: '협동심과 공동체 의식', en: 'Team spirit' },
+              { ko: '성실하고 꾸준함', en: 'Diligent & steady' },
+            ].map((item) => (
+              <span
+                key={item.ko}
+                style={{
+                  background: '#FFFFFF',
+                  color: '#1F2937',
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  padding: '5px 10px',
+                  borderRadius: 7,
+                  border: '1px solid #E5E7EB',
+                }}
+              >
+                {t(item.ko, item.en)}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* 단점 박스 */}
+        <div
+          style={{
+            width: '100%',
+            background: '#FFF5F5',
+            borderRadius: 14,
+            padding: '12px 14px',
+            marginBottom: 18,
+          }}
+        >
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#EF4444', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ color: '#EF4444' }}>✦</span> {t('단점', 'Weaknesses')}
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {[
+              { ko: '우유부단함', en: 'Indecisive' },
+              { ko: '소극적 리더십', en: 'Passive leadership' },
+              { ko: '거절을 잘 못함', en: "Can't say no" },
+            ].map((item) => (
+              <span
+                key={item.ko}
+                style={{
+                  background: '#FFFFFF',
+                  color: '#1F2937',
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  padding: '5px 10px',
+                  borderRadius: 7,
+                  border: '1px solid #E5E7EB',
+                }}
+              >
+                {t(item.ko, item.en)}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* 브랜드 풋터 */}
+        <div style={{ fontSize: 9, color: '#C0C0C0', fontWeight: 500, letterSpacing: '0.02em' }}>
+          saju.sedaily.ai
+        </div>
+      </div>
+
+      {/* 저장/공유 버튼 */}
+      <div className="flex gap-2 mt-3 w-[280px]">
+        <button
+          type="button"
+          onClick={handleShare}
+          disabled={saving}
+          className="flex-1 h-9 rounded-full text-[11.5px] font-bold transition-colors disabled:opacity-50"
+          style={{ background: '#FFFFFF', color: '#1A1A1A', border: '1px solid #E5E7EB' }}
+        >
+          {saving ? t('생성 중…', 'Generating…') : t('공유하기', 'Share')}
+        </button>
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={saving}
+          className="flex-1 h-9 rounded-full text-[11.5px] font-bold transition-colors disabled:opacity-50"
+          style={{ background: '#059669', color: '#FFFFFF' }}
+        >
+          {t('이미지 저장', 'Save image')}
+        </button>
+      </div>
     </div>
   );
 }
