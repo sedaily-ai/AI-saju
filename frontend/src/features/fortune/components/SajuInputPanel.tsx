@@ -237,7 +237,7 @@ export function SajuInputPanel({ initial, onCalculated, submitLabel = '운세 �
               <button key={g} type="button" onClick={() => setGender(g)}
                 className={`flex-1 py-3 text-[15px] transition-all relative ${gender === g ? 'font-semibold text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:text-gray-100 dark:text-gray-300'}`}>
                 {g === '남' ? t('남', 'Male') : t('여', 'Female')}
-                {gender === g && <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-gray-900 dark:bg-gray-100 rounded" />}
+                {gender === g && <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-[#059669] rounded" />}
               </button>
             ))}
           </div>
@@ -249,19 +249,19 @@ export function SajuInputPanel({ initial, onCalculated, submitLabel = '운세 �
             <div className="shrink-0 inline-flex shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900">
               {(['solar', 'lunar'] as const).map(c => (
                 <button key={c} type="button" onClick={() => setCalendar(c)}
-                  className={`px-3 text-[13px] font-medium transition-all ${calendar === c ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}>
+                  className={`px-3 text-[13px] font-medium transition-all ${calendar === c ? 'bg-[#059669] text-white' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}>
                   {c === 'solar' ? t('양력', 'Solar') : t('음력', 'Lunar')}
                 </button>
               ))}
             </div>
             <input type="text" inputMode="numeric" maxLength={14} placeholder="YYYY / MM / DD"
               value={birthdate} onChange={e => handleDateInput(e.target.value)}
-              className="flex-1 min-w-0 px-3 py-3 text-[15px] bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 placeholder:text-gray-300" />
+              className="flex-1 min-w-0 px-3 py-3 text-[15px] bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-[#34D399] focus:ring-1 focus:ring-[#D1FAE5] placeholder:text-gray-300" />
             <div className="relative shrink-0 w-[92px]">
               <input type="text" inputMode="numeric" maxLength={5} placeholder="HH:MM"
                 value={timeInput} onChange={e => handleTimeInput(e.target.value)}
                 disabled={noTime}
-                className={`w-full px-2 py-3 text-[15px] text-center tracking-widest tabular-nums bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 placeholder:text-gray-300 ${noTime ? 'opacity-35' : ''}`} />
+                className={`w-full px-2 py-3 text-[15px] text-center tracking-widest tabular-nums bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-[#34D399] focus:ring-1 focus:ring-[#D1FAE5] placeholder:text-gray-300 ${noTime ? 'opacity-35' : ''}`} />
               {timeSijin && (
                 <div className="absolute -bottom-5 left-0 right-0 text-center text-[11px] text-gray-400 dark:text-gray-300">{timeSijin.label}</div>
               )}
@@ -272,14 +272,14 @@ export function SajuInputPanel({ initial, onCalculated, submitLabel = '운세 �
               {calendar === 'lunar' && (
                 <label className="inline-flex items-center gap-1.5 text-[13px] text-gray-400 dark:text-gray-300 cursor-pointer">
                   <input type="checkbox" checked={isLeapMonth} onChange={e => setIsLeapMonth(e.target.checked)}
-                    className="w-[15px] h-[15px] accent-gray-900 dark:accent-gray-200" />
+                    className="w-[15px] h-[15px] accent-[#059669]" />
                   {t('윤달', 'Leap month')}
                 </label>
               )}
             </div>
             <label className="inline-flex items-center gap-1.5 text-[13px] text-gray-400 dark:text-gray-300 cursor-pointer">
               <input type="checkbox" checked={noTime} onChange={e => { setNoTime(e.target.checked); if (e.target.checked) setTimeInput(''); }}
-                className="w-[15px] h-[15px] accent-gray-900 dark:accent-gray-200" />
+                className="w-[15px] h-[15px] accent-[#059669]" />
               {t('시간 모름', 'Time Unknown')}
             </label>
           </div>
@@ -287,7 +287,7 @@ export function SajuInputPanel({ initial, onCalculated, submitLabel = '운세 �
 
         <div className="mb-8">
           <label className="block text-[13px] font-semibold text-gray-800 dark:text-gray-200 mb-1">
-            {t('도시', 'City')}
+            {t('태어난 도시', 'City of Birth')}
             <span className="ml-1.5 text-[11px] font-normal text-gray-400 dark:text-gray-400">
               {t('(이 중에 없으면 가장 가까운 도시를 선택해주세요.)', "(If your city isn't listed, pick the nearest one.)")}
             </span>
@@ -302,7 +302,7 @@ export function SajuInputPanel({ initial, onCalculated, submitLabel = '운세 �
           )}
         </p>
         <button type="button" onClick={handleCalculate}
-          className={`w-full py-3.5 text-[15px] font-semibold rounded-xl transition-all ${isDateValid ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-200 cursor-pointer' : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-300 cursor-not-allowed'}`}
+          className={`w-full py-3.5 text-[15px] font-semibold rounded-xl transition-all ${isDateValid ? 'bg-[#059669] text-white hover:bg-[#047857] cursor-pointer' : 'bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-300 cursor-not-allowed'}`}
           disabled={!isDateValid}>
           {submitLabel === '운세 보러가기' ? t('운세 보러가기', 'See My Fortune') : submitLabel}
         </button>
