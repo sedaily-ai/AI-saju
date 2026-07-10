@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { isBeforeLichun, getSajuMonth } from '@fullstackfamily/manseryeok';
 import { toPng } from 'html-to-image';
 import { CG_OH, OH_HJ, buildStructureAnalysis, detectDayHapChung, generateDailyInsights, SS_MEANING, US_MEANING, type Pillar, type ChongunResult, type TodayFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry } from '../lib/engine';
+import { buildDetailedFortune } from '../lib/buildDetailedFortune';
 import { OHAENG_SETS, V3_TOKENS, type Ohaeng } from '../lib/ohaeng';
 import { SajuTable } from './SajuTable';
 import { UnFlowSection } from './UnFlowSection';
@@ -309,32 +310,16 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
       {/* 캐릭터 카드 — 일간·진태양시 아래, 풀이스타일 위 */}
       <CharacterCard />
 
-      {/* 풀이 스타일 선택 */}
-      {onMbtiChange && (
-        <div className="mb-4 flex items-center justify-between gap-2 flex-wrap">
-          <div className="text-[12px] text-gray-600 dark:text-gray-300 font-medium">
-            {t('풀이 스타일', 'Interpretation style')}
-          </div>
-          <div className="flex gap-1">
-            {([
-              { id: 'NT' as const, ko: '분석', en: 'Analytic' },
-              { id: 'NF' as const, ko: '이야기', en: 'Narrative' },
-            ]).map((g) => (
-              <button
-                key={g.id}
-                type="button"
-                onClick={() => onMbtiChange(g.id)}
-                className={`px-3 py-1 text-[12px] rounded-full font-semibold tracking-[-0.02em] transition-colors ${
-                  mbtiGroup === g.id
-                    ? 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
-              >
-                {t(g.ko, g.en)}
-              </button>
-            ))}
-          </div>
-        </div>
+      {/* 상세 사주 해석 — 성격·운·재미 */}
+      {mode === 'full' && (
+        <DetailedFortuneSection
+          pillars={pillars}
+          ilgan={ilgan}
+          chongun={chongun}
+          daeuns={daeuns}
+          yeonuns={yeonuns}
+          woluns={woluns}
+        />
       )}
 
       {/* ── TODAY 모드 전용 섹션 ── */}
@@ -632,102 +617,6 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
           wolunActiveMonth={wolunActiveMonth}
           lang={lang}
         />
-      )}
-
-      {/* ── 총운 (월운 뒤 배치) ── */}
-      {mode === 'full' && chongun && (
-        <Section title={t('총운', 'Overall Fortune')}>
-          {chongunText ? (
-            <div>{renderMarkdown(chongunText)}</div>
-          ) : (
-            <>
-              <p className="mb-3">
-                <strong className={EL_COLORS[chongun.element]}>{chongun.symbol}</strong>의 기운을 타고난 <strong>{chongun.yinyang}{chongun.element}</strong> 일간입니다. {chongun.nature}
-              </p>
-              {chongun.keywords.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mb-3">
-                  {chongun.keywords.map((kw, i) => (
-                    <span key={i} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-100 dark:text-gray-300 text-[11px] rounded-full">{kw}</span>
-                  ))}
-                </div>
-              )}
-              {chongun.season && (
-                <p className="mb-3">
-                  <strong>{chongun.season.name}</strong>에 태어났습니다. {chongun.season.desc} {chongun.seasonRelation}
-                </p>
-              )}
-              {chongun.iljuReading && <p className="mb-3">{chongun.iljuReading}</p>}
-            </>
-          )}
-        </Section>
-      )}
-
-      {/* 상세 해석 — 총운 캐시가 있으면 숨김 (캐시에 포함됨) */}
-      {mode === 'full' && !chongunText && chongun?.detail && (
-        <Section title={t('상세 해석', 'Detailed Interpretation')}>
-          <p className="mb-3">{chongun.detail.summary}</p>
-          <div className="mb-3">
-            <div className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('표현/행동 양식', 'Behavior Style')}</div>
-            <p>{chongun.detail.behavior}</p>
-          </div>
-          <div className="mb-3">
-            <div className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('대인 관계', 'Relationships')}</div>
-            <p>{chongun.detail.social}</p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div>
-              <div className="text-[12px] font-semibold text-green-600 mb-1">{t('강점', 'Strengths')}</div>
-              <ul className="list-disc list-inside text-[12px] space-y-0.5">
-                {chongun.detail.strengths.map((s, i) => <li key={i}>{s}</li>)}
-              </ul>
-            </div>
-            <div>
-              <div className="text-[12px] font-semibold text-red-400 mb-1">{t('약점', 'Weaknesses')}</div>
-              <ul className="list-disc list-inside text-[12px] space-y-0.5">
-                {chongun.detail.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
-              </ul>
-            </div>
-          </div>
-          <div className="mb-3">
-            <div className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('개선 방안', 'Improvement')}</div>
-            <p>{chongun.detail.improvement}</p>
-          </div>
-          {chongun.detail.jobs.length > 0 && (
-            <div className="mb-3">
-              <div className="text-[12px] font-semibold text-gray-700 dark:text-gray-300 mb-1">{t('추천 직업', 'Recommended Careers')}</div>
-              <div className="space-y-1.5">
-                {chongun.detail.jobs.map((j, i) => (
-                  <div key={i} className="text-[12px]"><strong>{j.field}</strong> — {j.role} <span className="text-gray-400 dark:text-gray-300">({j.reason})</span></div>
-                ))}
-              </div>
-            </div>
-          )}
-          <div className="border-t border-gray-100 dark:border-gray-800 pt-3">
-            <p className="text-[12px] italic text-gray-500 dark:text-gray-100 dark:text-gray-300">{chongun.detail.conclusion}</p>
-          </div>
-        </Section>
-      )}
-
-      {/* 일지 상세 — 총운 캐시가 있으면 숨김 */}
-      {mode === 'full' && !chongunText && chongun?.iljiDetail && (
-        <Section title={t('일지(日支) 해석', 'Day Branch Interpretation')}>
-          <p className="mb-3">{chongun.iljiDetail.summary}</p>
-          <div className="grid grid-cols-2 gap-3 mb-3">
-            <div>
-              <div className="text-[12px] font-semibold text-green-600 mb-1">{t('강점', 'Strengths')}</div>
-              <ul className="list-disc list-inside text-[12px] space-y-0.5">
-                {chongun.iljiDetail.strengths.map((s, i) => <li key={i}>{s}</li>)}
-              </ul>
-            </div>
-            <div>
-              <div className="text-[12px] font-semibold text-red-400 mb-1">{t('약점', 'Weaknesses')}</div>
-              <ul className="list-disc list-inside text-[12px] space-y-0.5">
-                {chongun.iljiDetail.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
-              </ul>
-            </div>
-          </div>
-          <p className="text-[12px] italic text-gray-500 dark:text-gray-100 dark:text-gray-300">{chongun.iljiDetail.conclusion}</p>
-        </Section>
       )}
 
       {/* 사주 구조 진단 — V3 디자인 */}
@@ -1033,6 +922,204 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
           )}
         </CollapsibleSection>
       )}
+    </div>
+  );
+}
+
+/** 상세 사주 해석 — 성격(性) · 운(運) · 재미 콘텐츠 */
+function DetailedFortuneSection({ pillars, ilgan, chongun, daeuns, yeonuns, woluns }: {
+  pillars: Pillar[];
+  ilgan: string;
+  chongun: ChongunResult | null;
+  daeuns: DaeunEntry[];
+  yeonuns: YeonunEntry[];
+  woluns: WolunEntry[];
+}) {
+  const { t } = useLang();
+  const data = buildDetailedFortune(pillars, ilgan, chongun, daeuns, yeonuns, woluns);
+  if (!data) return null;
+
+  const { personality, fortune, fun } = data;
+
+  return (
+    <div className="mt-4 mb-4 space-y-4">
+      {/* ═══ 1. 성격 (性) ═══ */}
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
+        <div className="px-5 pt-5 pb-3">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 tracking-wider">性</span>
+            <h3 className="text-[17px] font-bold text-gray-900 dark:text-gray-100">
+              {t('성격', 'Personality')}
+            </h3>
+          </div>
+          <p className="text-[14px] font-semibold text-gray-700 dark:text-gray-300 italic">
+            &ldquo;{personality.headline}&rdquo;
+          </p>
+        </div>
+        <div className="px-5 pb-5 space-y-4">
+          {/* 타고난 기질 */}
+          <div>
+            <div className="text-[14px] font-bold text-indigo-600 dark:text-indigo-400 mb-1.5">
+              {t('타고난 기질', 'Innate Temperament')}
+            </div>
+            <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
+              {personality.temperament}
+            </p>
+          </div>
+
+          {/* 강점 & 약점 */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-green-50 dark:bg-green-950/30 p-3">
+              <div className="text-[12px] font-bold text-green-700 dark:text-green-400 mb-2">
+                {t('강점', 'Strengths')}
+              </div>
+              <ul className="space-y-1">
+                {personality.strengths.slice(0, 4).map((s, i) => (
+                  <li key={i} className="text-[13px] text-green-800 dark:text-green-300 leading-snug flex items-start gap-1">
+                    <span className="shrink-0 mt-0.5">·</span><span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-xl bg-red-50 dark:bg-red-950/30 p-3">
+              <div className="text-[12px] font-bold text-red-600 dark:text-red-400 mb-2">
+                {t('약점', 'Weaknesses')}
+              </div>
+              <ul className="space-y-1">
+                {personality.weaknesses.slice(0, 4).map((w, i) => (
+                  <li key={i} className="text-[13px] text-red-700 dark:text-red-300 leading-snug flex items-start gap-1">
+                    <span className="shrink-0 mt-0.5">·</span><span>{w}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* 스트레스 패턴 */}
+          <div>
+            <div className="text-[14px] font-bold text-indigo-600 dark:text-indigo-400 mb-1.5">
+              {t('스트레스 받을 때', 'Under Stress')}
+            </div>
+            <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
+              {personality.stressPattern}
+            </p>
+          </div>
+
+          {/* 잘 맞는 환경 */}
+          <div>
+            <div className="text-[14px] font-bold text-indigo-600 dark:text-indigo-400 mb-1.5">
+              {t('잘 맞는 환경/역할', 'Best Fit Environment')}
+            </div>
+            <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
+              {personality.bestEnvironment}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ 2. 운 (運) ═══ */}
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
+        <div className="px-5 pt-5 pb-3">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 tracking-wider">運</span>
+            <h3 className="text-[17px] font-bold text-gray-900 dark:text-gray-100">
+              {t('운', 'Fortune')}
+            </h3>
+          </div>
+          <p className="text-[14px] font-semibold text-gray-700 dark:text-gray-300 italic">
+            &ldquo;{fortune.headline}&rdquo;
+          </p>
+        </div>
+        <div className="px-5 pb-5 space-y-4">
+          {[
+            { label: t('총운', 'Overall'), text: fortune.overall },
+            { label: t('애정운 / 인연운', 'Love & Relationships'), text: fortune.love },
+            { label: t('재물운', 'Wealth'), text: fortune.wealth },
+            { label: t('직업운 / 커리어', 'Career'), text: fortune.career },
+            { label: t('건강운', 'Health'), text: fortune.health },
+            { label: t('인간관계운', 'Social'), text: fortune.relationships },
+          ].map((item, idx) => (
+            <div key={idx} className={idx > 0 ? 'border-t border-gray-100 dark:border-gray-800 pt-3' : ''}>
+              <div className="text-[14px] font-bold text-violet-600 dark:text-violet-400 mb-1.5">
+                {item.label}
+              </div>
+              <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
+                {item.text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══ 3. 재미 콘텐츠 ═══ */}
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
+        <div className="px-5 pt-5 pb-3">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 tracking-wider">FUN</span>
+            <h3 className="text-[17px] font-bold text-gray-900 dark:text-gray-100">
+              {t('재미 콘텐츠', 'Fun Content')}
+            </h3>
+          </div>
+          <p className="text-[14px] font-semibold text-gray-700 dark:text-gray-300 italic">
+            &ldquo;{fun.headline}&rdquo;
+          </p>
+        </div>
+        <div className="px-5 pb-5 space-y-4">
+          {/* 행운 아이템 */}
+          <div>
+            <div className="text-[14px] font-bold text-teal-600 dark:text-teal-400 mb-2">
+              {t('이달의 행운 아이템', 'Lucky Items This Month')}
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: t('컬러', 'Color'), value: fun.luckyItems.color },
+                { label: t('숫자', 'Number'), value: fun.luckyItems.number },
+                { label: t('아이템', 'Item'), value: fun.luckyItems.item },
+              ].map((item, i) => (
+                <div key={i} className="rounded-lg bg-gray-50 dark:bg-gray-800 p-2.5 text-center">
+                  <div className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold mb-1">{item.label}</div>
+                  <div className="text-[13px] text-gray-800 dark:text-gray-200 font-bold leading-snug">{item.value}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 잘 맞는 사주 유형 */}
+          <div className="border-t border-gray-100 dark:border-gray-800 pt-3">
+            <div className="text-[14px] font-bold text-teal-600 dark:text-teal-400 mb-1.5">
+              {t('나랑 잘 맞는 사주 유형', 'Best Match Type')}
+            </div>
+            <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
+              {fun.bestMatch}
+            </p>
+          </div>
+
+          {/* 조심해야 할 시기 */}
+          <div className="border-t border-gray-100 dark:border-gray-800 pt-3">
+            <div className="text-[14px] font-bold text-teal-600 dark:text-teal-400 mb-1.5">
+              {t('조심해야 할 시기 / 액땜 포인트', 'Caution Period')}
+            </div>
+            <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
+              {fun.cautionPeriod}
+            </p>
+          </div>
+
+          {/* 오늘의 한 줄 조언 */}
+          <div className="border-t border-gray-100 dark:border-gray-800 pt-3">
+            <div className="text-[14px] font-bold text-teal-600 dark:text-teal-400 mb-1.5">
+              {t('오늘의 한 줄 조언', "Today's Advice")}
+            </div>
+            <div
+              className="rounded-xl p-3"
+              style={{ background: 'linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%)' }}
+            >
+              <p className="text-[14px] font-semibold text-green-800 dark:text-green-200 leading-relaxed text-center">
+                {fun.dailyAdvice}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

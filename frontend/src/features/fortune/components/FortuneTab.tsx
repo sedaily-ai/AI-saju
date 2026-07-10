@@ -306,7 +306,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
                 <button key={gv || 'none'} onClick={() => setGender(gv)}
                   className={`flex-1 py-3 text-[15px] transition-all relative ${gender === gv ? 'font-semibold text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:text-gray-400'}`}>
                   {gv === '남' ? t('남', 'Male') : gv === '여' ? t('여', 'Female') : t('선택 안함', 'None')}
-                  {gender === gv && <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-[#D9651E] rounded" />}
+                  {gender === gv && <span className="absolute bottom-0 left-4 right-4 h-[2px] bg-[#059669] rounded" />}
                 </button>
               ))}
             </div>
@@ -319,19 +319,19 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
               <div className="shrink-0 inline-flex shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900">
                 {(['solar', 'lunar'] as const).map(c => (
                   <button key={c} type="button" onClick={() => setCalendar(c)}
-                    className={`px-3 text-[13px] font-medium transition-all ${calendar === c ? 'bg-[#D9651E] text-white' : 'text-gray-500 hover:text-gray-700'}`}>
+                    className={`px-3 text-[13px] font-medium transition-all ${calendar === c ? 'bg-[#059669] text-white' : 'text-gray-500 hover:text-gray-700'}`}>
                     {c === 'solar' ? t('양력', 'Solar') : t('음력', 'Lunar')}
                   </button>
                 ))}
               </div>
               <input type="text" inputMode="numeric" maxLength={14} placeholder="YYYY / MM / DD"
                 value={birthdate} onChange={e => handleDateInput(e.target.value)}
-                className="flex-1 min-w-0 px-3 py-3 text-[15px] bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-100 placeholder:text-gray-300 transition-all" />
+                className="flex-1 min-w-0 px-3 py-3 text-[15px] bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-[#34D399] focus:ring-1 focus:ring-[#D1FAE5] placeholder:text-gray-300 transition-all" />
               <div className="relative shrink-0 w-[92px]">
                 <input type="text" inputMode="numeric" maxLength={5} placeholder="HH:MM"
                   value={timeInput} onChange={e => handleTimeInput(e.target.value)}
                   disabled={noTime}
-                  className={`w-full px-2 py-3 text-[15px] text-center tracking-widest tabular-nums bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-gray-400 focus:ring-1 focus:ring-gray-100 placeholder:text-gray-300 transition-all ${noTime ? 'opacity-35' : ''}`} />
+                  className={`w-full px-2 py-3 text-[15px] text-center tracking-widest tabular-nums bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl outline-none focus:border-[#34D399] focus:ring-1 focus:ring-[#D1FAE5] placeholder:text-gray-300 transition-all ${noTime ? 'opacity-35' : ''}`} />
                 {timeBadgeLabel && (
                   <div className="absolute -bottom-5 left-0 right-0 text-center text-[11px] text-gray-400 dark:text-gray-300">{timeBadgeLabel}</div>
                 )}
@@ -342,14 +342,14 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
                 {calendar === 'lunar' && (
                   <label className="inline-flex items-center gap-1.5 text-[13px] text-gray-400 dark:text-gray-300 cursor-pointer hover:text-gray-600 dark:text-gray-400 transition-colors">
                     <input type="checkbox" checked={isLeapMonth} onChange={e => setIsLeapMonth(e.target.checked)}
-                      className="w-[15px] h-[15px] accent-gray-900 dark:accent-gray-200 cursor-pointer" />
+                      className="w-[15px] h-[15px] accent-[#059669] cursor-pointer" />
                     {t('윤달', 'Leap month')}
                   </label>
                 )}
               </div>
               <label className="inline-flex items-center gap-1.5 text-[13px] text-gray-400 dark:text-gray-300 cursor-pointer hover:text-gray-600 dark:text-gray-400 transition-colors">
                 <input type="checkbox" checked={noTime} onChange={e => { setNoTime(e.target.checked); if (e.target.checked) setTimeInput(''); }}
-                  className="w-[15px] h-[15px] accent-gray-900 dark:accent-gray-200 cursor-pointer" />
+                  className="w-[15px] h-[15px] accent-[#059669] cursor-pointer" />
                 {t('시간 모름', 'Time Unknown')}
               </label>
             </div>
@@ -358,7 +358,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
           {/* 도시 */}
           <div className="mb-8">
             <label className="block text-[13px] font-semibold text-gray-800 dark:text-gray-200 mb-1">
-              {t('도시', 'City')}
+              {t('태어난 도시', 'City of Birth')}
               <span className="ml-1.5 text-[11px] font-normal text-gray-400 dark:text-gray-400">
                 {t('(이 중에 없으면 가장 가까운 도시를 선택해주세요.)', "(If your city isn't listed, pick the nearest one.)")}
               </span>
@@ -368,7 +368,7 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
 
           {/* 버튼 */}
           <button onClick={handleCalculate}
-            className={`w-full py-3.5 text-[15px] font-semibold rounded-xl transition-all ${isDateValid ? 'bg-[#D9651E] text-white hover:bg-[#C25517] cursor-pointer' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
+            className={`w-full py-3.5 text-[15px] font-semibold rounded-xl transition-all ${isDateValid ? 'bg-[#059669] text-white hover:bg-[#047857] cursor-pointer' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
             disabled={!isDateValid}>
             {t('운세 보러가기', 'See My Fortune')}
           </button>
