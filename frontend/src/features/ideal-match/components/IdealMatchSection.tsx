@@ -80,12 +80,12 @@ const EL_BADGE_SOLID: Record<string, string> = {
 
 export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
   const { t, lang, localePath } = useLang();
-  const [mode, setMode] = useState<MatchMode>('spouse');
+  const mode: MatchMode = 'spouse';
   const [shareOpen, setShareOpen] = useState(false);
 
   const match = useMemo(
     () => computeIdealMatch(pillars, gender || '', birthYear, mode),
-    [pillars, gender, birthYear, mode],
+    [pillars, gender, birthYear],
   );
 
   if (!match) return null;
@@ -113,42 +113,8 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
   return (
     <>
-      {/* === 모드 토글 + 공유 버튼 === */}
-      <div className="flex items-center gap-2 mb-2">
-        <div className="flex-1 flex bg-gray-100 dark:bg-gray-800 rounded-full p-0.5" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'spouse'}
-            onClick={() => {
-              setMode('spouse');
-              trackEvent('ideal_match_mode', { mode: 'spouse' });
-            }}
-            className={`flex-1 py-1.5 text-[12px] font-semibold rounded-full border-none cursor-pointer transition-colors ${
-              mode === 'spouse'
-                ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'bg-transparent text-gray-500 dark:text-gray-400'
-            }`}
-          >
-            {t('현실 궁합', 'Real-life fit')}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'element'}
-            onClick={() => {
-              setMode('element');
-              trackEvent('ideal_match_mode', { mode: 'element' });
-            }}
-            className={`flex-1 py-1.5 text-[12px] font-semibold rounded-full border-none cursor-pointer transition-colors ${
-              mode === 'element'
-                ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'bg-transparent text-gray-500 dark:text-gray-400'
-            }`}
-          >
-            {t('오행 보완', 'Element fill')}
-          </button>
-        </div>
+      {/* === 공유 버튼 === */}
+      <div className="flex items-center justify-end mb-2">
         <button
           type="button"
           onClick={() => {
@@ -161,18 +127,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
         </button>
       </div>
 
-      {/* 모드별 설명 + 역산 방식 안내 */}
-      <p className="text-[10.5px] text-gray-500 dark:text-gray-400 mb-1 leading-snug px-1">
-        {mode === 'spouse'
-          ? t(
-              '배우자궁·천간합 가중 — 현실적으로 잘 만나는 상대',
-              'Weighted toward Spouse Star & Stem harmony — who you actually meet in real life.'
-            )
-          : t(
-              '오행 보완 가중 — 부족한 기운을 채워주는 상대',
-              'Weighted toward element balance — who fills the gaps in your chart.'
-            )}
-      </p>
+      {/* 역산 방식 안내 */}
       <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-3 leading-snug px-1 italic">
         {t(
           '상대의 생년월일 없이 내 사주만으로 이상형을 역산합니다. 점수는 이 추천이 내 결핍·과잉을 얼마나 잘 보완하는지 보여주는 적합도예요.',
