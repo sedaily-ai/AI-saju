@@ -307,8 +307,8 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
         </div>
       </div>
 
-      {/* 캐릭터 카드 — 일간·진태양시 아래, 풀이스타일 위 */}
-      <CharacterCard />
+      {/* 캐릭터 카드 — 일간·진태양시 아래, 풀이스타일 위 (today 모드에서는 숨김) */}
+      {mode === 'full' && <CharacterCard />}
 
       {/* 상세 사주 해석 — 성격·운·재미 */}
       {mode === 'full' && (
@@ -946,29 +946,36 @@ function DetailedFortuneSection({ pillars, ilgan, chongun, daeuns, yeonuns, wolu
       {/* ═══ 1. 성격 (性) ═══ */}
       <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
         <div className="px-5 pt-5 pb-3">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2">
             <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 tracking-wider">性</span>
             <h3 className="text-[17px] font-bold text-gray-900 dark:text-gray-100">
               {t('성격', 'Personality')}
             </h3>
           </div>
-          <p className="text-[14px] font-semibold text-gray-700 dark:text-gray-300 italic">
-            &ldquo;{personality.headline}&rdquo;
-          </p>
         </div>
         <div className="px-5 pb-5 space-y-4">
           {/* 타고난 기질 */}
           <div>
-            <div className="text-[14px] font-bold text-indigo-600 dark:text-indigo-400 mb-1.5">
+            <div className="text-[14px] font-bold text-indigo-600 dark:text-indigo-400 mb-1">
               {t('타고난 기질', 'Innate Temperament')}
             </div>
+            <p className="text-[13px] font-medium text-gray-700 dark:text-gray-300 italic mb-1.5">
+              &ldquo;{personality.temperamentSummary}&rdquo;
+            </p>
             <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
               {personality.temperament}
             </p>
           </div>
 
           {/* 강점 & 약점 */}
-          <div className="grid grid-cols-2 gap-3">
+          <div>
+            <div className="text-[14px] font-bold text-indigo-600 dark:text-indigo-400 mb-1">
+              {t('강점 & 약점', 'Strengths & Weaknesses')}
+            </div>
+            <p className="text-[13px] font-medium text-gray-700 dark:text-gray-300 italic mb-1.5">
+              &ldquo;{personality.strengthsWeaknessesSummary}&rdquo;
+            </p>
+            <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl bg-green-50 dark:bg-green-950/30 p-3">
               <div className="text-[12px] font-bold text-green-700 dark:text-green-400 mb-2">
                 {t('강점', 'Strengths')}
@@ -994,12 +1001,16 @@ function DetailedFortuneSection({ pillars, ilgan, chongun, daeuns, yeonuns, wolu
               </ul>
             </div>
           </div>
+          </div>
 
           {/* 스트레스 패턴 */}
           <div>
-            <div className="text-[14px] font-bold text-indigo-600 dark:text-indigo-400 mb-1.5">
+            <div className="text-[14px] font-bold text-indigo-600 dark:text-indigo-400 mb-1">
               {t('스트레스 받을 때', 'Under Stress')}
             </div>
+            <p className="text-[13px] font-medium text-gray-700 dark:text-gray-300 italic mb-1.5">
+              &ldquo;{personality.stressPatternSummary}&rdquo;
+            </p>
             <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
               {personality.stressPattern}
             </p>
@@ -1007,9 +1018,12 @@ function DetailedFortuneSection({ pillars, ilgan, chongun, daeuns, yeonuns, wolu
 
           {/* 잘 맞는 환경 */}
           <div>
-            <div className="text-[14px] font-bold text-indigo-600 dark:text-indigo-400 mb-1.5">
+            <div className="text-[14px] font-bold text-indigo-600 dark:text-indigo-400 mb-1">
               {t('잘 맞는 환경/역할', 'Best Fit Environment')}
             </div>
+            <p className="text-[13px] font-medium text-gray-700 dark:text-gray-300 italic mb-1.5">
+              &ldquo;{personality.bestEnvironmentSummary}&rdquo;
+            </p>
             <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
               {personality.bestEnvironment}
             </p>
@@ -1020,29 +1034,29 @@ function DetailedFortuneSection({ pillars, ilgan, chongun, daeuns, yeonuns, wolu
       {/* ═══ 2. 운 (運) ═══ */}
       <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
         <div className="px-5 pt-5 pb-3">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2">
             <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 tracking-wider">運</span>
             <h3 className="text-[17px] font-bold text-gray-900 dark:text-gray-100">
               {t('운', 'Fortune')}
             </h3>
           </div>
-          <p className="text-[14px] font-semibold text-gray-700 dark:text-gray-300 italic">
-            &ldquo;{fortune.headline}&rdquo;
-          </p>
         </div>
         <div className="px-5 pb-5 space-y-4">
           {[
-            { label: t('총운', 'Overall'), text: fortune.overall },
-            { label: t('애정운 / 인연운', 'Love & Relationships'), text: fortune.love },
-            { label: t('재물운', 'Wealth'), text: fortune.wealth },
-            { label: t('직업운 / 커리어', 'Career'), text: fortune.career },
-            { label: t('건강운', 'Health'), text: fortune.health },
-            { label: t('인간관계운', 'Social'), text: fortune.relationships },
+            { label: t('총운', 'Overall'), text: fortune.overall, summary: fortune.overallSummary },
+            { label: t('애정운 / 인연운', 'Love & Relationships'), text: fortune.love, summary: fortune.loveSummary },
+            { label: t('재물운', 'Wealth'), text: fortune.wealth, summary: fortune.wealthSummary },
+            { label: t('직업운 / 커리어', 'Career'), text: fortune.career, summary: fortune.careerSummary },
+            { label: t('건강운', 'Health'), text: fortune.health, summary: fortune.healthSummary },
+            { label: t('인간관계운', 'Social'), text: fortune.relationships, summary: fortune.relationshipsSummary },
           ].map((item, idx) => (
             <div key={idx} className={idx > 0 ? 'border-t border-gray-100 dark:border-gray-800 pt-3' : ''}>
-              <div className="text-[14px] font-bold text-violet-600 dark:text-violet-400 mb-1.5">
+              <div className="text-[14px] font-bold text-violet-600 dark:text-violet-400 mb-1">
                 {item.label}
               </div>
+              <p className="text-[13px] font-medium text-gray-700 dark:text-gray-300 italic mb-1.5">
+                &ldquo;{item.summary}&rdquo;
+              </p>
               <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-relaxed">
                 {item.text}
               </p>
@@ -1054,15 +1068,12 @@ function DetailedFortuneSection({ pillars, ilgan, chongun, daeuns, yeonuns, wolu
       {/* ═══ 3. 재미 콘텐츠 ═══ */}
       <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl overflow-hidden">
         <div className="px-5 pt-5 pb-3">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2">
             <span className="text-[12px] font-bold text-gray-400 dark:text-gray-500 tracking-wider">FUN</span>
             <h3 className="text-[17px] font-bold text-gray-900 dark:text-gray-100">
               {t('재미 콘텐츠', 'Fun Content')}
             </h3>
           </div>
-          <p className="text-[14px] font-semibold text-gray-700 dark:text-gray-300 italic">
-            &ldquo;{fun.headline}&rdquo;
-          </p>
         </div>
         <div className="px-5 pb-5 space-y-4">
           {/* 행운 아이템 */}
