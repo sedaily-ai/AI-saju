@@ -8,6 +8,7 @@ import {
   type DaeunEntry,
 } from '@/features/fortune/lib/engine';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
+import { SajuTable } from '@/features/fortune/components/SajuTable';
 import { IdealMatchSection } from '@/features/ideal-match';
 import { useLang } from '@/shared/lib/LangContext';
 import { PageShell } from '@/shared/ui/PageShell';
@@ -129,7 +130,7 @@ export default function CompatibilityPage() {
       <div
         aria-hidden
         className="absolute inset-x-0 top-0 h-[420px] -z-[1] pointer-events-none"
-        style={{ background: 'linear-gradient(to bottom, #FFF1F0 0%, rgba(255,241,240,0) 100%)' }}
+        style={{ background: 'linear-gradient(to bottom, #FFFFFF 0%, rgba(255,255,255,0) 100%)' }}
       />
 
       <PageHeader
@@ -238,6 +239,9 @@ export default function CompatibilityPage() {
                 </div>
               );
             })()}
+
+            {/* 사주팔자 차트 */}
+            <SajuTable pillars={pillars} ilgan={ilgan} />
 
             <IdealMatchSection
               pillars={pillars}

@@ -12,6 +12,7 @@ interface Slide {
   ctaKo: string; ctaEn: string;
   href: string;
   visual: 'character' | 'match';
+  tone: { gradient: string; accent: string; accentLight: string; visualBg: string; visualBorder: string };
 }
 
 const SLIDES: Slide[] = [
@@ -20,8 +21,9 @@ const SLIDES: Slide[] = [
     titleKo: '나는 60개 중\n어떤 캐릭터일까?', titleEn: 'Which of 60\ncharacters am I?',
     subKo: '생년월일 하나로 내 사주 원국과 캐릭터를 확인해요.', subEn: 'One birth date reveals your chart and your character.',
     ctaKo: '내 사주 보기', ctaEn: 'See my saju',
-    href: '/saju',
+    href: '/saju/chart',
     visual: 'character',
+    tone: { gradient: 'linear-gradient(to bottom, #ECFDF5 0%, #FFFFFF 100%)', accent: '#059669', accentLight: '#D1FAE5', visualBg: 'linear-gradient(135deg, #F0FDF9 0%, #E6F7F2 100%)', visualBorder: '#D1FAE5' },
   },
   {
     eyebrowKo: '이상형 역산', eyebrowEn: 'Ideal Match',
@@ -30,6 +32,7 @@ const SLIDES: Slide[] = [
     ctaKo: '이상형 보기', ctaEn: 'Find my match',
     href: '/compatibility',
     visual: 'match',
+    tone: { gradient: 'linear-gradient(to bottom, #FFF1F0 0%, #FFFFFF 100%)', accent: '#E11D48', accentLight: '#FECDD3', visualBg: 'linear-gradient(135deg, #FFF5F5 0%, #FEE2E2 100%)', visualBorder: '#FECDD3' },
   },
 ];
 
@@ -51,7 +54,7 @@ export function HeroBanner() {
 
   return (
     <section className="relative z-10 px-3 mt-6">
-      <div className="relative flex flex-col lg:flex-row lg:items-center lg:gap-8 p-6 lg:p-10" style={{ background: 'linear-gradient(to bottom, #ECFDF5 0%, #FFFFFF 100%)' }}>
+      <div className="relative flex flex-col lg:flex-row lg:items-center lg:gap-8 p-6 lg:p-10" style={{ background: slide.tone.gradient }}>
         {/* 좌우 이동 화살표 */}
         <button
           type="button"
@@ -59,7 +62,7 @@ export function HeroBanner() {
           aria-label={t('이전 슬라이드', 'Previous slide')}
           className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center bg-white/80 shadow-sm transition-all hover:bg-white hover:shadow-md active:scale-90"
         >
-          <ChevronLeft size={18} strokeWidth={2.4} style={{ color: '#059669' }} />
+          <ChevronLeft size={18} strokeWidth={2.4} style={{ color: slide.tone.accent }} />
         </button>
         <button
           type="button"
@@ -67,13 +70,13 @@ export function HeroBanner() {
           aria-label={t('다음 슬라이드', 'Next slide')}
           className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full flex items-center justify-center bg-white/80 shadow-sm transition-all hover:bg-white hover:shadow-md active:scale-90"
         >
-          <ChevronRight size={18} strokeWidth={2.4} style={{ color: '#059669' }} />
+          <ChevronRight size={18} strokeWidth={2.4} style={{ color: slide.tone.accent }} />
         </button>
 
         {/* 좌: 텍스트 + CTA */}
         <div className="flex-1 min-w-0">
           {/* 프리뷰 라벨 */}
-          <span className="inline-block text-[13px] font-bold tracking-tight text-[#059669] mb-3">
+          <span className="inline-block text-[13px] font-bold tracking-tight mb-3" style={{ color: slide.tone.accent }}>
             {t(slide.eyebrowKo, slide.eyebrowEn)}
           </span>
 
@@ -92,7 +95,7 @@ export function HeroBanner() {
             <Link
               href={localePath(slide.href)}
               className="inline-flex items-center justify-center rounded-xl px-5 py-3 text-[14px] font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.97]"
-              style={{ background: '#059669' }}
+              style={{ background: slide.tone.accent }}
             >
               {t(slide.ctaKo, slide.ctaEn)}
             </Link>
@@ -107,7 +110,7 @@ export function HeroBanner() {
                 onClick={() => setIdx(i)}
                 aria-label={`${t('슬라이드', 'Slide')} ${i + 1}`}
                 className="block h-1.5 rounded-full transition-all"
-                style={{ width: i === idx ? 20 : 8, background: i === idx ? '#059669' : '#D1FAE5' }}
+                style={{ width: i === idx ? 20 : 8, background: i === idx ? slide.tone.accent : slide.tone.accentLight }}
               />
             ))}
           </div>
@@ -118,8 +121,8 @@ export function HeroBanner() {
           <div
             className="relative w-[220px] h-[220px] lg:w-[280px] lg:h-[280px] rounded-[24px] overflow-hidden flex items-center justify-center"
             style={{
-              background: 'linear-gradient(135deg, #F0FDF9 0%, #E6F7F2 100%)',
-              border: '3px solid #D1FAE5',
+              background: slide.tone.visualBg,
+              border: `3px solid ${slide.tone.visualBorder}`,
             }}
           >
             {slide.visual === 'character' ? (
@@ -130,7 +133,7 @@ export function HeroBanner() {
                 className="w-[85%] h-[85%] object-contain"
               />
             ) : (
-              <Heart size={96} strokeWidth={1.6} style={{ color: '#059669' }} fill="#A7F3D0" />
+              <Heart size={96} strokeWidth={1.6} style={{ color: slide.tone.accent }} fill={slide.tone.accentLight} />
             )}
           </div>
         </div>
