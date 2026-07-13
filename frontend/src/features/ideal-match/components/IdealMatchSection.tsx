@@ -198,7 +198,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
       {/* ② 이 사람 첫인상 */}
       <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
-        <div className="text-[12px] font-bold text-gray-500 dark:text-gray-400 mb-2 tracking-wide">
+        <div className="text-[15px] font-bold text-gray-500 dark:text-gray-400 mb-2 tracking-wide">
           {t('이 사람 첫인상', 'First Impression')}
         </div>
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -208,7 +208,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
       {/* ③ 이 사람 속마음 */}
       <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
-        <div className="text-[12px] font-bold text-gray-500 dark:text-gray-400 mb-2 tracking-wide">
+        <div className="text-[15px] font-bold text-gray-500 dark:text-gray-400 mb-2 tracking-wide">
           {t('이 사람 속마음', 'Behind the Surface')}
         </div>
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -218,7 +218,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
       {/* ④ 왜 나랑 잘 맞을까 ①: 성격 궁합 */}
       <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
-        <div className="text-[12px] font-bold text-pink-600 dark:text-pink-400 mb-2 tracking-wide">
+        <div className="text-[15px] font-bold text-pink-600 dark:text-pink-400 mb-2 tracking-wide">
           {t('왜 나랑 잘 맞을까 ①: 성격 궁합', 'Why We Click ①: Personality')}
         </div>
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -228,7 +228,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
       {/* ⑤ 왜 나랑 잘 맞을까 ②: 연애할 때 케미 */}
       <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
-        <div className="text-[12px] font-bold text-pink-600 dark:text-pink-400 mb-2 tracking-wide">
+        <div className="text-[15px] font-bold text-pink-600 dark:text-pink-400 mb-2 tracking-wide">
           {t('왜 나랑 잘 맞을까 ②: 연애할 때 케미', 'Why We Click ②: Dating Chemistry')}
         </div>
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -238,7 +238,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
       {/* ⑥ 어디서 만나게 될까 */}
       <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
-        <div className="text-[12px] font-bold text-violet-600 dark:text-violet-400 mb-2 tracking-wide">
+        <div className="text-[15px] font-bold text-violet-600 dark:text-violet-400 mb-2 tracking-wide">
           {t('어디서 만나게 될까', 'Where Might You Meet?')}
         </div>
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -248,7 +248,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
       {/* ⑦ 어떻게 가까워질까 */}
       <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
-        <div className="text-[12px] font-bold text-violet-600 dark:text-violet-400 mb-2 tracking-wide">
+        <div className="text-[15px] font-bold text-violet-600 dark:text-violet-400 mb-2 tracking-wide">
           {t('어떻게 가까워질까', 'How to Get Closer')}
         </div>
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -258,7 +258,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
       {/* ⑧ 이런 순간에 설렐 거예요 */}
       <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
-        <div className="text-[12px] font-bold text-rose-600 dark:text-rose-400 mb-3 tracking-wide">
+        <div className="text-[15px] font-bold text-rose-600 dark:text-rose-400 mb-3 tracking-wide">
           {t('이런 순간에 설렐 거예요', 'Moments That Will Make Your Heart Flutter')}
         </div>
         <div className="space-y-3">
@@ -276,7 +276,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-4">
         {match.cautions.length > 0 && (
           <div className="mb-4">
-            <div className="text-[12px] font-bold text-amber-600 dark:text-amber-400 mb-2 tracking-wide">
+            <div className="text-[15px] font-bold text-amber-600 dark:text-amber-400 mb-2 tracking-wide">
               {t('주의할 점', 'Watch Out')}
             </div>
             <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
