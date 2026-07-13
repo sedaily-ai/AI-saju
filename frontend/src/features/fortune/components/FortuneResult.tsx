@@ -307,8 +307,8 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
         </div>
       </div>
 
-      {/* 캐릭터 카드 — 일간·진태양시 아래, 풀이스타일 위 */}
-      <CharacterCard />
+      {/* 캐릭터 카드 — 일간·진태양시 아래, 풀이스타일 위 (today 모드에서는 숨김) */}
+      {mode === 'full' && <CharacterCard />}
 
       {/* 상세 사주 해석 — 성격·운·재미 */}
       {mode === 'full' && (
