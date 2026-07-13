@@ -10,20 +10,30 @@ import type { StructureAnalysis } from './engine';
 export interface PersonalitySection {
   headline: string;
   temperament: string;
+  temperamentSummary: string;
   strengths: string[];
   weaknesses: string[];
+  strengthsWeaknessesSummary: string;
   stressPattern: string;
+  stressPatternSummary: string;
   bestEnvironment: string;
+  bestEnvironmentSummary: string;
 }
 
 export interface FortuneFlowSection {
   headline: string;
   overall: string;
+  overallSummary: string;
   love: string;
+  loveSummary: string;
   wealth: string;
+  wealthSummary: string;
   career: string;
+  careerSummary: string;
   health: string;
+  healthSummary: string;
   relationships: string;
+  relationshipsSummary: string;
 }
 
 export interface FunContentSection {
@@ -193,6 +203,131 @@ const DAILY_ADVICE: Record<string, string[]> = {
   ],
 };
 
+// ── 성격 소제목별 한줄 요약 생성 함수들 ──
+
+function buildTemperamentSummary(ilgan: string): string {
+  const map: Record<string, string> = {
+    '甲': '곧은 나무처럼 한 방향으로 밀고 나가는 리더형',
+    '乙': '유연하게 적응하며 자기만의 길을 찾는 전략가',
+    '丙': '어디서든 빛나는 열정과 긍정의 아이콘',
+    '丁': '고요한 외면 속 깊은 열정을 품은 집중형',
+    '戊': '흔들리지 않는 중심, 믿음직한 포용력의 소유자',
+    '己': '따뜻한 보살핌과 세밀한 관찰력의 실력파',
+    '庚': '결단력과 실행력으로 승부하는 행동파',
+    '辛': '섬세한 감각과 완벽을 추구하는 장인 기질',
+    '壬': '넓은 시야와 자유로운 사고의 탐험가',
+    '癸': '섬세한 직관과 깊은 통찰의 지혜형',
+  };
+  return map[ilgan] || '자신만의 고유한 기질을 지닌 사주';
+}
+
+function buildStrengthsWeaknessesSummary(ilgan: string): string {
+  const map: Record<string, string> = {
+    '甲': '추진력은 최고, 고집은 조절이 필요한 양날의 검',
+    '乙': '적응력과 감성은 강점, 우유부단함은 보완 포인트',
+    '丙': '폭발적 에너지가 장점이자 관리가 필요한 부분',
+    '丁': '집중력과 통찰이 빛나지만 폐쇄적 성향은 주의',
+    '戊': '안정감이 강점, 변화에 대한 둔감함은 약점',
+    '己': '꼼꼼함과 헌신이 장점, 자기 비하는 경계 대상',
+    '庚': '결단력과 의리가 강점, 공격성은 조절 필요',
+    '辛': '심미안과 분석력이 빛나지만 예민함은 관리 필요',
+    '壬': '창의력과 포용력이 강점, 산만함은 보완 포인트',
+    '癸': '직관과 인내가 돋보이지만 소심함은 극복 과제',
+  };
+  return map[ilgan] || '고유한 강점을 살리고 약점을 보완하는 것이 핵심';
+}
+
+function buildStressPatternSummary(ilgan: string): string {
+  const map: Record<string, string> = {
+    '甲': '혼자 떠안으려 하면 고립되기 쉬운 패턴',
+    '乙': '갈등을 회피하다 내면에 쌓이는 타입',
+    '丙': '감정 기복이 심해지며 번아웃 위험이 있는 패턴',
+    '丁': '속마음을 감추며 스스로를 가두는 경향',
+    '戊': '무기력해지며 행동을 멈추는 패턴',
+    '己': '자기 의심에 빠져 결정을 미루는 경향',
+    '庚': '공격적으로 변하며 관계가 경직되는 패턴',
+    '辛': '완벽주의가 강박으로 변하는 위험 구간',
+    '壬': '현실 도피로 집중력이 흐트러지는 패턴',
+    '癸': '불안이 커지며 자신감을 잃기 쉬운 상태',
+  };
+  return map[ilgan] || '스트레스 신호를 일찍 알아채는 것이 핵심';
+}
+
+function buildBestEnvironmentSummary(ilgan: string): string {
+  const map: Record<string, string> = {
+    '甲': '주도권과 자율성이 보장되는 환경이 최적',
+    '乙': '협업과 창작의 자유가 있는 곳에서 빛나는 타입',
+    '丙': '사람을 만나고 에너지를 발산할 수 있는 역동적 무대',
+    '丁': '깊이 파고들 수 있는 조용하고 자율적인 공간',
+    '戊': '체계적이고 안정적인 조직에서 힘을 발휘',
+    '己': '세밀한 관리와 사람을 돌보는 역할이 적성',
+    '庚': '실력으로 승부하는 성과 중심 환경이 맞음',
+    '辛': '품질과 디테일이 중요한 전문 분야가 적합',
+    '壬': '자유로운 탐색과 큰 그림을 그릴 수 있는 환경',
+    '癸': '안정 속에서 전문성을 쌓을 수 있는 분야',
+  };
+  return map[ilgan] || '타고난 기질에 맞는 환경을 찾는 것이 성공의 열쇠';
+}
+
+// ── 소제목별 한줄 요약 생성 함수들 ──
+
+function buildOverallSummary(structure: StructureAnalysis | null): string {
+  if (!structure?.singangyak) return '흐름을 읽고 기회를 잡아가는 운세입니다';
+  const lv = structure.singangyak.level;
+  if (lv === '극신강' || lv === '신강') return '강한 추진력으로 성과를 만들어갈 시기';
+  if (lv === '중화') return '안정 속에서 꾸준히 성장하는 흐름';
+  return '도움을 받아 크게 도약할 수 있는 운';
+}
+
+function buildLoveSummary(ilgan: string, pillars: Pillar[]): string {
+  const ilji = pillars[1].j;
+  const iljiOh = JJ_OH[ilji];
+  const ilganOh = CG_OH[ilgan];
+  const diff = iljiOh && ilganOh ? (['목','화','토','금','수'].indexOf(iljiOh) - ['목','화','토','금','수'].indexOf(ilganOh) + 5) % 5 : -1;
+
+  if (diff === 0) return '대등하고 독립적인 관계에서 빛나는 인연';
+  if (diff === 1) return '자유롭고 감성적인 연애가 어울리는 사주';
+  if (diff === 2) return '실속 있고 가정적인 사랑을 만드는 운';
+  if (diff === 3) return '안정적이고 진중한 인연을 끌어당기는 사주';
+  if (diff === 4) return '따뜻한 보살핌과 깊은 교감의 인연';
+  return '마음을 열면 인연이 찾아오는 시기';
+}
+
+function buildWealthSummary(structure: StructureAnalysis | null): string {
+  if (!structure?.singangyak) return '꾸준한 관리가 재물을 불리는 열쇠';
+  const lv = structure.singangyak.level;
+  if (lv === '극신강' || lv === '신강') return '적극적으로 기회를 잡을 수 있는 재물운';
+  if (lv === '중화') return '안정적 축적으로 큰 자산을 만드는 흐름';
+  return '실력을 키워 자연스러운 수입 상승을 노릴 운';
+}
+
+function buildCareerSummary(chongun: ChongunResult | null, structure: StructureAnalysis | null): string {
+  const jobs = chongun?.detail?.jobs;
+  if (jobs && jobs.length > 0) {
+    return `${jobs[0].field} 분야에서 강점이 빛나는 커리어 운`;
+  }
+  if (structure?.gyeokguk) {
+    return `${structure.gyeokguk.name} 격국의 특성을 살린 성장이 유리`;
+  }
+  return '자신만의 전문성을 쌓아갈 좋은 흐름';
+}
+
+function buildHealthSummary(ilganOh: string): string {
+  const summaryMap: Record<string, string> = {
+    '목': '간·눈·근육 계통 관리에 신경 쓸 시기',
+    '화': '심장·혈액순환 관리가 건강의 핵심',
+    '토': '위장·소화기 중심으로 관리가 필요한 운',
+    '금': '폐·호흡기·피부 관리에 집중할 때',
+    '수': '신장·관절 보호가 건강 운의 포인트',
+  };
+  return summaryMap[ilganOh] || '오행 균형을 유지하면 건강이 따라오는 운';
+}
+
+function buildRelationshipsSummary(chongun: ChongunResult | null): string {
+  if (chongun?.detail?.social) return '타고난 교류 방식을 살리면 귀인이 찾아오는 운';
+  return '진심을 나누는 소수의 관계가 행운을 불러오는 시기';
+}
+
 // ── 운(運) 헤드라인 생성 ──
 function buildFortuneHeadline(structure: StructureAnalysis | null, ilganOh: string): string {
   if (!structure?.singangyak) return '흐름을 타고 나아가는 운의 지도';
@@ -334,20 +469,30 @@ export function buildDetailedFortune(
   const personalitySection: PersonalitySection = {
     headline: personality.headline,
     temperament: personality.temperament,
+    temperamentSummary: buildTemperamentSummary(ilgan),
     strengths: strengths.length > 0 ? strengths : ['추진력', '집중력', '성실함'],
     weaknesses: weaknesses.length > 0 ? weaknesses : ['완벽주의', '고집'],
+    strengthsWeaknessesSummary: buildStrengthsWeaknessesSummary(ilgan),
     stressPattern: personality.stressPattern,
+    stressPatternSummary: buildStressPatternSummary(ilgan),
     bestEnvironment: personality.bestEnvironment,
+    bestEnvironmentSummary: buildBestEnvironmentSummary(ilgan),
   };
 
   const fortuneSection: FortuneFlowSection = {
     headline: buildFortuneHeadline(structure, ilganOh),
     overall: buildOverallFortune(structure, daeuns, yeonuns, ilgan),
+    overallSummary: buildOverallSummary(structure),
     love: buildLoveFortune(ilgan, pillars),
+    loveSummary: buildLoveSummary(ilgan, pillars),
     wealth: buildWealthFortune(structure, ilgan),
+    wealthSummary: buildWealthSummary(structure),
     career: buildCareerFortune(chongun, structure),
+    careerSummary: buildCareerSummary(chongun, structure),
     health: buildHealthFortune(structure, ilganOh),
+    healthSummary: buildHealthSummary(ilganOh),
     relationships: buildRelationshipFortune(chongun, ilgan),
+    relationshipsSummary: buildRelationshipsSummary(chongun),
   };
 
   const advicePool = DAILY_ADVICE[ilganOh] || DAILY_ADVICE['목'];
