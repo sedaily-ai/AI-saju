@@ -7,7 +7,7 @@ import type { Pillar } from '@/features/fortune/lib/engine';
 import { computeIdealMatch, type Gender, type MatchMode } from '../lib/matchEngine';
 import { ShareCard } from './ShareCard';
 import { ReasonChip, REASON_EXPLAIN } from './ReasonChip';
-import { MatchedCharacterCard } from './MatchedCharacterCard';
+import { CompatibleAnimalsSection } from './CompatibleAnimalsSection';
 
 /** 오행 — 영문 라벨 */
 const OH_EN: Record<string, string> = {
@@ -80,12 +80,12 @@ const EL_BADGE_SOLID: Record<string, string> = {
 
 export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
   const { t, lang, localePath } = useLang();
-  const [mode, setMode] = useState<MatchMode>('spouse');
+  const mode: MatchMode = 'spouse';
   const [shareOpen, setShareOpen] = useState(false);
 
   const match = useMemo(
     () => computeIdealMatch(pillars, gender || '', birthYear, mode),
-    [pillars, gender, birthYear, mode],
+    [pillars, gender, birthYear],
   );
 
   if (!match) return null;
@@ -113,42 +113,8 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
   return (
     <>
-      {/* === 모드 토글 + 공유 버튼 === */}
-      <div className="flex items-center gap-2 mb-2">
-        <div className="flex-1 flex bg-gray-100 dark:bg-gray-800 rounded-full p-0.5" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'spouse'}
-            onClick={() => {
-              setMode('spouse');
-              trackEvent('ideal_match_mode', { mode: 'spouse' });
-            }}
-            className={`flex-1 py-1.5 text-[12px] font-semibold rounded-full border-none cursor-pointer transition-colors ${
-              mode === 'spouse'
-                ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'bg-transparent text-gray-500 dark:text-gray-400'
-            }`}
-          >
-            {t('현실 궁합', 'Real-life fit')}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === 'element'}
-            onClick={() => {
-              setMode('element');
-              trackEvent('ideal_match_mode', { mode: 'element' });
-            }}
-            className={`flex-1 py-1.5 text-[12px] font-semibold rounded-full border-none cursor-pointer transition-colors ${
-              mode === 'element'
-                ? 'bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 shadow-sm'
-                : 'bg-transparent text-gray-500 dark:text-gray-400'
-            }`}
-          >
-            {t('오행 보완', 'Element fill')}
-          </button>
-        </div>
+      {/* === 공유 버튼 === */}
+      <div className="flex items-center justify-end mb-2">
         <button
           type="button"
           onClick={() => {
@@ -161,25 +127,14 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
         </button>
       </div>
 
-      {/* 모드별 설명 + 역산 방식 안내 */}
-      <p className="text-[10.5px] text-gray-500 dark:text-gray-400 mb-1 leading-snug px-1">
-        {mode === 'spouse'
-          ? t(
-              '배우자궁·천간합 가중 — 현실적으로 잘 만나는 상대',
-              'Weighted toward Spouse Star & Stem harmony — who you actually meet in real life.'
-            )
-          : t(
-              '오행 보완 가중 — 부족한 기운을 채워주는 상대',
-              'Weighted toward element balance — who fills the gaps in your chart.'
-            )}
-      </p>
+      {/* 역산 방식 안내 */}
       <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-3 leading-snug px-1 italic">
         {t(
           '상대의 생년월일 없이 내 사주만으로 이상형을 역산합니다. 점수는 이 추천이 내 결핍·과잉을 얼마나 잘 보완하는지 보여주는 적합도예요.',
           'We reverse-engineer an ideal partner from your chart alone — no partner data. The score shows how well this recommendation fills the gaps in your chart.'
         )}
       </p>
-      {/* === Hero 파트너 카드 === */}
+      {/* === Hero 파트너 카드 (당신의 이상형) === */}
       <div className={`relative overflow-hidden rounded-[20px] mb-3 bg-gradient-to-br ${EL_HERO_BG[primaryOh] ?? 'from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900'} shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800`}>
         <div className="px-5 pt-5 pb-4">
           <div className="flex items-start justify-between gap-3 mb-3">
@@ -214,40 +169,6 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
             </div>
           </div>
 
-          {/* 추천 생년 3개 압축 */}
-          {yearsByZodiac.length > 0 && (
-            <div className="bg-white/70 dark:bg-gray-900/50 backdrop-blur rounded-xl px-3.5 py-2.5 mb-3">
-              <div className="text-[10.5px] font-bold text-gray-500 dark:text-gray-400 mb-1.5 tracking-wide">
-                ♡ {t('이런 사람을 찾아보세요', 'Look for someone like this')}
-              </div>
-              <div className="space-y-0.5">
-                {yearsByZodiac.slice(0, 2).map(([zodiac, years]) => (
-                  <div key={zodiac} className="text-[13px] text-gray-800 dark:text-gray-100 leading-relaxed">
-                    <span className="font-bold">
-                      {years.slice(0, 3).map(y => lang === 'en' ? `born ${y}` : `${y}년생`).join(' · ')}
-                    </span>
-                    <span className="text-gray-400 dark:text-gray-500 ml-1.5">
-                      {lang === 'en' ? (ZODIAC_EN[zodiac] ?? zodiac) : zodiac}
-                    </span>
-                  </div>
-                ))}
-                {match.idealMonths.length > 0 && (
-                  <div className="text-[11.5px] text-gray-500 dark:text-gray-400 pt-0.5">
-                    {t('추천 생월', 'Birth month')} · {match.idealMonths.map(m => lang === 'en' ? `${m}` : `${m}월`).join(' · ')}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          {yearsByZodiac.length === 0 && birthYear === undefined && (
-            <div className="bg-white/70 dark:bg-gray-900/50 rounded-xl px-3.5 py-2 mb-3 text-[11.5px] text-gray-500 dark:text-gray-400 leading-snug">
-              {t(
-                '생년월일을 입력하시면 구체적인 추천 생년이 표시돼요.',
-                'Enter your birth date to see specific suggested birth years.'
-              )}
-            </div>
-          )}
-
           {/* 근거 칩 (클릭 시 설명 툴팁) */}
           {match.scoreReasons.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
@@ -265,195 +186,138 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
         </div>
       </div>
 
-      {/* === 매칭 캐릭터 카드 (60갑자) === */}
-      {match.idealZodiacs[0] && (
-        <MatchedCharacterCard primaryOh={primaryOh} zodiacKo={match.idealZodiacs[0]} />
+      {/* === 잘 어울리는 동물 카드 그리드 === */}
+      {match.idealZodiacs.length > 0 && (
+        <CompatibleAnimalsSection
+          idealZodiacs={match.idealZodiacs}
+          primaryOh={primaryOh}
+        />
       )}
 
-      {/* === 점수 근거 자세히 보기 — 항상 펼쳐짐 === */}
-      {match.scoreReasons.length > 0 && (
-        <div className="rounded-xl bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 p-4 mb-3">
-          <div className="text-[12px] font-bold text-gray-500 dark:text-gray-400 mb-1 tracking-wide">
-            {t('이 점수, 이런 이유로 이렇게 나왔어요', 'Why the score came out this way')}
-          </div>
-          <p className="text-[12px] text-gray-500 dark:text-gray-400 leading-[1.65] mb-3">
-            {t(
-              '상대의 생년월일 없이 당신 사주 하나로 이상형을 역산한 거예요. 점수가 높을수록 내 사주에 비어있는 자리·끌림이 오는 타입·전통적으로 "배우자 자리"로 보는 기운이 여러 개 한꺼번에 맞아떨어졌다는 뜻입니다. 상대와의 실제 궁합 점수가 아니라 "이 추천이 나한테 얼마나 잘 맞는지"를 보여주는 점수예요.',
-              'This score comes from your chart alone — no partner data. A higher score means the recommendation hits multiple axes at once: the element your chart lacks, the type your chart is naturally drawn to, and the element classical saju places in the "spouse seat." It measures how well the pick fits you, not compatibility with a specific partner.'
-            )}
-          </p>
-          <div className="space-y-3">
-            {match.scoreReasons.map((r, i) => {
-              const info = REASON_EXPLAIN[r.code];
-              if (!info) return null;
-              return (
-                <div key={i}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[11.5px] font-bold text-pink-600 dark:text-pink-400">
-                      {lang === 'en' ? info.tagEn : info.tagKo}
-                    </span>
-                    <span className="text-gray-300 dark:text-gray-600 text-[11px]">·</span>
-                    <span className="text-[12.5px] font-bold text-gray-800 dark:text-gray-100">
-                      {lang === 'en' ? reasonLabelEn(r.code, r.label) : r.label}
-                    </span>
-                    <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300">
-                      +{r.points}
-                    </span>
-                  </div>
-                  <p className="text-[12.5px] text-gray-600 dark:text-gray-300 leading-[1.65]">
-                    {lang === 'en' ? info.en : info.ko}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* === 상세 해석: 9개 분리 카드 === */}
 
-      {/* === 상세 카드 === */}
-      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] overflow-hidden mb-4">
-        <div className="px-5 py-4 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800">
-          <span className="inline-block text-[11px] font-bold text-pink-600 dark:text-pink-400 tracking-wider">
-            {t('상세 해석', 'Details')}
-          </span>
-          <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
-            {t('외모 · 성향 · 근거', 'Look · Personality · Reasoning')}
-          </span>
+      {/* ② 이 사람 첫인상 */}
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
+        <div className="text-[12px] font-bold text-gray-500 dark:text-gray-400 mb-2 tracking-wide">
+          {t('이 사람 첫인상', 'First Impression')}
         </div>
+        <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
+          {match.firstImpression}
+        </p>
+      </div>
 
-        <div className="px-5 pb-5 pt-4">
-          {/* 태그 */}
-          {match.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              {match.tags.map((tag, i) => {
-                const ohMatch = tag.match(/^([목화토금수])/);
-                const oh = ohMatch ? ohMatch[1] : '';
-                const cls = oh && EL_BG[oh]
-                  ? EL_BG[oh]
-                  : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700';
-                return (
-                  <span key={i} className={`inline-block px-2.5 py-1 rounded-full border text-[11.5px] font-medium ${cls}`}>
-                    {lang === 'en' ? tagToEn(tag) : tag}
-                  </span>
-                );
-              })}
+      {/* ③ 이 사람 속마음 */}
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
+        <div className="text-[12px] font-bold text-gray-500 dark:text-gray-400 mb-2 tracking-wide">
+          {t('이 사람 속마음', 'Behind the Surface')}
+        </div>
+        <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
+          {match.innerSelf}
+        </p>
+      </div>
+
+      {/* ④ 왜 나랑 잘 맞을까 ①: 성격 궁합 */}
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
+        <div className="text-[12px] font-bold text-pink-600 dark:text-pink-400 mb-2 tracking-wide">
+          {t('왜 나랑 잘 맞을까 ①: 성격 궁합', 'Why We Click ①: Personality')}
+        </div>
+        <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
+          {match.chemistryStory}
+        </p>
+      </div>
+
+      {/* ⑤ 왜 나랑 잘 맞을까 ②: 연애할 때 케미 */}
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
+        <div className="text-[12px] font-bold text-pink-600 dark:text-pink-400 mb-2 tracking-wide">
+          {t('왜 나랑 잘 맞을까 ②: 연애할 때 케미', 'Why We Click ②: Dating Chemistry')}
+        </div>
+        <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
+          {match.datingChemistry}
+        </p>
+      </div>
+
+      {/* ⑥ 어디서 만나게 될까 */}
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
+        <div className="text-[12px] font-bold text-violet-600 dark:text-violet-400 mb-2 tracking-wide">
+          {t('어디서 만나게 될까', 'Where Might You Meet?')}
+        </div>
+        <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
+          {match.meetingScenario}
+        </p>
+      </div>
+
+      {/* ⑦ 어떻게 가까워질까 */}
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
+        <div className="text-[12px] font-bold text-violet-600 dark:text-violet-400 mb-2 tracking-wide">
+          {t('어떻게 가까워질까', 'How to Get Closer')}
+        </div>
+        <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
+          {match.approachStory}
+        </p>
+      </div>
+
+      {/* ⑧ 이런 순간에 설렐 거예요 */}
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-3">
+        <div className="text-[12px] font-bold text-rose-600 dark:text-rose-400 mb-3 tracking-wide">
+          {t('이런 순간에 설렐 거예요', 'Moments That Will Make Your Heart Flutter')}
+        </div>
+        <div className="space-y-3">
+          {match.sparkMoments.map((moment, i) => (
+            <div key={i} className="rounded-xl bg-rose-50/60 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 p-4">
+              <p className="text-[13.5px] text-gray-700 dark:text-gray-200 leading-[1.75]">
+                {moment}
+              </p>
             </div>
-          )}
+          ))}
+        </div>
+      </div>
 
-          {genderHint && (
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 mb-4 leading-snug">
-              💡 {genderHint}
+      {/* ⑨ 주의할 점 + 추천/주의 띠 */}
+      <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-5 mb-4">
+        {match.cautions.length > 0 && (
+          <div className="mb-4">
+            <div className="text-[12px] font-bold text-amber-600 dark:text-amber-400 mb-2 tracking-wide">
+              {t('주의할 점', 'Watch Out')}
+            </div>
+            <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
+              {match.cautions.map(c => c.desc).join(' ')}
             </p>
-          )}
-
-          {/* 외모·분위기 */}
-          {match.appearance.length > 0 && (
-            <div className="mb-4">
-              <div className="text-[12px] font-bold text-gray-500 dark:text-gray-400 mb-1.5">
-                {t('외모·분위기', 'Look & Vibe')}
-              </div>
-              <ul className="space-y-1">
-                {match.appearance.map((line, i) => (
-                  <li key={i} className="text-[13.5px] text-gray-700 dark:text-gray-200 leading-relaxed flex gap-2">
-                    <span className="text-gray-300 dark:text-gray-600 shrink-0">·</span>
-                    <span>{line}</span>
-                  </li>
-                ))}
-              </ul>
-              {lang === 'en' && (
-                <p className="mt-1.5 text-[10.5px] text-gray-400 italic">
-                  Detailed lines remain in Korean — English translation in progress.
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* 성향 */}
-          {match.personality.length > 0 && (
-            <div className="mb-4">
-              <div className="text-[12px] font-bold text-gray-500 dark:text-gray-400 mb-1.5">
-                {t('성향', 'Personality')}
-              </div>
-              <ul className="space-y-1">
-                {match.personality.map((line, i) => (
-                  <li key={i} className="text-[13.5px] text-gray-700 dark:text-gray-200 leading-relaxed flex gap-2">
-                    <span className="text-gray-300 dark:text-gray-600 shrink-0">·</span>
-                    <span>{line}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* 잘 맞는 점 */}
-          {match.strengths.length > 0 && (
-            <div className="mb-3 rounded-xl bg-green-50/60 dark:bg-green-950/30 border border-green-100 dark:border-green-900 p-3.5">
-              <div className="text-[12px] font-bold text-green-700 dark:text-green-400 mb-1.5">
-                ✓ {t('잘 맞는 점', 'Strengths')}
-              </div>
-              <ul className="space-y-1.5">
-                {match.strengths.map((s, i) => (
-                  <li key={i} className="text-[13px] text-gray-700 dark:text-gray-200 leading-relaxed">
-                    {s.desc}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* 주의할 점 */}
-          {match.cautions.length > 0 && (
-            <div className="mb-4 rounded-xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900 p-3.5">
-              <div className="text-[12px] font-bold text-amber-700 dark:text-amber-400 mb-1.5">
-                ⚠ {t('주의할 점', 'Watch out')}
-              </div>
-              <ul className="space-y-1.5">
-                {match.cautions.map((c, i) => (
-                  <li key={i} className="text-[13px] text-gray-700 dark:text-gray-200 leading-relaxed">
-                    {c.desc}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* 추천 띠 / 주의할 띠 */}
-          {(match.idealZodiacs.length > 0 || match.avoidZodiacs.length > 0) && (
-            <div className="flex flex-col gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
-              {match.idealZodiacs.length > 0 && (
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[11.5px] font-semibold text-gray-500 dark:text-gray-400 shrink-0">
-                    {t('추천 띠', 'Best zodiac')}
+          </div>
+        )}
+        {(match.idealZodiacs.length > 0 || match.avoidZodiacs.length > 0) && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+            {match.idealZodiacs.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500">
+                  {t('추천 띠', 'Best')}
+                </span>
+                {match.idealZodiacs.map((z, i) => (
+                  <span key={i} className="px-2 py-0.5 rounded-full bg-pink-50 dark:bg-pink-950/40 text-pink-600 dark:text-pink-300 text-[11px] font-medium">
+                    {lang === 'en' ? (ZODIAC_EN[z] ?? z) : z}
                   </span>
-                  {match.idealZodiacs.map((z, i) => (
-                    <span key={i} className="px-2 py-0.5 rounded-full bg-pink-50 dark:bg-pink-950/40 text-pink-700 dark:text-pink-300 text-[11.5px] font-medium">
-                      {lang === 'en' ? (ZODIAC_EN[z] ?? z) : z}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {match.avoidZodiacs.length > 0 && (
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[11.5px] font-semibold text-gray-500 dark:text-gray-400 shrink-0">
-                    {t('주의할 띠', 'Avoid zodiac')}
-                  </span>
-                  {match.avoidZodiacs.map((z, i) => (
-                    <span key={i} className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[11.5px] font-medium">
-                      {lang === 'en' ? (ZODIAC_EN[z] ?? z) : z}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          <p className="mt-4 text-[10.5px] text-gray-400 dark:text-gray-500 leading-snug">
-            {t(
-              '오행 보완·천간합·지지 삼합/육합을 종합한 해석입니다. 재미로 참고해주세요.',
-              'A combined reading of element balance, stem harmony, and branch harmony — for entertainment only.'
+                ))}
+              </div>
             )}
-          </p>
-        </div>
+            {match.avoidZodiacs.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500">
+                  {t('주의 띠', 'Avoid')}
+                </span>
+                {match.avoidZodiacs.map((z, i) => (
+                  <span key={i} className="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[11px] font-medium">
+                    {lang === 'en' ? (ZODIAC_EN[z] ?? z) : z}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        <p className="mt-4 text-[10.5px] text-gray-400 dark:text-gray-500 leading-snug">
+          {t(
+            '오행 보완·천간합·지지 삼합/육합을 종합한 해석입니다. 재미로 참고해주세요.',
+            'A combined reading of element balance, stem harmony, and branch harmony — for entertainment only.'
+          )}
+        </p>
       </div>
 
       {/* === 커플 궁합 CTA 배너 === */}
@@ -462,25 +326,25 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
         onClick={() => trackEvent('ideal_match_to_couple', { primary_oh: primaryOh })}
         className="group block rounded-[18px] overflow-hidden mb-4 no-underline bg-gradient-to-br from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 transition-colors shadow-sm"
       >
-        <div className="px-5 py-4 flex items-center gap-3">
-          <div className="shrink-0 w-11 h-11 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-[20px]">
+        <div className="px-5 py-5 flex items-center gap-3">
+          <div className="shrink-0 w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-[22px]">
             💞
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[10.5px] font-bold tracking-[0.14em] uppercase text-white/80 mb-0.5">
-              {t('다음 단계', 'Next')}
+            <div className="text-[18px] font-extrabold text-white leading-tight">
+              {t('생각나는 사람이 있나요?', 'Someone on your mind?')}
             </div>
-            <div className="text-[15px] font-extrabold text-white leading-tight">
-              {t('두 사람 실제 궁합도 확인해보세요', 'Check the real couple match')}
+            <div className="text-[13px] font-bold text-white/90 leading-snug mt-1.5">
+              {t('실제 궁합도 확인해보세요', 'Check the real couple match')}
             </div>
-            <div className="text-[11.5px] text-white/90 leading-snug mt-0.5">
+            <div className="text-[11.5px] text-white/75 leading-snug mt-1">
               {t(
                 '상대 생년월일을 넣으면 두 사주 간 일간 관계·일지 합충까지 비교해드려요',
                 'Enter both birth dates to compare day stems and branches directly'
               )}
             </div>
           </div>
-          <div className="shrink-0 text-white text-[22px] font-bold group-hover:translate-x-0.5 transition-transform">
+          <div className="shrink-0 text-white text-[24px] font-bold group-hover:translate-x-0.5 transition-transform">
             →
           </div>
         </div>
