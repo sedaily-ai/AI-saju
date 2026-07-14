@@ -4,14 +4,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
-  ScrollText, Sun, Coins, Briefcase, Heart, Users, Rabbit, Newspaper,
-  Search, BookOpen, Home, MessageCircle, ArrowUp,
+  ScrollText, Sun, Calendar, CalendarCheck, Heart, Sparkles,
+  Search, BookOpen, Home, MessageCircle, HelpCircle, Quote,
   type LucideIcon,
 } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
 import { JsonLd, faqSchema } from '@/shared/lib/jsonLd';
 import { HeroBanner } from '@/widgets/HeroBanner';
-import { ConcernCardFlow } from '@/widgets/ConcernCardFlow';
 import { PointsBadge, WeeklyCheckIn } from '@/features/points';
 
 // 명조체 인라인 (한자/특수 강조용) — globals.css 안 건드림, 시스템 fallback chain
@@ -63,39 +62,34 @@ type Tile = {
   subKo: string;
   subEn: string;
   Icon: LucideIcon;
-  group: 'core' | 'wealth' | 'love' | 'info';
+  group: 'core' | 'fortune' | 'social';
   kanji: string;
 };
 
-// 4톤 그룹화 — 사탕색 8색 폐기
+// 6칸 2열×3행 — 핵심 카테고리만
 const PRIMARY_GRID: Tile[] = [
-  { href: '/saju',          ko: '내 사주',     en: 'My Saju',         subKo: '천간·십성·대운 풀이', subEn: 'Stems · Stars · Luck',  Icon: ScrollText, group: 'core',   kanji: '命' },
-  { href: '/today',         ko: '오늘 운세',   en: "Today",           subKo: '오늘의 딱 맞는 한 줄', subEn: "Today's one-liner",     Icon: Sun,        group: 'core',   kanji: '日' },
-  { href: '/zodiac',        ko: '띠별 운세',   en: 'Zodiac',          subKo: '12지신 오늘의 운세', subEn: '12 zodiac fortunes',     Icon: Rabbit,     group: 'core',   kanji: '辰' },
-  { href: '/chaeun',        ko: '재물운',      en: 'Wealth',          subKo: '돈이 들어오는 흐름', subEn: 'Money flow',             Icon: Coins,      group: 'wealth', kanji: '財' },
-  { href: '/career',        ko: '커리어',      en: 'Career',          subKo: '적성과 진로 방향', subEn: 'Career direction',         Icon: Briefcase,  group: 'wealth', kanji: '業' },
-  { href: '/compatibility', ko: '연애운',      en: 'Ideal',           subKo: '인연이 오는 시기', subEn: 'When love comes',          Icon: Heart,      group: 'love',   kanji: '緣' },
-  { href: '/couple',        ko: '커플 궁합',   en: 'Couple',          subKo: '둘의 궁합 점수', subEn: 'Couple score',               Icon: Users,      group: 'love',   kanji: '合' },
-  { href: '/news',          ko: '경제 뉴스',   en: 'News',            subKo: '오늘의 경제 소식', subEn: "Today's economy",          Icon: Newspaper,  group: 'info',   kanji: '報' },
+  { href: '/today',         ko: '오늘의 운세',      en: "Today's Fortune",   subKo: '매일 새로운 하루 운세',   subEn: 'Fresh daily fortune',        Icon: Sun,           group: 'core',    kanji: '日' },
+  { href: '/saju',          ko: '내 사주',          en: 'My Saju',           subKo: '천간·십성·대운 풀이',     subEn: 'Stems · Stars · Luck',       Icon: ScrollText,    group: 'core',    kanji: '命' },
+  { href: '/tojeong',       ko: '토정비결',         en: 'Tojeong Fortune',   subKo: '올해 신수를 한눈에',      subEn: "This year's forecast",       Icon: Calendar,      group: 'fortune', kanji: '卜' },
+  { href: '/pick-date',     ko: '지정일 운세',      en: 'Pick a Date',       subKo: '궁금한 날의 운세 보기',   subEn: 'Fortune for any date',       Icon: CalendarCheck, group: 'fortune', kanji: '擇' },
+  { href: '/compatibility', ko: '궁합',            en: 'Compatibility',     subKo: '둘의 인연 점수',          subEn: 'Match score for two',        Icon: Heart,         group: 'social',  kanji: '合' },
+  { href: '/concern',       ko: '행운의 부적만들기', en: 'Lucky Talisman',    subKo: '나만의 행운 부적',        subEn: 'Your personal talisman',     Icon: Sparkles,      group: 'social',  kanji: '符' },
 ];
 
-// 카드별 개별 색상 — 각 메뉴마다 고유한 톤
+// 카드별 개별 색상
 const TILE_TONE: Record<string, { bg: string; fg: string }> = {
-  '/saju':          { bg: '#E8F5E9', fg: '#2E7D32' },   // 녹색 — 사주 핵심
   '/today':         { bg: '#E0F2F1', fg: '#00796B' },   // 틸 — 오늘 운세
-  '/zodiac':        { bg: '#FFF3E0', fg: '#E65100' },   // 주황 — 띠별 운세
-  '/chaeun':        { bg: '#FFF8E1', fg: '#F57F17' },   // 골드 — 재물
-  '/career':        { bg: '#EDE7F6', fg: '#5E35B1' },   // 보라 — 커리어
-  '/compatibility': { bg: '#FCE4EC', fg: '#C62828' },   // 핑크 — 연애
-  '/couple':        { bg: '#F3E5F5', fg: '#8E24AA' },   // 라벤더 — 커플
-  '/news':          { bg: '#E3F2FD', fg: '#1565C0' },   // 블루 — 뉴스
+  '/saju':          { bg: '#E8F5E9', fg: '#2E7D32' },   // 녹색 — 사주
+  '/tojeong':       { bg: '#FFF3E0', fg: '#E65100' },   // 주황 — 토정비결
+  '/pick-date':     { bg: '#EDE7F6', fg: '#5E35B1' },   // 보라 — 지정일
+  '/compatibility': { bg: '#FCE4EC', fg: '#C62828' },   // 핑크 — 궁합
+  '/concern':       { bg: '#FFF8E1', fg: '#F57F17' },   // 골드 — 부적
 };
 
 const GROUP_TONE: Record<Tile['group'], { bg: string; fg: string }> = {
-  core:   { bg: '#E8F5E9', fg: '#2E7D32' },
-  wealth: { bg: '#FFF8E1', fg: '#F57F17' },
-  love:   { bg: '#FCE4EC', fg: '#C62828' },
-  info:   { bg: '#E3F2FD', fg: '#1565C0' },
+  core:    { bg: '#E8F5E9', fg: '#2E7D32' },
+  fortune: { bg: '#FFF3E0', fg: '#E65100' },
+  social:  { bg: '#FCE4EC', fg: '#C62828' },
 };
 
 
@@ -240,52 +234,7 @@ export default function LandingPage() {
         {/* Hero — 히어로 배너 */}
         <HeroBanner />
 
-        {/* 출석 체크 — 오늘의 운세/주역점을 보면 포인트 적립 */}
-        <section className="relative z-10 mt-4 px-3">
-          <div className="rounded-[20px] bg-white p-4" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-            <div className="flex items-start justify-between mb-1">
-              <div>
-                <p className="text-[14px] font-black" style={{ color: C.ink, fontFamily: SERIF }}>
-                  {t('이번 주 출석', "This week's check-in")}
-                </p>
-                <p className="text-[11.5px] mt-0.5" style={{ color: C.inkSub }}>
-                  {t('오늘의 운세나 주역점을 보면 자동으로 포인트가 쌓여요', "View today's fortune or draw a trigram to earn points automatically")}
-                </p>
-              </div>
-              <PointsBadge />
-            </div>
-
-            <div className="mt-4">
-              <WeeklyCheckIn />
-            </div>
-
-            <div className="flex items-center justify-center gap-4 mt-3 text-[10.5px]" style={{ color: C.inkSub }}>
-              <span className="inline-flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ background: C.warmDeep }} />
-                {t('받음', 'Earned')}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#E5E7EB' }} />
-                {t('놓침', 'Missed')}
-              </span>
-              <span className="inline-flex items-center gap-1">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ boxShadow: `inset 0 0 0 1.5px ${C.line}` }} />
-                {t('예정', 'Upcoming')}
-              </span>
-            </div>
-
-            <p className="text-[11px] text-center mt-3 pt-3" style={{ color: C.warmDeep, borderTop: `1px solid ${C.line}` }}>
-              {t('꾸준히 모을수록 행운도 함께 쌓여요', 'The more you keep it up, the more luck builds up')}
-            </p>
-          </div>
-        </section>
-
-        {/* 챗봇 고민 입력 */}
-        <ChatPrompt />
-
         {/* 고민 카드(부적 만들기) — 챗봇 바로 아래. "고민 있나요?"를 두 번 묻지 않도록 순서 조정 */}
-        <ConcernCardFlow />
-
         {/* 기능 카드 그리드 — 캐러셀 아래 4열 2행 */}
         <section className="relative z-10 mt-6 px-3">
           <div className="mb-4 flex items-baseline gap-2 px-2">
@@ -326,7 +275,7 @@ export default function LandingPage() {
                 <li key={href}>
                   <Link
                     href={localePath(href)}
-                    className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] group h-[130px] overflow-hidden"
+                    className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:bg-[#ECFDF5] active:scale-[0.98] group h-[130px] overflow-hidden"
                   >
                     {/* 배경 한자 장식 */}
                     <span
@@ -355,12 +304,12 @@ export default function LandingPage() {
                     {/* 하단: 타이틀 + 설명 */}
                     <div className="relative z-[1]">
                       <h4
-                        className="text-[13px] font-bold leading-tight tracking-tight"
+                        className="text-[15px] font-bold leading-tight tracking-tight"
                         style={{ color: C.ink }}
                       >
                         {t(ko, en)}
                       </h4>
-                      <p className="mt-0.5 text-[10.5px] leading-relaxed text-gray-400 line-clamp-1">
+                      <p className="mt-0.5 text-[11.5px] leading-relaxed text-gray-400 line-clamp-1">
                         {t(subKo, subEn)}
                       </p>
                     </div>
@@ -371,90 +320,133 @@ export default function LandingPage() {
           </ul>
         </section>
 
-        {/* 하단 카드들 — PC에서 2컬럼 그리드 */}
-        <div className="lg:grid lg:grid-cols-2 lg:gap-4 lg:mt-5">
-
-        {/* Card: 오늘의 한 줄 */}
-        <SectionCard
-          eyebrow={today ? `${today.m}월 ${today.d}일` : t('오늘', 'Today')}
-          title={t('오늘 하루의 흐름', "Today's flow")}
-        >
-          <Link
-            href={localePath('/today')}
-            className="flex items-center gap-4 rounded-2xl p-4 transition-transform active:scale-[0.99]"
-            style={{ background: C.cream }}
-          >
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
-              style={{ background: '#FFD8A0' }}
+        {/* 운세 이야기 — 가장 정확한 사주풀이와 동일 너비 */}
+        <section className="relative z-10 mt-6 px-3">
+          <div className="mb-4 flex items-baseline gap-2 px-2">
+            <span
+              style={{
+                fontFamily: SERIF,
+                fontWeight: 700,
+                color: C.warmDeep,
+                opacity: 0.55,
+                fontSize: 13,
+                letterSpacing: '-0.02em',
+              }}
             >
-              <Sun size={24} strokeWidth={2.2} style={{ color: '#8A5800' }} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[14.5px] font-bold leading-tight tracking-tight" style={{ color: C.ink }}>
-                {t('일진 한 줄로 보기', 'Read the day in a single line')}
+              ▎
+            </span>
+            <div>
+              <p className="text-[12px] font-semibold tracking-tight" style={{ color: C.inkSub }}>
+                {t('운세 이야기', 'Fortune notes')}
               </p>
-              <p className="text-[12.5px] mt-1" style={{ color: C.inkSoft }}>
-                {t('재물·관계·건강 톤까지 3분 안에', 'Money · people · health in 3 minutes')}
-              </p>
-            </div>
-            <span className="text-[20px] shrink-0" style={{ color: C.inkSub }} aria-hidden>›</span>
-          </Link>
-        </SectionCard>
-
-        {/* Card: 둘의 인연 */}
-        <SectionCard
-          eyebrow={t('궁합 파헤치기', "Two of you")}
-          title={t('우리는 어떻게 될까?', 'How will we turn out?')}
-        >
-          <div className="grid grid-cols-2 gap-3">
-            <CoupleTile
-              href={localePath('/compatibility')}
-              title={t('이상형 역산', 'Ideal match')}
-              sub={t('상대 없이 내게 맞는 사주', 'Your match, even without one')}
-              tone={{ bg: C.rose, fg: C.roseDeep }}
-              Icon={Heart}
-            />
-            <CoupleTile
-              href={localePath('/couple')}
-              title={t('커플 궁합', 'Couple match')}
-              sub={t('두 사람의 점수와 흐름', 'Score and flow of two')}
-              tone={{ bg: C.lilac, fg: C.lilacDeep }}
-              Icon={Users}
-            />
-          </div>
-        </SectionCard>
-
-        {/* Card: 운세 이야기 */}
-        <SectionCard
-          eyebrow={t('운세 이야기', 'Fortune notes')}
-          title={t('매일 새로 도착해요', 'Fresh every morning')}
-        >
-          <Link
-            href={localePath('/blog')}
-            className="flex items-center justify-between rounded-2xl p-4 transition-transform active:scale-[0.99]"
-            style={{ background: C.mint }}
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div
-                className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0"
-                style={{ background: C.mintDeep }}
+              <h3
+                className="mt-1"
+                style={{
+                  fontFamily: SERIF,
+                  fontWeight: 900,
+                  fontSize: 20,
+                  letterSpacing: '-0.02em',
+                  color: C.ink,
+                }}
               >
-                <BookOpen size={20} strokeWidth={2.2} color="#FFFFFF" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-[14px] font-bold tracking-tight truncate" style={{ color: C.ink }}>
-                  {t('블로그 보러 가기', 'Open the blog')}
-                </p>
-                <p className="text-[12px] mt-0.5 truncate" style={{ color: C.inkSoft }}>
-                  {t('데일리 별자리·주간 사주·명리 노트', 'Daily horoscope · weekly Saju')}
-                </p>
-              </div>
+                {t('매일 새로 도착해요', 'Fresh every morning')}
+              </h3>
             </div>
-            <span className="text-[20px] shrink-0" style={{ color: C.inkSub }} aria-hidden>›</span>
-          </Link>
-        </SectionCard>
-        </div>{/* /PC 2-col grid */}
+          </div>
+          <ul className="grid grid-cols-3 gap-3">
+            <li>
+              <Link
+                href={localePath('/blog')}
+                className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:bg-[#ECFDF5] active:scale-[0.98] h-[130px] overflow-hidden"
+              >
+                <div className="flex items-start justify-between">
+                  <span
+                    className="w-[38px] h-[38px] rounded-[12px] flex items-center justify-center"
+                    style={{ background: '#DBF1E8' }}
+                  >
+                    <BookOpen size={19} strokeWidth={2.1} style={{ color: '#338A6A' }} />
+                  </span>
+                  <span className="text-gray-300 text-[13px]" aria-hidden>↗</span>
+                </div>
+                <div>
+                  <h4 className="text-[15px] font-bold leading-tight tracking-tight" style={{ color: C.ink }}>
+                    {t('블로그', 'Blog')}
+                  </h4>
+                  <p className="mt-0.5 text-[11.5px] leading-relaxed text-gray-400 line-clamp-1">
+                    {t('데일리 운세·명리 노트', 'Daily horoscope notes')}
+                  </p>
+                </div>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={localePath('/quiz')}
+                className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:bg-[#ECFDF5] active:scale-[0.98] h-[130px] overflow-hidden"
+              >
+                <div className="flex items-start justify-between">
+                  <span
+                    className="w-[38px] h-[38px] rounded-[12px] flex items-center justify-center"
+                    style={{ background: '#EDE7F6' }}
+                  >
+                    <HelpCircle size={19} strokeWidth={2.1} style={{ color: '#5E35B1' }} />
+                  </span>
+                  <span className="text-gray-300 text-[13px]" aria-hidden>↗</span>
+                </div>
+                <div>
+                  <h4 className="text-[15px] font-bold leading-tight tracking-tight" style={{ color: C.ink }}>
+                    {t('운세 퀴즈', 'Quiz')}
+                  </h4>
+                  <p className="mt-0.5 text-[11.5px] leading-relaxed text-gray-400 line-clamp-1">
+                    {t('재미로 풀어보는 사주', 'Fun fortune quiz')}
+                  </p>
+                </div>
+              </Link>
+            </li>
+            <li>
+              <DailyQuoteCard />
+            </li>
+          </ul>
+        </section>
+
+        {/* 출석 체크 — 오늘의 운세/주역점을 보면 포인트 적립 */}
+        <section className="relative z-10 mt-4 px-3">
+          <div className="rounded-[20px] bg-white p-4" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+            <div className="flex items-start justify-between mb-1">
+              <div>
+                <p className="text-[14px] font-black" style={{ color: C.ink, fontFamily: SERIF }}>
+                  {t('이번 주 출석', "This week's check-in")}
+                </p>
+                <p className="text-[11.5px] mt-0.5" style={{ color: C.inkSub }}>
+                  {t('오늘의 운세나 주역점을 보면 자동으로 포인트가 쌓여요', "View today's fortune or draw a trigram to earn points automatically")}
+                </p>
+              </div>
+              <PointsBadge />
+            </div>
+
+            <div className="mt-4">
+              <WeeklyCheckIn />
+            </div>
+
+            <div className="flex items-center justify-center gap-4 mt-3 text-[10.5px]" style={{ color: C.inkSub }}>
+              <span className="inline-flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: C.warmDeep }} />
+                {t('받음', 'Earned')}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: '#E5E7EB' }} />
+                {t('놓침', 'Missed')}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ boxShadow: `inset 0 0 0 1.5px ${C.line}` }} />
+                {t('예정', 'Upcoming')}
+              </span>
+            </div>
+
+            <p className="text-[11px] text-center mt-3 pt-3" style={{ color: C.warmDeep, borderTop: `1px solid ${C.line}` }}>
+              {t('꾸준히 모을수록 행운도 함께 쌓여요', 'The more you keep it up, the more luck builds up')}
+            </p>
+          </div>
+        </section>
 
         {/* Disclaimer */}
         <section className="px-5 pt-7 pb-2">
@@ -466,6 +458,9 @@ export default function LandingPage() {
           </p>
         </section>
       </main>
+
+      {/* 플로팅 채팅 버튼 */}
+      <FloatingChatButton />
 
       {/* Bottom Nav — fixed, 모바일 전용 (PC에서는 TopNav) */}
       <div
@@ -486,7 +481,7 @@ export default function LandingPage() {
             <BottomTab href={localePath('/')}             Icon={Home}        label={t('홈',     'Home')}   active />
             <BottomTab href={localePath('/today')}        Icon={Sun}         label={t('오늘',   'Today')}  />
             <BottomTab href={localePath('/saju')}         Icon={ScrollText}  label={t('사주',   'Saju')}   />
-            <BottomTab href={localePath('/couple')}       Icon={Users}       label={t('궁합',   'Match')}  />
+            <BottomTab href={localePath('/compatibility')} Icon={Heart}      label={t('궁합',   'Match')}  />
             <BottomTab href={localePath('/blog')}         Icon={BookOpen}    label={t('블로그', 'Blog')}   />
           </nav>
         </div>
@@ -537,76 +532,68 @@ function SectionCard({
   );
 }
 
-function ChatPrompt() {
-  const { t, localePath } = useLang();
-  const router = useRouter();
-  const [text, setText] = useState('');
-
-  const submit = () => {
-    const v = text.trim();
-    if (!v) return;
-    try {
-      localStorage.setItem('saju_chat_prefill', v);
-    } catch {}
-    router.push(localePath('/chat'));
-  };
+function DailyQuoteCard() {
+  const { t } = useLang();
+  const QUOTES_KO = [
+    '오늘 하루, 작은 변화가 큰 흐름을 바꿔요.',
+    '마음먹은 일은 오늘 시작이 정답이에요.',
+    '멈춰도 괜찮아요. 쉬는 것도 운의 일부.',
+    '좋은 인연은 준비된 마음에 찾아와요.',
+    '흐름을 믿으면 길이 보여요.',
+    '작은 감사가 큰 복을 불러요.',
+    '오늘의 선택이 내일의 운을 만들어요.',
+  ];
+  const QUOTES_EN = [
+    'A small change today shifts the big picture.',
+    'The best time to start is today.',
+    "It's okay to pause. Rest is part of luck.",
+    'Good connections find a prepared heart.',
+    'Trust the flow and the path appears.',
+    'Small gratitude invites great fortune.',
+    "Today's choice shapes tomorrow's luck.",
+  ];
+  const dayIdx = new Date().getDay();
+  const quote = t(QUOTES_KO[dayIdx], QUOTES_EN[dayIdx]);
 
   return (
-    <section className="relative z-10 mt-5 px-3">
-      <p
-        className="mb-2 px-1 text-[13px] font-semibold tracking-tight"
-        style={{ color: C.ink }}
-      >
-        {t('무슨 고민이 있으신가요?', "What's on your mind?")}
-      </p>
-      <div
-        className="flex items-center gap-2 rounded-full pl-4 pr-1.5 py-1.5 transition-shadow focus-within:shadow-md"
-        style={{ background: '#D1FAE5', boxShadow: `0 1px 3px rgba(0,0,0,0.06), inset 0 0 0 1px #A7F3D0` }}
-      >
-        <MessageCircle size={16} strokeWidth={2.2} style={{ color: C.warmDeep }} className="shrink-0" />
-        <input
-          type="text"
-          value={text}
-          onChange={e => setText(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') submit(); }}
-          placeholder={t('예: 지금 회사, 계속 다녀도 될까요?', 'e.g. Should I stay at my job?')}
-          className="flex-1 min-w-0 bg-transparent text-[13.5px] text-gray-800 placeholder:text-gray-400 outline-none"
-        />
-        <button
-          type="button"
-          onClick={submit}
-          disabled={!text.trim()}
-          aria-label={t('전송', 'Send')}
-          className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center transition-all disabled:opacity-30 active:scale-90"
-          style={{ background: C.warmDeep }}
+    <div
+      className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:bg-[#ECFDF5] active:scale-[0.98] h-[130px] overflow-hidden cursor-default"
+    >
+      <div className="flex items-start justify-between">
+        <span
+          className="w-[38px] h-[38px] rounded-[12px] flex items-center justify-center"
+          style={{ background: '#FFF8E1' }}
         >
-          <ArrowUp size={16} strokeWidth={2.5} color="#FFFFFF" />
-        </button>
+          <Quote size={19} strokeWidth={2.1} style={{ color: '#F57F17' }} />
+        </span>
+        <span className="text-gray-300 text-[13px]" aria-hidden>↗</span>
       </div>
-    </section>
+      <div>
+        <h4 className="text-[15px] font-bold leading-tight tracking-tight" style={{ color: C.ink }}>
+          {t('오늘의 한마디', 'Daily quote')}
+        </h4>
+        <p className="mt-0.5 text-[11.5px] leading-relaxed text-gray-400 line-clamp-2">
+          {quote}
+        </p>
+      </div>
+    </div>
   );
 }
 
-function CoupleTile({
-  href, title, sub, tone, Icon,
-}: { href: string; title: string; sub: string; tone: { bg: string; fg: string }; Icon: LucideIcon }) {
+function FloatingChatButton() {
+  const { t, localePath } = useLang();
+  const router = useRouter();
+
   return (
-    <Link
-      href={href}
-      className="flex flex-col gap-3 rounded-2xl p-4 transition-transform active:scale-[0.98]"
-      style={{ background: tone.bg }}
+    <button
+      type="button"
+      onClick={() => router.push(localePath('/chat'))}
+      aria-label={t('고민 상담하기', 'Chat with us')}
+      className="fixed right-4 bottom-[90px] lg:bottom-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95"
+      style={{ background: '#34D399' }}
     >
-      <span
-        className="w-10 h-10 rounded-xl flex items-center justify-center"
-        style={{ background: '#FFFFFF' }}
-      >
-        <Icon size={20} strokeWidth={2.2} style={{ color: tone.fg }} />
-      </span>
-      <div>
-        <p className="text-[14px] font-bold leading-tight tracking-tight" style={{ color: C.ink }}>{title}</p>
-        <p className="text-[11.5px] leading-snug mt-1" style={{ color: C.inkSoft }}>{sub}</p>
-      </div>
-    </Link>
+      <MessageCircle size={24} strokeWidth={2.2} color="#FFFFFF" />
+    </button>
   );
 }
 
