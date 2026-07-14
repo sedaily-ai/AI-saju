@@ -273,7 +273,7 @@ export default function ChaeunPage() {
             <div className="flex items-start justify-between gap-3 mb-3">
               <div>
                 <div className="text-[10.5px] font-bold tracking-[0.12em] text-gray-500 uppercase mb-1">
-                  {t('당신의 이상형', 'Your Wealth Type')}
+                  {t('당신의 재물유형', 'Your Wealth Type')}
                 </div>
                 <div className="text-[20px] font-extrabold text-gray-900 leading-[1.3]">
                   {diagnosis.headline}

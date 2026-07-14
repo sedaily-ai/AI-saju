@@ -95,10 +95,10 @@ const PERSONALITY_DATA: Record<string, {
     bestEnvironment: '실무 중심의 역할, 사람을 돌보는 일, 세밀한 관리가 필요한 분야가 어울립니다. 누군가를 서포트하거나 세부 사항을 완벽하게 관리하는 일에서 진가를 발휘합니다. 회계, 영양사, 비서직, 품질관리, 교육 보조 등이 적합합니다.',
   },
   '庚': {
-    headline: '날카로운 바위와 칼, 결단의 화신',
-    temperament: '강인하고 결단력이 있으며 의리를 중시합니다. 냉철한 판단력과 실행력이 뛰어나고, 승부욕이 강한 행동파입니다. 쇠가 불에 의해 단련될수록 단단해지듯, 역경을 겪을수록 더 강해지는 회복력을 지녔습니다. 옳다고 믿는 것에 대해서는 망설임 없이 행동하며, 한번 결정하면 뒤돌아보지 않는 과단성이 있습니다. 직설적이고 솔직해서 돌려 말하는 것을 못하지만, 그 진심이 전해져 깊은 신뢰를 얻기도 합니다.',
-    stressPattern: '극도로 공격적이거나 독선적으로 변합니다. 타인을 날카롭게 비판하고, 양보 없이 밀어붙이다 관계가 파탄납니다. 자신의 잘못을 인정하지 못하고 상대 탓으로 돌리며, 냉소적 태도가 심해집니다. 이때는 격렬한 운동으로 에너지를 물리적으로 발산하거나, 경쟁 상황에서 잠시 벗어나 자연 속에서 쉬는 것이 효과적입니다.',
-    bestEnvironment: '경쟁이 있는 환경, 명확한 성과 지표, 실행력이 중시되는 현장 중심 역할이 어울립니다. 정치적 눈치보기보다 실력으로 승부하는 곳에서 강점을 발휘합니다. 군인, 외과의사, 엔지니어, 투자분석가, 스포츠 관련 직종 등이 적합합니다.',
+    headline: '서리 내린 광산의 원철, 숙살의 무인',
+    temperament: '가공되지 않은 거대한 원철처럼, 겉으로는 차갑고 날카로운 인상을 주지만 그 단단함을 유지하기 위해 내면에서 끊임없이 스스로를 벼리는 사람입니다. 공과 사의 경계가 명확하고 맺고 끊음이 확실하며, 한번 결정하면 뒤돌아보지 않는 숙살의 기운을 품고 있습니다. 남에게 짐이 되기 싫어 힘든 일도 혼자 꾸역꾸역 버텨내는 강인한 자존심이 있으며, 위기 상황에서 판을 뒤집는 비범한 카리스마와 절대 타협하지 않는 생존 본능이 발동합니다. 의리가 있어 한번 인연을 맺으면 끝까지 지키지만, 직설적이고 솔직해서 돌려 말하는 것을 못합니다. 그 단단함 뒤에는 상처받기 싫어 세운 방어벽이 있고, 그 성벽 내부에는 누구보다 뜨거운 열정과 순수한 의지가 가득 차 있습니다.',
+    stressPattern: '비대해진 금 기운의 방어기제가 극대화되어 타인의 조언을 완전히 밀어내고 스스로를 고립시킵니다. 내면의 기준이 너무 확고해서 주변이 내 뜻대로 정돈되지 않을 때 극심한 스트레스를 받고, 차갑게 냉소하거나 날카로운 독단으로 표출됩니다. 세상이 투영하는 차가움은 사실 상처받지 않으려는 방어벽이며, 이 상태가 지속되면 관계가 경직되고 "왜 나만 이렇게 치열한 삶의 무게를 버텨야 하는가"라는 근원적 외로움에 빠집니다. 격렬한 운동으로 에너지를 물리적으로 발산하거나, 경쟁에서 벗어나 푸른 자연(목·수 기운) 속에서 쉬며 견고한 성벽을 잠시 내리는 것이 효과적입니다.',
+    bestEnvironment: '실력으로 승부하는 성과 중심 환경, 명확한 책임과 권한이 주어지는 현장 중심 역할이 최적입니다. 칼날 같은 전문성을 휘두를 수 있는 법조, 의료, 공학, 금융분석, 위기관리, 심도 있는 상담업 및 기획 전문가 직무에서 타고난 재능이 빛을 발합니다. 정치적 눈치보기가 필요한 환경보다, 공과 사가 분명하고 결과로 인정받는 구조에서 탁월한 리더십과 추진력을 발휘합니다.',
   },
   '辛': {
     headline: '빛나는 보석, 완벽을 추구하는 심미안',
@@ -213,7 +213,7 @@ function buildTemperamentSummary(ilgan: string): string {
     '丁': '고요한 외면 속 깊은 열정을 품은 집중형',
     '戊': '흔들리지 않는 중심, 믿음직한 포용력의 소유자',
     '己': '따뜻한 보살핌과 세밀한 관찰력의 실력파',
-    '庚': '결단력과 실행력으로 승부하는 행동파',
+    '庚': '서리 내린 원철처럼 단단하고 냉철하나, 그 안에 뜨거운 의지를 품은 숙살의 무인',
     '辛': '섬세한 감각과 완벽을 추구하는 장인 기질',
     '壬': '넓은 시야와 자유로운 사고의 탐험가',
     '癸': '섬세한 직관과 깊은 통찰의 지혜형',
@@ -229,7 +229,7 @@ function buildStrengthsWeaknessesSummary(ilgan: string): string {
     '丁': '집중력과 통찰이 빛나지만 폐쇄적 성향은 주의',
     '戊': '안정감이 강점, 변화에 대한 둔감함은 약점',
     '己': '꼼꼼함과 헌신이 장점, 자기 비하는 경계 대상',
-    '庚': '결단력과 의리가 강점, 공격성은 조절 필요',
+    '庚': '결단력과 의리가 강점, 고립적 방어기제와 냉소는 조절 필요',
     '辛': '심미안과 분석력이 빛나지만 예민함은 관리 필요',
     '壬': '창의력과 포용력이 강점, 산만함은 보완 포인트',
     '癸': '직관과 인내가 돋보이지만 소심함은 극복 과제',
@@ -245,7 +245,7 @@ function buildStressPatternSummary(ilgan: string): string {
     '丁': '속마음을 감추며 스스로를 가두는 경향',
     '戊': '무기력해지며 행동을 멈추는 패턴',
     '己': '자기 의심에 빠져 결정을 미루는 경향',
-    '庚': '공격적으로 변하며 관계가 경직되는 패턴',
+    '庚': '내면의 방어벽이 극대화되며 고립과 냉소로 치닫는 패턴',
     '辛': '완벽주의가 강박으로 변하는 위험 구간',
     '壬': '현실 도피로 집중력이 흐트러지는 패턴',
     '癸': '불안이 커지며 자신감을 잃기 쉬운 상태',
@@ -261,7 +261,7 @@ function buildBestEnvironmentSummary(ilgan: string): string {
     '丁': '깊이 파고들 수 있는 조용하고 자율적인 공간',
     '戊': '체계적이고 안정적인 조직에서 힘을 발휘',
     '己': '세밀한 관리와 사람을 돌보는 역할이 적성',
-    '庚': '실력으로 승부하는 성과 중심 환경이 맞음',
+    '庚': '공과 사가 분명하고 실력으로 인정받는 전문가 환경이 최적',
     '辛': '품질과 디테일이 중요한 전문 분야가 적합',
     '壬': '자유로운 탐색과 큰 그림을 그릴 수 있는 환경',
     '癸': '안정 속에서 전문성을 쌓을 수 있는 분야',
@@ -379,7 +379,7 @@ function buildLoveFortune(ilgan: string, pillars: Pillar[]): string {
   if (diff === 0) return '배우자궁에 비겁이 있어 대등하고 독립적인 관계를 추구합니다. 서로의 자율성을 존중하는 파트너와 잘 맞으며, 의존적 관계보다 동반자적 관계에서 행복합니다. 연애 초기에는 서로의 독립성이 매력으로 작용하지만, 관계가 깊어지면 "각자의 영역"을 어디까지 인정할지에 대한 조율이 필요합니다. 상대에게 도움을 요청하는 것이 약함이 아니라 신뢰의 표현임을 기억하세요.';
   if (diff === 1) return '배우자궁에 식상이 있어 자유롭고 감성적인 연애를 원합니다. 표현력이 풍부한 관계를 좋아하며, 상대의 재능이나 매력에 끌립니다. 일상에서 소소한 즐거움을 함께 나누는 것을 중시하고, 서로의 취미와 창작 활동을 응원하는 관계에서 만족합니다. 다소 변덕스러울 수 있으니 안정감 있는 상대가 보완이 되며, "지루하지 않은 일상"을 함께 만들어가는 파트너가 이상적입니다.';
   if (diff === 2) return '배우자궁에 재성이 있어 가정적이고 실속 있는 연애를 합니다. 상대를 잘 챙기고 현실적인 계획을 함께 세워나가는 관계를 선호합니다. 물질적 안정을 중시하며, 함께 저축하고 미래를 설계하는 과정 자체를 사랑의 표현으로 여깁니다. 로맨틱한 말보다 일상의 세심한 배려로 사랑을 표현하는 타입이며, 실제로 함께 살아보면 그 장점이 더 빛나는 스타일입니다.';
-  if (diff === 3) return '배우자궁에 관성이 있어 격식 있고 안정적인 관계를 원합니다. 사회적으로 인정받는 파트너에게 끌리며, 서로를 통해 성장할 수 있는 진지한 관계를 추구합니다. 가벼운 만남보다는 결혼을 전제한 진중한 교제를 선호하고, 상대의 사회적 지위나 안정성이 큰 매력 포인트입니다. 다만 지나치게 격식을 차리면 감정적 거리가 생길 수 있으니, 편안한 모습도 보여주는 용기가 필요합니다.';
+  if (diff === 3) return '배우자궁에 관성이 있어 책임감 있는 인연을 만나지만, 본인의 금 기운이 강해서 배우자에게도 엄격한 기준을 들이대기 쉽습니다. 가장 편안해야 할 관계에서조차 긴장의 끈을 놓지 못하고, 내 편이라고 생각하는 사람에게 한없이 든든해지려는 마음에 도리어 상처받기도 합니다. 서로를 내 기준대로 고쳐 쓰려 하지 않고, 적절한 정서적 안전거리를 유지하며 상대의 영혼을 있는 그대로 존중할 때 부부궁이 평화롭습니다. 진지하고 격식 있는 관계를 선호하며, 상견례나 미래를 논의하는 자리에서 좋은 인상을 남기는 타입입니다.';
   if (diff === 4) return '배우자궁에 인성이 있어 정서적 지지와 따뜻한 보살핌을 주고받는 관계를 원합니다. 학구적이거나 차분한 상대에게 끌리며, 깊은 대화가 있는 관계에서 만족합니다. 외모나 조건보다 내면의 깊이와 인격에 끌리는 타입이며, 함께 성장하고 배워가는 동반자를 원합니다. 서로에게 정서적 안식처가 되어주는 관계가 가장 오래 지속됩니다.';
   return '내면에서 원하는 이상적 관계를 명확히 하면, 인연이 더 빨리 찾아옵니다. 자신이 어떤 사랑을 원하는지 구체적으로 정리해보세요.';
 }
@@ -389,7 +389,7 @@ function buildWealthFortune(structure: StructureAnalysis | null, ilgan: string):
   if (!structure?.singangyak) return '꾸준한 저축과 실속 있는 소비가 재물 운의 기본입니다. 한탕을 노리기보다 시간을 내 편으로 만드는 장기적 재테크가 유리합니다.';
   const lv = structure.singangyak.level;
   if (lv === '극신강' || lv === '신강') {
-    return '신강 사주는 재성(재물)을 감당할 힘이 있습니다. 적극적으로 기회를 잡아도 감당할 수 있는 그릇이니, 투자나 사업에서 남들보다 과감할 수 있습니다. 다만 지나친 자신감으로 큰 투자에 올인하면 위험합니다. 분산 투자와 계획적 지출이 핵심이며, 재물을 "버는 것"보다 "지키는 것"에도 에너지를 쏟아야 합니다. 편재 운이 들어오는 시기에 부업이나 투자를 시작하면 좋은 결실을 얻을 수 있습니다.';
+    return '신강 사주는 재성(재물)을 감당할 힘이 충분합니다. 그러나 이 사주의 재물 패턴은 흥청망청 쓰는 타입이 아니라, 철저하게 계산하고 통제하여 성곽을 쌓듯 자산을 방어하는 현금성 자산 중심의 안정적 방어 전략으로 나타납니다. "절대 무너지면 안 된다"는 강박 뒤에는 생존과 미래에 대한 근원적 두려움이 숨어 있지만, 이 철저한 절제력과 삶을 정돈하는 능력은 결국 풍요의 성곽을 지켜냅니다. 편재 운이 들어오는 시기에 부업이나 투자를 시작하면 좋은 결실을 얻을 수 있으며, 지나친 신중함으로 기회를 놓치지 않도록 "80% 확신이면 실행"하는 기준을 가져보세요.';
   }
   if (lv === '중화') {
     return '균형 잡힌 사주로 큰 재물운의 기복은 적습니다. 꾸준히 모으는 정재(正財) 스타일이 어울리며, 투기보다 실력으로 벌어들이는 구조가 유리합니다. 월급 + 부수입의 이원화 전략이 잘 맞으며, 안정적인 자산(예적금, 부동산, 인덱스 펀드 등)에 꾸준히 넣는 것이 장기적으로 큰 자산을 만듭니다. 재성 대운이 들어오면 그동안의 노력이 결실을 맺습니다.';
@@ -408,7 +408,7 @@ function buildCareerFortune(chongun: ChongunResult | null, structure: StructureA
   if (structure?.gyeokguk) {
     return `${structure.gyeokguk.name} 격국의 사주로, ${structure.gyeokguk.description} 이 격국의 특성을 살리면 커리어에서 자연스러운 차별화가 가능합니다. 무리하게 남의 방식을 따르기보다, 자신만의 스타일로 전문성을 쌓아가세요.`;
   }
-  return '자신의 일간 특성과 용신 방향에 맞는 분야를 선택하면 커리어에서 자연스러운 성장이 이루어집니다. 중요한 것은 "잘하는 일"과 "좋아하는 일"의 교집합을 찾는 것입니다. 대운의 흐름에 맞춰 이직이나 전직의 타이밍을 잡으면 더 큰 도약이 가능합니다.';
+  return '강한 카리스마와 전문성을 바탕으로 자신의 언어와 기술을 표출하는 직무에 최적화되어 있습니다. 칼날 같은 정확함과 깊이 있는 분석력이 요구되는 법조, 의료, 공학, 금융분석, 위기관리 컨설팅, 심도 있는 상담업 및 기획 전문가 분야에서 타고난 재능이 빛을 발합니다. 보이지 않는 무대 뒤에서 칼날을 갈며 실력을 쌓아온 시간이 결국 커리어의 버팀목이 되며, 대운의 흐름에 맞춰 이직이나 전직의 타이밍을 잡으면 더 큰 도약이 가능합니다.';
 }
 
 // ── 건강운 ──
@@ -417,7 +417,7 @@ function buildHealthFortune(structure: StructureAnalysis | null, ilganOh: string
     '목': '간, 담낭, 눈, 근육 계통이 약점이 될 수 있습니다. 스트레스를 풀지 못하면 간 기능과 시력에 영향이 옵니다. 특히 화가 나거나 억울한 감정을 참을 때 간에 무리가 가므로, 감정을 건강하게 풀어내는 방법을 찾는 것이 중요합니다. 규칙적인 스트레칭과 녹색 채소 섭취를 권하며, 눈의 피로를 풀기 위해 디지털 기기 사용 시간을 관리하세요.',
     '화': '심장, 소장, 혈액순환 계통을 주의하세요. 과도한 흥분이나 수면 부족이 심혈관에 무리를 줍니다. 열정적인 성향 때문에 쉬지 않고 달리다 갑작스럽게 에너지가 바닥나는 패턴이 반복될 수 있습니다. 규칙적인 수면과 명상이 도움되며, 심장 건강을 위해 유산소 운동을 꾸준히 하되 과도한 흥분 상태의 고강도 운동은 피하세요.',
     '토': '위장, 비장, 소화기 계통이 취약합니다. 불규칙한 식사와 과식을 주의하세요. 걱정이 많아지면 소화 기능이 떨어지는 패턴이 있으므로, 마음의 평화가 곧 위장 건강입니다. 정해진 시간에 먹는 습관과 식사 후 가벼운 산책이 건강의 기본이며, 야식을 줄이고 위장에 부담이 적은 따뜻한 음식을 선택하세요.',
-    '금': '폐, 대장, 피부, 호흡기를 주의하세요. 건조한 환경과 미세먼지에 취약하며, 감정을 억누르면 피부 트러블이나 호흡기 문제로 나타나기 쉽습니다. 유산소 운동과 충분한 수분 보충이 핵심이며, 환절기에는 특히 호흡기 관리에 신경 쓰세요. 슬픔이나 상실감이 폐에 영향을 주므로 감정 해소도 중요합니다.',
+    '금': '폐, 대장, 피부, 호흡기를 주의하세요. 금 기운이 과하면 건조함과 경직이 몸에도 그대로 나타납니다. 감정을 억누르고 내면의 방어벽을 높이 세울수록 피부 트러블, 호흡기 문제, 어깨·목 결림이 동반되기 쉽습니다. 특히 스트레스를 삼키는 습관이 폐 기능을 약화시키고 만성 기침이나 알레르기로 이어질 수 있습니다. 목(木)과 수(水) 기운을 보충하는 것이 핵심으로, 푸른 숲에서의 산책, 충분한 수분 섭취, 깊은 복식호흡이 경직된 금 기운을 풀어줍니다. 슬픔이나 억울함을 참지 말고 건강하게 표출하는 연습이 곧 폐를 지키는 길입니다.',
     '수': '신장, 방광, 생식기, 뼈·관절을 주의하세요. 과로와 냉기에 약하며, 에너지를 과도하게 소진하면 신장 기능 저하로 이어질 수 있습니다. 하체 운동과 따뜻한 음식 섭취가 도움되며, 특히 겨울철 보온에 신경 쓰세요. 충분한 수면이 신장 회복의 핵심이므로 무리한 야근이나 밤새 활동은 자제하세요.',
   };
 
@@ -437,7 +437,28 @@ function buildRelationshipFortune(chongun: ChongunResult | null, ilgan: string):
   if (chongun?.detail?.social) {
     return chongun.detail.social + ' 인간관계에서 가장 중요한 것은 자신의 교류 방식을 인정하고 무리하게 바꾸려 하지 않는 것입니다. 타고난 성향에 맞는 관계 맺기 방식을 존중하되, 약점을 보완하는 작은 노력을 꾸준히 하면 인간관계의 질이 눈에 띄게 올라갑니다.';
   }
-  return '진심을 나눌 수 있는 소수의 관계가 넓고 얕은 인맥보다 운에 도움이 됩니다. 자신의 성향에 맞는 교류 방식을 존중하되, 새로운 만남에도 마음을 열어두세요. 인간관계에서의 행운은 "진정성"에서 옵니다. 계산 없이 진심으로 다가가면, 귀인이 자연스럽게 나타나는 사주입니다.';
+  return '진심을 나눌 수 있는 소수의 관계가 넓고 얕은 인맥보다 운에 도움이 됩니다. 무리 속에서 웃고 있으면서도 문득 찾아오는 인간에 대한 염증과 공허함은, 모두에게 좋은 사람이 되려 애쓴 대가일 수 있습니다. 당신의 단단함을 있는 그대로 존중하고 지켜줄 소수의 "진짜 내 편"만을 남기는 것이 고귀한 영혼을 지키는 가장 다정한 길입니다. 계산 없이 진심으로 다가가면, 귀인은 자연스럽게 나타납니다.';
+}
+
+// ── AI 캐시 데이터 타입 (generate_parallel.py 섹션별 출력) ──
+export interface ChongunCacheSections {
+  headline?: string;
+  temperament?: string;
+  stressPattern?: string;
+  bestEnvironment?: string;
+  personality?: string; // 구버전 호환
+  career?: string;
+  wealth?: string;
+  love?: string;
+  relationships?: string;
+  health?: string;
+  improvement?: string;
+  luckyColor?: string;
+  luckyNumber?: string;
+  luckyItem?: string;
+  bestMatch?: string;
+  dailyAdvice?: string;
+  text?: string; // 파싱 실패 시 폴백용 단일 텍스트
 }
 
 // ── 메인 빌더 함수 ──
@@ -448,6 +469,7 @@ export function buildDetailedFortune(
   daeuns: DaeunEntry[],
   yeonuns: YeonunEntry[],
   woluns: WolunEntry[],
+  cacheSections?: ChongunCacheSections | null,
 ): DetailedFortuneData | null {
   if (!ilgan) return null;
 
@@ -466,16 +488,19 @@ export function buildDetailedFortune(
   const strengths = chongun?.detail?.strengths || [];
   const weaknesses = chongun?.detail?.weaknesses || [];
 
+  // ── AI 캐시가 있으면 우선 사용, 없으면 하드코딩 폴백 ──
+  const cs = cacheSections;
+
   const personalitySection: PersonalitySection = {
-    headline: personality.headline,
-    temperament: personality.temperament,
+    headline: cs?.headline || personality.headline,
+    temperament: cs?.temperament || cs?.personality || personality.temperament,
     temperamentSummary: buildTemperamentSummary(ilgan),
     strengths: strengths.length > 0 ? strengths : ['추진력', '집중력', '성실함'],
     weaknesses: weaknesses.length > 0 ? weaknesses : ['완벽주의', '고집'],
     strengthsWeaknessesSummary: buildStrengthsWeaknessesSummary(ilgan),
-    stressPattern: personality.stressPattern,
+    stressPattern: cs?.stressPattern || personality.stressPattern,
     stressPatternSummary: buildStressPatternSummary(ilgan),
-    bestEnvironment: personality.bestEnvironment,
+    bestEnvironment: cs?.bestEnvironment || personality.bestEnvironment,
     bestEnvironmentSummary: buildBestEnvironmentSummary(ilgan),
   };
 
@@ -483,15 +508,15 @@ export function buildDetailedFortune(
     headline: buildFortuneHeadline(structure, ilganOh),
     overall: buildOverallFortune(structure, daeuns, yeonuns, ilgan),
     overallSummary: buildOverallSummary(structure),
-    love: buildLoveFortune(ilgan, pillars),
+    love: cs?.love || buildLoveFortune(ilgan, pillars),
     loveSummary: buildLoveSummary(ilgan, pillars),
-    wealth: buildWealthFortune(structure, ilgan),
+    wealth: cs?.wealth || buildWealthFortune(structure, ilgan),
     wealthSummary: buildWealthSummary(structure),
-    career: buildCareerFortune(chongun, structure),
+    career: cs?.career || buildCareerFortune(chongun, structure),
     careerSummary: buildCareerSummary(chongun, structure),
-    health: buildHealthFortune(structure, ilganOh),
+    health: cs?.health || buildHealthFortune(structure, ilganOh),
     healthSummary: buildHealthSummary(ilganOh),
-    relationships: buildRelationshipFortune(chongun, ilgan),
+    relationships: cs?.relationships || buildRelationshipFortune(chongun, ilgan),
     relationshipsSummary: buildRelationshipsSummary(chongun),
   };
 
@@ -500,10 +525,12 @@ export function buildDetailedFortune(
 
   const funSection: FunContentSection = {
     headline: '오늘의 행운을 잡는 작은 팁',
-    luckyItems: LUCKY_ITEMS[ilganOh] || LUCKY_ITEMS['목'],
-    bestMatch: BEST_MATCH[ilganOh] || BEST_MATCH['목'],
+    luckyItems: cs?.luckyColor
+      ? { color: cs.luckyColor, number: cs.luckyNumber || '', item: cs.luckyItem || '' }
+      : (LUCKY_ITEMS[ilganOh] || LUCKY_ITEMS['목']),
+    bestMatch: cs?.bestMatch || BEST_MATCH[ilganOh] || BEST_MATCH['목'],
     cautionPeriod: CAUTION_PERIOD[currentUs] || '무리하지 않는 것이 최고의 액땜입니다.',
-    dailyAdvice,
+    dailyAdvice: cs?.dailyAdvice || dailyAdvice,
   };
 
   return {
