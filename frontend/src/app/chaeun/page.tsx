@@ -100,7 +100,10 @@ export default function ChaeunPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [checkInChoice, setCheckInChoice] = useState<CheckInChoice | null>(null);
   const [expandedAct, setExpandedAct] = useState<number | null>(null);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const timelineScrollRef = useRef<HTMLDivElement | null>(null);
+
+  const toggleSection = (key: string) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
 
   useEffect(() => {
     try {
@@ -445,6 +448,96 @@ export default function ChaeunPage() {
             </div>
           );
         })()}
+
+        {/* ═══════════════════════════════════════════
+            ④-b 돈을 버는 방식 — attitude (토글)
+        ═══════════════════════════════════════════ */}
+        {diagnosis && diagnosis.attitude.length > 0 && (
+          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection('attitude')}
+              className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+            >
+              <div>
+                <div className="text-[13px] font-semibold text-gray-800">
+                  {t('돈을 버는 방식', 'How You Earn')}
+                </div>
+                <div className="text-[11px] text-gray-400 mt-0.5">
+                  {t('당신에게 맞는 수익 창출 스타일', 'Your natural earning style')}
+                </div>
+              </div>
+              <span className={`text-[12px] text-gray-400 transition-transform ${openSections['attitude'] ? 'rotate-90' : ''}`}>▸</span>
+            </button>
+            {openSections['attitude'] && (
+              <div className="px-5 pb-5">
+                <p className="text-[12px] text-gray-700 leading-[1.8]">
+                  {diagnosis.attitudeProse}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════
+            ④-c 투자 성향 — investmentStyle (토글)
+        ═══════════════════════════════════════════ */}
+        {diagnosis && diagnosis.investmentStyle.length > 0 && (
+          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection('invest')}
+              className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+            >
+              <div>
+                <div className="text-[13px] font-semibold text-gray-800">
+                  {t('투자 성향', 'Investment Style')}
+                </div>
+                <div className="text-[11px] text-gray-400 mt-0.5">
+                  {t('사주가 말해주는 투자 체질', 'Your Saju-based investment profile')}
+                </div>
+              </div>
+              <span className={`text-[12px] text-gray-400 transition-transform ${openSections['invest'] ? 'rotate-90' : ''}`}>▸</span>
+            </button>
+            {openSections['invest'] && (
+              <div className="px-5 pb-5">
+                <p className="text-[12px] text-gray-700 leading-[1.8]">
+                  {diagnosis.investmentProse}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════
+            ④-d 재물 축적 능력 — strengths + cautions (토글)
+        ═══════════════════════════════════════════ */}
+        {diagnosis && (diagnosis.strengths.length > 0 || diagnosis.cautions.length > 0) && (
+          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection('accumulate')}
+              className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+            >
+              <div>
+                <div className="text-[13px] font-semibold text-gray-800">
+                  {t('재물 축적 능력', 'Wealth Accumulation')}
+                </div>
+                <div className="text-[11px] text-gray-400 mt-0.5">
+                  {t('강점과 주의점으로 보는 축적 역량', 'Strengths & cautions for building wealth')}
+                </div>
+              </div>
+              <span className={`text-[12px] text-gray-400 transition-transform ${openSections['accumulate'] ? 'rotate-90' : ''}`}>▸</span>
+            </button>
+            {openSections['accumulate'] && (
+              <div className="px-5 pb-5">
+                <p className="text-[12px] text-gray-700 leading-[1.8]">
+                  {diagnosis.accumulationProse}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* ═══════════════════════════════════════════
             ⑤ 인생 재물 3막 — 대운 그룹핑 (탭→상세 카드 펼침)
