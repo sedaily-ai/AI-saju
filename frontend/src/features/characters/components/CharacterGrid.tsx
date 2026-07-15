@@ -157,10 +157,10 @@ function CharacterTile({
 
       <div className="flex flex-col items-center text-center">
         <div
-          className="w-16 h-16 rounded-full flex items-center justify-center mb-2.5"
+          className="w-16 h-16 rounded-full flex items-center justify-center mb-2.5 overflow-hidden"
           style={{ background: `linear-gradient(135deg, ${tone.bg} 0%, #FFFFFF 100%)`, color: tone.fg }}
         >
-          <ZodiacIcon branch={character.branch.hanja} size={32} />
+          <CharacterIcon id={character.id} branch={character.branch.hanja} size={32} tone={tone} />
         </div>
         <h4 className="text-[14.5px] font-black" style={{ fontFamily: SERIF, color: SAJU.ink }}>
           {character.stem.ko}{character.branch.ko}
@@ -189,13 +189,22 @@ function CharacterTile({
 function CharacterDetail({ character, isMine }: { character: GapjaCharacter; isMine: boolean }) {
   const { t } = useLang();
   const tone = OH_TONE[character.stem.oh];
+  const imgSrc = `/characters/${character.id}.png`;
+  const [hasCustomImg, setHasCustomImg] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setHasCustomImg(true);
+    img.onerror = () => setHasCustomImg(false);
+    img.src = imgSrc;
+  }, [imgSrc]);
 
   return (
     <div
-      className="relative mb-4 rounded-[24px] bg-white pt-7 pb-5 px-5 flex flex-col items-center text-center"
+      className="relative mb-4 rounded-[24px] bg-white overflow-hidden flex flex-col items-center text-center"
       style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
     >
-      <div className="absolute top-4 left-4">
+      <div className="absolute top-4 left-4 z-10">
         <span
           className="rounded-full px-2.5 py-1 text-[10.5px] font-bold"
           style={{ background: tone.bg, color: tone.fg }}
@@ -205,45 +214,97 @@ function CharacterDetail({ character, isMine }: { character: GapjaCharacter; isM
       </div>
       {isMine && (
         <span
-          className="absolute top-4 right-4 rounded-full px-2.5 py-1 text-[10.5px] font-bold text-white"
+          className="absolute top-4 right-4 z-10 rounded-full px-2.5 py-1 text-[10.5px] font-bold text-white"
           style={{ background: SAJU.warmDeep }}
         >
           {t('나의 캐릭터', 'My character')}
         </span>
       )}
 
-      <div
-        className="w-24 h-24 rounded-full flex items-center justify-center mb-4"
-        style={{ background: `linear-gradient(135deg, ${tone.bg} 0%, #FFFFFF 100%)`, color: tone.fg }}
-      >
-        <ZodiacIcon branch={character.branch.hanja} size={54} />
-      </div>
+      {hasCustomImg && (
+        <div className="w-full">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={imgSrc}
+            alt={`${character.stem.ko}${character.branch.ko}`}
+            className="w-full h-auto object-cover"
+          />
+        </div>
+      )}
 
-      <h3 className="text-[22px] font-black" style={{ color: SAJU.ink, fontFamily: SERIF }}>
-        {character.stem.ko}{character.branch.ko}
-        <span className="text-[13px] font-semibold ml-1.5" style={{ color: SAJU.inkSub }}>
-          {character.stem.hanja}{character.branch.hanja}
-        </span>
-      </h3>
-      <p className="text-[13.5px] font-bold mt-1" style={{ color: tone.fg }}>
-        {character.stem.keyword}
-      </p>
+      <div className="pt-5 pb-5 px-5 flex flex-col items-center text-center w-full">
+        <h3 className="text-[22px] font-black" style={{ color: SAJU.ink, fontFamily: SERIF }}>
+          {character.stem.ko}{character.branch.ko}
+          <span className="text-[13px] font-semibold ml-1.5" style={{ color: SAJU.inkSub }}>
+            {character.stem.hanja}{character.branch.hanja}
+          </span>
+        </h3>
+        <p className="text-[13.5px] font-bold mt-1" style={{ color: tone.fg }}>
+          {character.stem.keyword}
+        </p>
 
-      <div
-        className="mt-4 rounded-2xl px-4 py-3 text-[13px] leading-relaxed max-w-[320px]"
-        style={{ background: tone.bg, color: SAJU.inkSoft }}
-      >
-        “{character.branch.mood}”
-      </div>
-
-      <div className="flex flex-wrap justify-center gap-1.5 mt-4">
-        <span
-          className="rounded-full px-2.5 py-1 text-[11px] font-semibold"
-          style={{ background: '#F7F5F2', color: SAJU.inkSoft }}
+        <div
+          className="mt-4 rounded-2xl px-4 py-3 text-[13px] leading-relaxed max-w-[320px]"
+          style={{ background: tone.bg, color: SAJU.inkSoft }}
         >
-          {character.branch.zodiacKo}
-        </span>
+          &quot;{character.branch.mood}&quot;
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-1.5 mt-4">
+          <span
+            className="rounded-full px-2.5 py-1 text-[11px] font-semibold"
+            style={{ background: '#F7F5F2', color: SAJU.inkSoft }}
+          >
+            {character.branch.zodiacKo}
+          </span>
+        </div>
       </div>
+    </div>
+  );
+}
+
+
+/** 커스텀 이미지가 있으면 이미지, 없으면 ZodiacIcon 폴백 */
+function CharacterIcon({ id, branch, size, tone }: { id: string; branch: string; size: number; tone: { bg: string; fg: string } }) {
+  const src = `/characters/${id}.png`;
+  const [hasImg, setHasImg] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setHasImg(true);
+    img.onerror = () => setHasImg(false);
+    img.src = src;
+  }, [src]);
+
+  if (hasImg) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={src} alt={id} className="w-full h-full object-cover" />;
+  }
+  return <ZodiacIcon branch={branch} size={size} />;
+}
+
+/** 상세 카드 하단에 커스텀 일러스트 표시 — 이미지 존재 시에만 렌더 */
+function DetailIllustration({ id }: { id: string }) {
+  const src = `/characters/${id}.png`;
+  const [hasImg, setHasImg] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setHasImg(true);
+    img.onerror = () => setHasImg(false);
+    img.src = src;
+  }, [src]);
+
+  if (!hasImg) return null;
+
+  return (
+    <div className="mt-5 w-full max-w-[240px] mx-auto">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={id}
+        className="w-full h-auto object-contain rounded-2xl"
+      />
     </div>
   );
 }

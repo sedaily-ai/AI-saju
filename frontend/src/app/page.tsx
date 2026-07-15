@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
   ScrollText, Sun, Calendar, CalendarCheck, Heart, Sparkles,
-  Search, BookOpen, Home, MessageCircle, HelpCircle, Quote,
+  Search, BookOpen, Home, MessageCircle, HelpCircle,
   type LucideIcon,
 } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
@@ -228,6 +228,17 @@ export default function LandingPage() {
             >
               <Search size={19} strokeWidth={2.2} />
             </button>
+            <Link
+              href={localePath('/mypage')}
+              aria-label={t('마이페이지', 'My Page')}
+              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-black/5 active:scale-95"
+              style={{ color: C.ink }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </Link>
           </div>
         </header>
 
@@ -533,7 +544,7 @@ function SectionCard({
 }
 
 function DailyQuoteCard() {
-  const { t } = useLang();
+  const { t, localePath } = useLang();
   const QUOTES_KO = [
     '오늘 하루, 작은 변화가 큰 흐름을 바꿔요.',
     '마음먹은 일은 오늘 시작이 정답이에요.',
@@ -556,15 +567,16 @@ function DailyQuoteCard() {
   const quote = t(QUOTES_KO[dayIdx], QUOTES_EN[dayIdx]);
 
   return (
-    <div
-      className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:bg-[#ECFDF5] active:scale-[0.98] h-[130px] overflow-hidden cursor-default"
+    <Link
+      href={localePath('/daily-quote')}
+      className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:bg-[#ECFDF5] active:scale-[0.98] h-[130px] overflow-hidden"
     >
       <div className="flex items-start justify-between">
         <span
           className="w-[38px] h-[38px] rounded-[12px] flex items-center justify-center"
           style={{ background: '#FFF8E1' }}
         >
-          <Quote size={19} strokeWidth={2.1} style={{ color: '#F57F17' }} />
+          <span className="text-[20px]">🥠</span>
         </span>
         <span className="text-gray-300 text-[13px]" aria-hidden>↗</span>
       </div>
@@ -576,7 +588,7 @@ function DailyQuoteCard() {
           {quote}
         </p>
       </div>
-    </div>
+    </Link>
   );
 }
 

@@ -11,7 +11,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Home, ScrollText, Sparkles, BookOpen, MessageCircle,
+  Home, ScrollText, Sparkles, BookOpen, MessageCircle, User,
   type LucideIcon,
 } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
@@ -96,9 +96,17 @@ export function TopNav() {
           })}
         </nav>
 
-        {/* 우측: 언어 토글 */}
-        <div className="shrink-0">
+        {/* 우측: 언어 토글 + 마이페이지 */}
+        <div className="shrink-0 flex items-center gap-2">
           <InlineLangToggle />
+          <Link
+            href={localePath('/mypage')}
+            aria-label={t('마이페이지', 'My Page')}
+            className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:bg-black/[0.04] active:scale-95"
+            style={{ color: SAJU.inkSoft }}
+          >
+            <User size={20} strokeWidth={2} />
+          </Link>
         </div>
       </div>
     </header>

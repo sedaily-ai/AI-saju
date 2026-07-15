@@ -19,7 +19,7 @@ export default function CharacterPage() {
 
       <div
         className="relative z-10 mx-3 mt-3 rounded-[28px] px-3 pt-4 pb-5"
-        style={{ background: '#F7F5F2' }}
+        style={{ background: '#ECFDF5' }}
       >
         <CharacterGrid />
       </div>
