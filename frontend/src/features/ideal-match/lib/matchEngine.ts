@@ -14,6 +14,9 @@ import {
   STEM_PERSONA, BRANCH_PERSONA, FIT_MATRIX, OH_TO_STEMS,
   STEM_HAP, BRANCH_SAMHAP, BRANCH_YUKHAP, BRANCH_CHUNG,
   OH_GEUK, OH_GEUK_REV,
+  STEM_PERSONA_DESC, CHEMISTRY_STORY, MEETING_SCENARIO,
+  FIRST_IMPRESSION, INNER_SELF, DATING_CHEMISTRY,
+  APPROACH_STORY, SPARK_MOMENTS,
   type Oh,
 } from './personaDictionary';
 import type { IdealMatch, ReasonCode } from '../types';
@@ -240,6 +243,47 @@ export function computeIdealMatch(
     ),
   ).sort((a, b) => a - b);
 
+  // === 8. 서술형 필드 생성 ===
+  // ② 이 사람 첫인상
+  const firstImpression = FIRST_IMPRESSION[pickedStem] || (
+    stemP ? stemP.appearance.join('. ') + '.' : `${primaryOh} 기운이 강한 인상이에요.`
+  );
+
+  // ③ 이 사람 속마음
+  const innerSelf = INNER_SELF[pickedStem] || (
+    stemP ? stemP.personality.join('. ') + '.' : `겉과 속이 다른 매력이 있는 사람이에요.`
+  );
+
+  // ④ 왜 나랑 잘 맞을까 ①: 성격 궁합 (오행 상생)
+  const chemistryStory = CHEMISTRY_STORY[myOh]?.[primaryOh]
+    || fitCell?.fit[0]
+    || '오행의 균형이 맞는 조합이에요.';
+
+  // ⑤ 왜 나랑 잘 맞을까 ②: 연애할 때 케미
+  const datingChemistry = DATING_CHEMISTRY[myOh]?.[primaryOh]
+    || '서로의 표현 방식이 달라도, 진심이 통하는 관계예요.';
+
+  // ⑥ 어디서 만나게 될까
+  const meetingScenarios = MEETING_SCENARIO[primaryOh] || MEETING_SCENARIO['토'];
+  const meetingScenario = meetingScenarios.join(' ');
+
+  // ⑦ 어떻게 가까워질까
+  const approachStory = APPROACH_STORY[primaryOh]
+    || '자연스럽게 대화가 시작되는 순간이 인연의 시작이에요.';
+
+  // ⑧ 이런 순간에 설렐 거예요
+  const sparkMoments = SPARK_MOMENTS[primaryOh] || [
+    '상대가 진지하게 집중하는 모습을 보는 순간이에요.',
+    '함께 웃다가 동시에 눈이 마주치는 순간이에요.',
+  ];
+
+  // 기존 호환용 personaDesc
+  const personaDesc = STEM_PERSONA_DESC[pickedStem] || (
+    stemP
+      ? `${stemP.appearance[0]}. ${stemP.personality[0]}.`
+      : `${primaryOh} 기운이 강한 사람이에요.`
+  );
+
   return {
     summary,
     tags,
@@ -250,6 +294,14 @@ export function computeIdealMatch(
     idealMonths,
     appearance,
     personality,
+    firstImpression,
+    innerSelf,
+    chemistryStory,
+    datingChemistry,
+    meetingScenario,
+    approachStory,
+    sparkMoments,
+    personaDesc,
     strengths,
     cautions,
     score,

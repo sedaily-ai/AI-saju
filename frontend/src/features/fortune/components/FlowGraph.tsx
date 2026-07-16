@@ -130,13 +130,34 @@ export function FlowGraph({ cols, ilgan, yongsinOh, activeIdx }: FlowGraphProps)
         })}
       </svg>
 
-      {/* 하단 라벨 — 시간축 */}
-      <div className="flex justify-between px-1 mt-1" style={{ fontSize: 10, color: INK_FAINT }}>
-        {cols.map((c, i) => (
-          <span key={i} style={{ opacity: i === shownIdx ? 1 : 0.6, fontWeight: i === activeIdx ? 700 : 400, color: i === activeIdx ? SEAL : INK_FAINT }}>
-            {c.label}
-          </span>
-        ))}
+      {/* 하단 라벨 — 네모칸 리스트 (x축 정렬) */}
+      <div className="flex mt-2 px-1 gap-[2px] overflow-x-auto">
+        {cols.map((c, i) => {
+          const isActive = i === activeIdx;
+          const isSelected = i === shownIdx;
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setSelectedIdx(i)}
+              className="flex flex-col items-center justify-center flex-1 min-w-0 rounded-[6px] py-1.5 px-0.5 transition-all"
+              style={{
+                background: isActive ? SEAL : isSelected ? `${INK}11` : 'transparent',
+                border: `1px solid ${isActive ? SEAL : isSelected ? INK : INK_FAINT}${isActive ? '' : '44'}`,
+              }}
+            >
+              <span style={{ fontSize: 11, fontWeight: 600, color: isActive ? '#FFF' : INK }}>
+                {c.c}
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: isActive ? '#FFF' : INK, marginTop: 1 }}>
+                {c.j}
+              </span>
+              <span style={{ fontSize: 9, color: isActive ? '#FFFFFF99' : INK_FAINT, marginTop: 2 }}>
+                {c.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {/* 선택된 지점 요약 */}

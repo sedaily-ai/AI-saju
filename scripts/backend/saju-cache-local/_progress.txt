@@ -86,7 +86,6 @@ chongun/甲_午_寅.json
 chongun/甲_午_午.json
 chongun/甲_午_未.json
 chongun/甲_午_申.json
-chongun/甲_午_酉.json
 chongun/甲_午_戌.json
 chongun/甲_午_亥.json
 chongun/甲_未_丑.json
@@ -820,7 +819,6 @@ chongun/己_酉_卯.json
 chongun/己_酉_辰.json
 chongun/乙_丑_卯.json
 chongun/己_酉_巳.json
-chongun/己_酉_午.json
 chongun/戊_丑_午.json
 chongun/戊_丑_午.json
 chongun/己_酉_未.json
@@ -1401,7 +1399,6 @@ chongun/庚_戌_午.json
 chongun/庚_戌_未.json
 chongun/庚_戌_申.json
 chongun/庚_戌_酉.json
-chongun/庚_戌_戌.json
 chongun/庚_戌_亥.json
 chongun/庚_亥_子.json
 chongun/庚_亥_丑.json
@@ -1838,3 +1835,6 @@ chongun/壬_申_子.json
 chongun/壬_酉_未.json
 chongun/壬_酉_申.json
 chongun/癸_子_寅.json
+chongun/甲_午_酉.json
+chongun/庚_戌_戌.json
+chongun/己_酉_午.json

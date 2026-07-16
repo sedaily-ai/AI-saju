@@ -6,9 +6,10 @@ import { REGION_OPTIONS, REGION_OPTIONS_EN } from '@/features/fortune/lib/engine
 
 type T = (ko: string, en: string) => string;
 
-const selectClass = 'rounded-xl px-3 py-2.5 text-[14px] outline-none bg-white';
+const selectClass = 'rounded-xl px-3 py-2.5 text-[14px] outline-none bg-white focus:border-[#34D399] focus:ring-1 focus:ring-[#D1FAE5]';
 const selectStyle = { border: `1px solid ${SAJU.line}`, color: SAJU.ink } as const;
 const confirmClass = 'rounded-2xl px-5 py-2.5 text-[14px] font-semibold text-white disabled:opacity-40 shrink-0 transition cursor-pointer hover:brightness-95 active:scale-95 disabled:cursor-not-allowed disabled:hover:brightness-100';
+const confirmStyle = { background: '#059669' } as const;
 
 /** 생년월일 드롭다운 선택 (년/월/일) — 일수는 월/연에 맞춰 자동 보정 */
 export function DateSelect({ onConfirm, t }: { onConfirm: (y: number, m: number, d: number) => void; t: T }) {
@@ -47,7 +48,7 @@ export function DateSelect({ onConfirm, t }: { onConfirm: (y: number, m: number,
       <button
         type="button"
         className={confirmClass}
-        style={{ background: SAJU.warmDeep }}
+        style={confirmStyle}
         disabled={!ready}
         onClick={() => ready && onConfirm(y as number, m as number, safeD as number)}
       >
@@ -80,7 +81,7 @@ export function RegionSelect({
       <button
         type="button"
         className={confirmClass}
-        style={{ background: SAJU.warmDeep }}
+        style={confirmStyle}
         onClick={() => { const o = opts[idx]; onConfirm(o.value, labelFor(o)); }}
       >
         {t('확인', 'OK')}
@@ -112,7 +113,7 @@ export function TimeSelect({ onConfirm, t }: { onConfirm: (hour: number, min: nu
       <button
         type="button"
         className={confirmClass}
-        style={{ background: SAJU.warmDeep }}
+        style={confirmStyle}
         disabled={!ready}
         onClick={() => ready && onConfirm(h as number, mi as number)}
       >
