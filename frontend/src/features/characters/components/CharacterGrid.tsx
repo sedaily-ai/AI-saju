@@ -157,10 +157,10 @@ function CharacterTile({
 
       <div className="flex flex-col items-center text-center">
         <div
-          className="w-16 h-16 rounded-full flex items-center justify-center mb-2.5"
+          className="w-full aspect-square rounded-[14px] flex items-center justify-center mb-2.5 overflow-hidden"
           style={{ background: `linear-gradient(135deg, ${tone.bg} 0%, #FFFFFF 100%)`, color: tone.fg }}
         >
-          <ZodiacIcon branch={character.branch.hanja} size={32} />
+          <CharacterIcon id={character.id} branch={character.branch.hanja} size={48} tone={tone} />
         </div>
         <h4 className="text-[14.5px] font-black" style={{ fontFamily: SERIF, color: SAJU.ink }}>
           {character.stem.ko}{character.branch.ko}
@@ -186,64 +186,186 @@ function CharacterTile({
   );
 }
 
+/* === 천간(오행)+지지 기반 강점/약점 유추 헬퍼 === */
+const STEM_STRENGTHS: Record<string, [string, string][]> = {
+  '목': [['추진력이 강하다', 'Strong drive'], ['성장 지향적이다', 'Growth-oriented'], ['인내심이 있다', 'Patient and persistent']],
+  '화': [['에너지가 넘친다', 'Full of energy'], ['표현력이 좋다', 'Expressive'], ['리더십이 있다', 'Natural leader']],
+  '토': [['안정감을 준다', 'Gives stability'], ['신뢰도가 높다', 'Highly trustworthy'], ['포용력이 크다', 'Very embracing']],
+  '금': [['결단력이 있다', 'Decisive'], ['원칙이 분명하다', 'Clear principles'], ['집중력이 뛰어나다', 'Exceptional focus']],
+  '수': [['적응력이 좋다', 'Adaptable'], ['관찰력이 뛰어나다', 'Great observer'], ['창의적 사고를 한다', 'Creative thinker']],
+};
+const STEM_WEAKNESSES: Record<string, [string, string][]> = {
+  '목': [['고집이 셀 수 있다', 'Can be stubborn'], ['양보를 어려워한다', 'Finds compromise hard']],
+  '화': [['급한 성격이 있다', 'Can be impatient'], ['감정 기복이 있다', 'Emotional ups and downs']],
+  '토': [['변화를 꺼린다', 'Resists change'], ['우유부단할 수 있다', 'Can be indecisive']],
+  '금': [['융통성이 부족하다', 'Lacks flexibility'], ['차갑게 보일 수 있다', 'Can seem cold']],
+  '수': [['우울해지기 쉽다', 'Prone to melancholy'], ['결정이 느리다', 'Slow to decide']],
+};
+
+function getStrengths(character: GapjaCharacter, t: (ko: string, en: string) => string): string[] {
+  const items = STEM_STRENGTHS[character.stem.oh] ?? STEM_STRENGTHS['목'];
+  return items.map(([ko, en]) => t(ko, en));
+}
+
+function getWeaknesses(character: GapjaCharacter, t: (ko: string, en: string) => string): string[] {
+  const items = STEM_WEAKNESSES[character.stem.oh] ?? STEM_WEAKNESSES['목'];
+  return items.map(([ko, en]) => t(ko, en));
+}
+
 function CharacterDetail({ character, isMine }: { character: GapjaCharacter; isMine: boolean }) {
   const { t } = useLang();
   const tone = OH_TONE[character.stem.oh];
+  const imgSrc = `/characters/${character.id}.png`;
+  const [hasCustomImg, setHasCustomImg] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setHasCustomImg(true);
+    img.onerror = () => setHasCustomImg(false);
+    img.src = imgSrc;
+  }, [imgSrc]);
 
   return (
     <div
-      className="relative mb-4 rounded-[24px] bg-white pt-7 pb-5 px-5 flex flex-col items-center text-center"
+      className="relative mb-4 rounded-[24px] bg-white overflow-hidden flex"
       style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
     >
-      <div className="absolute top-4 left-4">
+      {/* 좌: 이미지 — 카드 전체 높이를 채우는 정사각형 */}
+      <div
+        className="w-[50%] shrink-0 relative overflow-hidden aspect-square"
+        style={{ background: tone.bg }}
+      >
+        {isMine && (
+          <span
+            className="absolute top-2.5 left-2.5 z-10 rounded-full px-2 py-0.5 text-[9px] font-bold text-white"
+            style={{ background: SAJU.warmDeep }}
+          >
+            {t('나', 'Me')}
+          </span>
+        )}
+        {hasCustomImg ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imgSrc}
+            alt={`${character.stem.ko}${character.branch.ko}`}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <ZodiacIcon branch={character.branch.hanja} size={72} />
+          </div>
+        )}
+      </div>
+
+      {/* 우: 모든 텍스트 정보 */}
+      <div className="flex-1 min-w-0 p-4 flex flex-col justify-center text-left">
+        {/* 오행 태그 */}
         <span
-          className="rounded-full px-2.5 py-1 text-[10.5px] font-bold"
+          className="self-start rounded-full px-2 py-0.5 text-[10px] font-bold mb-2"
           style={{ background: tone.bg, color: tone.fg }}
         >
           {character.stem.oh} {t('기운', 'energy')}
         </span>
-      </div>
-      {isMine && (
-        <span
-          className="absolute top-4 right-4 rounded-full px-2.5 py-1 text-[10.5px] font-bold text-white"
-          style={{ background: SAJU.warmDeep }}
-        >
-          {t('나의 캐릭터', 'My character')}
-        </span>
-      )}
 
-      <div
-        className="w-24 h-24 rounded-full flex items-center justify-center mb-4"
-        style={{ background: `linear-gradient(135deg, ${tone.bg} 0%, #FFFFFF 100%)`, color: tone.fg }}
-      >
-        <ZodiacIcon branch={character.branch.hanja} size={54} />
-      </div>
+        {/* 이름 */}
+        <h3 className="text-[20px] font-black leading-tight" style={{ color: SAJU.ink, fontFamily: SERIF }}>
+          {character.stem.ko}{character.branch.ko}
+          <span className="text-[12px] font-semibold ml-1" style={{ color: SAJU.inkSub }}>
+            {character.stem.hanja}{character.branch.hanja}
+          </span>
+        </h3>
 
-      <h3 className="text-[22px] font-black" style={{ color: SAJU.ink, fontFamily: SERIF }}>
-        {character.stem.ko}{character.branch.ko}
-        <span className="text-[13px] font-semibold ml-1.5" style={{ color: SAJU.inkSub }}>
-          {character.stem.hanja}{character.branch.hanja}
-        </span>
-      </h3>
-      <p className="text-[13.5px] font-bold mt-1" style={{ color: tone.fg }}>
-        {character.stem.keyword}
-      </p>
+        {/* 키워드 */}
+        <p className="text-[13px] font-bold mt-1" style={{ color: tone.fg }}>
+          {character.stem.keyword}
+        </p>
 
-      <div
-        className="mt-4 rounded-2xl px-4 py-3 text-[13px] leading-relaxed max-w-[320px]"
-        style={{ background: tone.bg, color: SAJU.inkSoft }}
-      >
-        “{character.branch.mood}”
-      </div>
+        {/* 띠 + 이모지 */}
+        <p className="text-[12px] mt-1" style={{ color: SAJU.inkSub }}>
+          {character.branch.emoji} {character.branch.zodiacKo}
+        </p>
 
-      <div className="flex flex-wrap justify-center gap-1.5 mt-4">
-        <span
-          className="rounded-full px-2.5 py-1 text-[11px] font-semibold"
-          style={{ background: '#F7F5F2', color: SAJU.inkSoft }}
-        >
-          {character.branch.zodiacKo}
-        </span>
+        {/* 한줄 설명 */}
+        <p className="text-[12.5px] leading-relaxed mt-3 mb-3" style={{ color: SAJU.ink }}>
+          &quot;{character.branch.mood}&quot;
+        </p>
+
+        {/* 강점 */}
+        <div className="mb-2.5">
+          <p className="text-[10.5px] font-bold mb-1" style={{ color: tone.fg }}>
+            {t('강점', 'Strengths')}
+          </p>
+          <ul className="space-y-0.5">
+            {getStrengths(character, t).map((s, i) => (
+              <li key={i} className="flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: SAJU.inkSoft }}>
+                <span className="shrink-0" style={{ color: tone.fg }}>+</span>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* 약점 */}
+        <div>
+          <p className="text-[10.5px] font-bold mb-1" style={{ color: '#9CA3AF' }}>
+            {t('약점', 'Weaknesses')}
+          </p>
+          <ul className="space-y-0.5">
+            {getWeaknesses(character, t).map((w, i) => (
+              <li key={i} className="flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: SAJU.inkSub }}>
+                <span className="shrink-0">-</span>
+                <span>{w}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
+    </div>
+  );
+}
+
+
+/** 커스텀 이미지가 있으면 이미지, 없으면 ZodiacIcon 폴백 */
+function CharacterIcon({ id, branch, size, tone }: { id: string; branch: string; size: number; tone: { bg: string; fg: string } }) {
+  const src = `/characters/${id}.png`;
+  const [hasImg, setHasImg] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setHasImg(true);
+    img.onerror = () => setHasImg(false);
+    img.src = src;
+  }, [src]);
+
+  if (hasImg) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={src} alt={id} className="w-full h-full object-cover" />;
+  }
+  return <ZodiacIcon branch={branch} size={size} />;
+}
+
+/** 상세 카드 하단에 커스텀 일러스트 표시 — 이미지 존재 시에만 렌더 */
+function DetailIllustration({ id }: { id: string }) {
+  const src = `/characters/${id}.png`;
+  const [hasImg, setHasImg] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setHasImg(true);
+    img.onerror = () => setHasImg(false);
+    img.src = src;
+  }, [src]);
+
+  if (!hasImg) return null;
+
+  return (
+    <div className="mt-5 w-full max-w-[240px] mx-auto">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={id}
+        className="w-full h-auto object-contain rounded-2xl"
+      />
     </div>
   );
 }

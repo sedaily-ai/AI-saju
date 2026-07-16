@@ -10,9 +10,13 @@ import { ConcernCard, CATEGORIES, COUPLETS, CG_OH, readMyOh, type Oh } from '@/f
 
 type Step = 'teaser' | 'category' | 'detail' | 'birth' | 'generating' | 'result';
 
-export function ConcernCardFlow() {
+interface ConcernCardFlowProps {
+  startAtCategory?: boolean;
+}
+
+export function ConcernCardFlow({ startAtCategory = false }: ConcernCardFlowProps) {
   const { t, lang } = useLang();
-  const [step, setStep] = useState<Step>('teaser');
+  const [step, setStep] = useState<Step>(startAtCategory ? 'category' : 'teaser');
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [detail, setDetail] = useState('');
   const [oh, setOh] = useState<Oh | null>(null);
@@ -94,7 +98,7 @@ export function ConcernCardFlow() {
             type="button"
             onClick={() => setStep('category')}
             className="w-full flex items-center justify-center gap-1.5 rounded-full py-3 text-[13.5px] font-bold text-white transition-all hover:-translate-y-0.5 active:scale-[0.99]"
-            style={{ background: SAJU.warmDeep }}
+            style={{ background: '#34D399' }}
           >
             {t('내 부적 만들기', 'Make my talisman')}
             <ChevronRight size={16} />
