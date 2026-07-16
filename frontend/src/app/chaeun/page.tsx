@@ -100,7 +100,10 @@ export default function ChaeunPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [checkInChoice, setCheckInChoice] = useState<CheckInChoice | null>(null);
   const [expandedAct, setExpandedAct] = useState<number | null>(null);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const timelineScrollRef = useRef<HTMLDivElement | null>(null);
+
+  const toggleSection = (key: string) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
 
   useEffect(() => {
     try {
@@ -311,272 +314,291 @@ export default function ChaeunPage() {
         )}
 
         {/* ═══════════════════════════════════════════
-            ② 오늘의 흐름 — 도넛 게이지 + 코멘트
-        ═══════════════════════════════════════════ */}
-        <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] p-5 mb-4">
-          <div className="text-[11px] font-medium text-gray-400 mb-3">
-            {t('오늘의 흐름', "Today's Flow")}
-          </div>
-          <div className="flex items-center gap-5">
-            <DonutGauge score={todayScore} />
-            <div className="flex-1 min-w-0">
-              <div className="text-[14px] font-extrabold text-gray-900 mb-1">
-                {todayLabel || t('보통', 'Normal')}
-              </div>
-              <p className="text-[12px] text-gray-500 leading-relaxed">
-                {periodChaeun?.iljin?.note || periodChaeun?.wolun?.note || t(
-                  '오늘은 크게 변동 없이 안정적인 흐름이에요.',
-                  'A stable flow with no major fluctuation today.'
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ═══════════════════════════════════════════
-            ③ 인터랙티브 체크인 — 3버튼 선택지
-        ═══════════════════════════════════════════ */}
-        <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] p-5 mb-4">
-          <div className="text-[13px] font-semibold text-gray-800 mb-3">
-            {t('지금 궁금한 건?', "What's on your mind?")}
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            {([
-              { id: 'invest' as CheckInChoice, label: t('투자할까 말까', 'Invest?'), icon: '💰' },
-              { id: 'transition' as CheckInChoice, label: t('이직·사업 고민', 'Career shift'), icon: '🚀' },
-              { id: 'flow' as CheckInChoice, label: t('그냥 흐름만', 'Just flow'), icon: '🌊' },
-            ]).map(btn => (
-              <button
-                key={btn.id}
-                type="button"
-                onClick={() => setCheckInChoice(checkInChoice === btn.id ? null : btn.id)}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border text-center cursor-pointer transition-all ${
-                  checkInChoice === btn.id
-                    ? 'border-amber-400 bg-amber-50 shadow-sm'
-                    : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-                }`}
-              >
-                <span className="text-[20px]">{btn.icon}</span>
-                <span className="text-[10px] font-semibold text-gray-700 leading-tight">{btn.label}</span>
-              </button>
-            ))}
-          </div>
-          {checkInChoice && diagnosis && (
-            <div className="mt-3 p-3 rounded-xl bg-amber-50 border border-amber-200">
-              <p className="text-[12px] text-amber-800 leading-relaxed">
-                {getCheckInTip(checkInChoice, diagnosis.type, currentRating)}
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* ═══════════════════════════════════════════
-            ④ 돈맥 지도 — 수익경로 막대그래프 (재성=주황 통일) + 요약 문장 + 편재/정재 흡수
+            ④ 돈맥 지도 — 이미지 참고 레이아웃
         ═══════════════════════════════════════════ */}
         {wealthPaths && (() => {
           const maxStr = Math.max(...wealthPaths.paths.map(p => p.strength), 1);
           const dom = wealthPaths.dominant;
+          const weakest = wealthPaths.paths[wealthPaths.paths.length - 1];
           return (
-            <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] p-5 mb-4">
-              <div className="text-[13px] font-semibold text-gray-800 mb-1">
-                {t('돈맥 지도', 'Money Flow Map')}
-              </div>
-              <div className="text-[11px] text-gray-400 mb-4">
-                {t('돈이 들어오는 5가지 채널', 'Five channels money flows through')}
-              </div>
-
-              {/* 요약 문장 */}
-              <div className="rounded-xl p-3 mb-4 bg-orange-50 border border-orange-200">
-                <p className="text-[12px] font-semibold text-orange-800">
-                  {t(
-                    `가장 굵은 물줄기는 "${dom.label}"예요`,
-                    `Your strongest channel is "${dom.label}"`
-                  )}
-                </p>
-                <p className="text-[11px] text-orange-700 mt-1">{dom.desc}</p>
-              </div>
-
-              {/* 막대그래프 — 재성 계열 주황 통일 */}
-              <div className="space-y-3">
-                {wealthPaths.paths.map((p) => {
-                  const barPct = maxStr > 0 ? (p.strength / maxStr) * 100 : 0;
-                  const barColor = p.key === '재성' ? '#D97706' : p.key === dom.key ? '#F59E0B' : '#E5A94E';
-                  return (
-                    <div key={p.key}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] font-semibold text-gray-700">{p.key} · {p.label}</span>
-                        <span className="text-[10px] text-gray-400 tabular-nums">{p.strength}</span>
-                      </div>
-                      <div className="h-2 rounded-full bg-orange-100 overflow-hidden">
-                        <div className="h-full rounded-full transition-all" style={{ width: `${barPct}%`, background: barColor }} />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* 편재/정재 설명 흡수 */}
-              {chaeseong && chaeseong.totalCount > 0 && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <div className="flex items-center justify-between text-[11px] font-bold mb-2">
-                    <span style={{ color: '#B45309' }}>{t('적극형(편재)', 'Active')} {chaeseong.pyeonJae}</span>
-                    <span style={{ color: '#0E7490' }}>{t('안정형(정재)', 'Stable')} {chaeseong.jeongJae}</span>
-                  </div>
-                  <div className="h-2.5 rounded-full overflow-hidden flex">
-                    <div style={{ width: `${pyeonPct}%`, background: '#D97706' }} className="rounded-l-full" />
-                    <div style={{ width: `${jeongPct}%`, background: '#0891B2' }} className="rounded-r-full" />
-                  </div>
-                  <p className="text-[11px] text-gray-500 mt-2 leading-relaxed">
-                    {chaeseong.dominantType === '편재' && t(
-                      '큰 돈이 오가는 활동형. 기회를 빠르게 잡되, 여유 자금은 별도로.',
-                      'Active type — catches big opportunities fast.'
-                    )}
-                    {chaeseong.dominantType === '정재' && t(
-                      '꾸준히 쌓는 안정형. 장기 투자와 저축이 체질에 맞아요.',
-                      'Stable type — long-term investing fits you.'
-                    )}
-                    {chaeseong.dominantType === '균형' && t(
-                      '공수 균형. 상황에 따라 공격/수비 전환이 자유로워요.',
-                      'Balanced — switch between offense and defense freely.'
-                    )}
-                  </p>
+            <>
+              <div className="mb-3 mt-2">
+                <div className="text-[13px] font-semibold text-gray-800">
+                  {t('돈맥 지도', 'Money Flow Map')}
                 </div>
-              )}
-            </div>
+              </div>
+
+              {/* 요약 2칸 — 가장 강한 흐름 / 지금은 주의 */}
+              <div className="grid grid-cols-2 gap-2.5 mb-3">
+                <div className="rounded-[14px] bg-green-50 border border-green-200 p-3.5">
+                  <div className="text-[10px] font-semibold text-green-700 mb-1">{t('가장 강한 흐름', 'Strongest flow')}</div>
+                  <div className="text-[14px] font-extrabold text-green-900 mb-0.5">{dom.label}</div>
+                  <div className="text-[11px] text-green-700 leading-snug">{dom.desc.split('(')[0].trim().slice(0, 20)}</div>
+                </div>
+                <div className="rounded-[14px] bg-amber-50 border border-amber-200 p-3.5">
+                  <div className="text-[10px] font-semibold text-amber-700 mb-1">{t('지금은 주의', 'Watch out')}</div>
+                  <div className="text-[14px] font-extrabold text-amber-900 mb-0.5">{weakest.label}</div>
+                  <div className="text-[11px] text-amber-700 leading-snug">{t('큰 지출·투자는 신중히', 'Be careful with big spending')}</div>
+                </div>
+              </div>
+
+              {/* 토글 카드 — 막대그래프 */}
+              <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('moneymap')}
+                  className="w-full flex items-center justify-center p-3.5 cursor-pointer bg-transparent border-none text-[12px] text-gray-500 font-medium"
+                >
+                  {openSections['moneymap'] ? t('접기', 'Collapse') : t('펼치기', 'Expand')}
+                </button>
+                {openSections['moneymap'] && (
+                  <div className="px-5 pb-5 space-y-4">
+                    {wealthPaths.paths.map((p) => {
+                      const barPct = maxStr > 0 ? (p.strength / maxStr) * 100 : 0;
+                      return (
+                        <div key={p.key}>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[12px] font-semibold text-gray-800">{p.key} · {p.label}</span>
+                            <span className="text-[12px] font-bold text-gray-700 tabular-nums">{p.strength}</span>
+                          </div>
+                          <div className="h-[6px] rounded-full bg-gray-100 overflow-hidden">
+                            <div className="h-full rounded-full transition-all" style={{ width: `${barPct}%`, background: '#3182F6' }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </>
           );
         })()}
 
         {/* ═══════════════════════════════════════════
-            ⑤ 인생 재물 3막 — 대운 그룹핑 (탭→상세 카드 펼침)
+            ④-b 돈을 버는 방식 — attitude (토글)
         ═══════════════════════════════════════════ */}
-        {acts.length > 0 && (
-          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] p-5 mb-4">
-            <div className="text-[13px] font-semibold text-gray-800 mb-1">
-              {t('인생 재물 3막', 'Wealth in 3 Acts')}
-            </div>
-            <div className="text-[11px] text-gray-400 mb-4">
-              {t('대운 흐름을 3개 시기로 나눠 봤어요', 'Your major cycles grouped into 3 life phases')}
-            </div>
-
-            <div className="space-y-3">
-              {acts.map((act, actIdx) => {
-                const isOpen = expandedAct === actIdx;
-                const ratingColor = (r: string) =>
-                  r === 'strong' ? '#2D7A1F' : r === 'caution' ? '#C33A1F' : '#64748B';
-
-                return (
-                  <div key={actIdx}>
-                    {/* 막 헤더 */}
-                    <button
-                      type="button"
-                      onClick={() => setExpandedAct(isOpen ? null : actIdx)}
-                      className={`w-full flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all ${
-                        act.isCurrent
-                          ? 'border-amber-300 bg-amber-50'
-                          : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="text-[13px] font-bold text-gray-900">
-                          {t(act.label, act.labelEn)}
-                        </span>
-                        {act.isCurrent && (
-                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-600 text-white">
-                            {t('지금 여기', 'NOW')}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[11px] text-gray-400">
-                          {act.segments[0]?.age}~{act.segments[act.segments.length - 1]?.age + 9}{t('세', '')}
-                        </span>
-                        <span className={`text-[10px] transition-transform ${isOpen ? 'rotate-90' : ''}`}>▸</span>
-                      </div>
-                    </button>
-
-                    {/* 펼침 — 대운 상세 카드들 */}
-                    {isOpen && (
-                      <div className="mt-2 space-y-2 pl-2">
-                        {act.segments.map((seg, segIdx) => {
-                          const isCurrent = currentAge >= seg.age && currentAge < seg.age + 10;
-                          return (
-                            <div
-                              key={segIdx}
-                              className={`rounded-lg p-3 border ${
-                                isCurrent ? 'border-blue-300 bg-blue-50' : 'border-gray-100 bg-gray-50'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2 mb-1.5">
-                                <span className="text-[14px] font-extrabold">{seg.ganji}</span>
-                                <span className="text-[10px] text-gray-400 font-mono">{seg.ganjiHanja}</span>
-                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white ml-auto"
-                                  style={{ background: ratingColor(seg.rating) }}>
-                                  {seg.theme}
-                                </span>
-                                {isCurrent && (
-                                  <span className="text-[9px] font-bold text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded">
-                                    {t('현재', 'Now')}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-[10px] text-gray-400 mb-1">
-                                {lang === 'en' ? `Age ${seg.age}–${seg.age + 9}` : `${seg.age}세~${seg.age + 9}세`}
-                              </div>
-                              {seg.note && <p className="text-[11px] text-gray-600 leading-relaxed">{seg.note}</p>}
-                              {seg.actions && seg.actions.length > 0 && (
-                                <ul className="mt-2 space-y-1">
-                                  {seg.actions.slice(0, 2).map((a, ai) => (
-                                    <li key={ai} className="text-[10px] text-gray-500 pl-2 relative leading-relaxed">
-                                      <span className="absolute left-0 top-[5px] w-1 h-1 rounded-full bg-gray-400" />
-                                      {a}
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+        {diagnosis && diagnosis.attitude.length > 0 && (
+          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection('attitude')}
+              className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+            >
+              <div>
+                <div className="text-[13px] font-semibold text-gray-800">
+                  {t('돈을 버는 방식', 'How You Earn')}
+                </div>
+                <div className="text-[11px] text-gray-400 mt-0.5">
+                  {t('당신에게 맞는 수익 창출 스타일', 'Your natural earning style')}
+                </div>
+              </div>
+              <span className={`text-[12px] text-gray-400 transition-transform ${openSections['attitude'] ? 'rotate-90' : ''}`}>▸</span>
+            </button>
+            {openSections['attitude'] && (
+              <div className="px-5 pb-5">
+                <p className="text-[12px] text-gray-700 leading-[1.8]">
+                  {diagnosis.attitudeProse}
+                </p>
+              </div>
+            )}
           </div>
         )}
 
         {/* ═══════════════════════════════════════════
-            ⑥ 이번 주 돈 처방전 — 체크박스 리스트
+            ④-c 투자 성향 — investmentStyle (토글)
+        ═══════════════════════════════════════════ */}
+        {diagnosis && diagnosis.investmentStyle.length > 0 && (
+          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection('invest')}
+              className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+            >
+              <div>
+                <div className="text-[13px] font-semibold text-gray-800">
+                  {t('투자 성향', 'Investment Style')}
+                </div>
+                <div className="text-[11px] text-gray-400 mt-0.5">
+                  {t('사주가 말해주는 투자 체질', 'Your Saju-based investment profile')}
+                </div>
+              </div>
+              <span className={`text-[12px] text-gray-400 transition-transform ${openSections['invest'] ? 'rotate-90' : ''}`}>▸</span>
+            </button>
+            {openSections['invest'] && (
+              <div className="px-5 pb-5">
+                <p className="text-[12px] text-gray-700 leading-[1.8]">
+                  {diagnosis.investmentProse}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════
+            ④-d 재물 축적 능력 — strengths + cautions (토글)
+        ═══════════════════════════════════════════ */}
+        {diagnosis && (diagnosis.strengths.length > 0 || diagnosis.cautions.length > 0) && (
+          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection('accumulate')}
+              className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+            >
+              <div>
+                <div className="text-[13px] font-semibold text-gray-800">
+                  {t('재물 축적 능력', 'Wealth Accumulation')}
+                </div>
+                <div className="text-[11px] text-gray-400 mt-0.5">
+                  {t('강점과 주의점으로 보는 축적 역량', 'Strengths & cautions for building wealth')}
+                </div>
+              </div>
+              <span className={`text-[12px] text-gray-400 transition-transform ${openSections['accumulate'] ? 'rotate-90' : ''}`}>▸</span>
+            </button>
+            {openSections['accumulate'] && (
+              <div className="px-5 pb-5">
+                <p className="text-[12px] text-gray-700 leading-[1.8]">
+                  {diagnosis.accumulationProse}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════
+            ⑤ 인생 재물 3막 — 각 막을 개별 카드로 분리
+        ═══════════════════════════════════════════ */}
+        {acts.length > 0 && (<>
+          <div className="mb-3 mt-2">
+            <div className="text-[13px] font-semibold text-gray-800">
+              {t('인생 재물 3막', 'Wealth in 3 Acts')}
+            </div>
+            <div className="text-[11px] text-gray-400 mt-0.5">
+              {t('대운 흐름을 3개 시기로 나눠 봤어요', 'Your major cycles grouped into 3 life phases')}
+            </div>
+          </div>
+
+          {acts.map((act, actIdx) => {
+            const isOpen = expandedAct === actIdx;
+            const ratingColor = (r: string) =>
+              r === 'strong' ? '#2D7A1F' : r === 'caution' ? '#C33A1F' : '#64748B';
+
+            return (
+              <div key={actIdx} className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-3 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setExpandedAct(isOpen ? null : actIdx)}
+                  className={`w-full flex items-center justify-between p-4 cursor-pointer border-none text-left transition-colors ${
+                    act.isCurrent ? 'bg-amber-50' : 'bg-transparent'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-bold text-gray-900">
+                      {t(act.label, act.labelEn)}
+                    </span>
+                    {act.isCurrent && (
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-600 text-white">
+                        {t('지금 여기', 'NOW')}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-gray-400">
+                      {act.segments[0]?.age}~{act.segments[act.segments.length - 1]?.age + 9}{t('세', '')}
+                    </span>
+                    <span className={`text-[10px] text-gray-400 transition-transform ${isOpen ? 'rotate-90' : ''}`}>▸</span>
+                  </div>
+                </button>
+
+                {isOpen && (
+                  <div className="px-4 pb-4 space-y-2">
+                    {act.segments.map((seg, segIdx) => {
+                      const isCurrent = currentAge >= seg.age && currentAge < seg.age + 10;
+                      return (
+                        <div
+                          key={segIdx}
+                          className={`rounded-lg p-3 border ${
+                            isCurrent ? 'border-blue-300 bg-blue-50' : 'border-gray-100 bg-gray-50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-[14px] font-extrabold">{seg.ganji}</span>
+                            <span className="text-[10px] text-gray-400 font-mono">{seg.ganjiHanja}</span>
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white ml-auto"
+                              style={{ background: ratingColor(seg.rating) }}>
+                              {seg.theme}
+                            </span>
+                            {isCurrent && (
+                              <span className="text-[9px] font-bold text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded">
+                                {t('현재', 'Now')}
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-gray-400 mb-1">
+                            {lang === 'en' ? `Age ${seg.age}–${seg.age + 9}` : `${seg.age}세~${seg.age + 9}세`}
+                          </div>
+                          {seg.note && <p className="text-[11px] text-gray-600 leading-relaxed">{seg.note}</p>}
+                          {seg.actions && seg.actions.length > 0 && (
+                            <ul className="mt-2 space-y-1">
+                              {seg.actions.slice(0, 2).map((a, ai) => (
+                                <li key={ai} className="text-[10px] text-gray-500 pl-2 relative leading-relaxed">
+                                  <span className="absolute left-0 top-[5px] w-1 h-1 rounded-full bg-gray-400" />
+                                  {a}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </>)}
+
+        {/* ═══════════════════════════════════════════
+            ⑥ 이번 주 돈 처방전 — 토글
         ═══════════════════════════════════════════ */}
         {diagnosis && (
-          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] p-5 mb-4">
-            <div className="text-[13px] font-semibold text-gray-800 mb-3">
-              {t('이번 주 돈 처방전', "This Week's Money Rx")}
-            </div>
-
-            {/* 해야 할 것 */}
-            <div className="space-y-2 mb-3">
-              {diagnosis.strengths.slice(0, 2).map((item, i) => (
-                <label key={i} className="flex items-start gap-2.5 cursor-pointer group">
-                  <input type="checkbox" className="mt-0.5 w-4 h-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500 accent-amber-600" />
-                  <span className="text-[12px] text-gray-700 leading-relaxed group-has-[:checked]:text-gray-400 group-has-[:checked]:line-through transition-colors">
-                    {item}
-                  </span>
-                </label>
-              ))}
-            </div>
-
-            {/* 하지 말아야 할 것 */}
-            <div className="pt-2 border-t border-gray-100">
-              {diagnosis.avoid.slice(0, 1).map((item, i) => (
-                <div key={i} className="flex items-start gap-2.5">
-                  <span className="mt-0.5 w-4 h-4 rounded border border-red-200 bg-red-50 flex items-center justify-center text-[10px] text-red-500 font-bold shrink-0">✕</span>
-                  <span className="text-[12px] text-red-600 leading-relaxed line-through decoration-red-300">
-                    {item}
-                  </span>
+          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => toggleSection('moneyRx')}
+              className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+            >
+              <div className="text-[13px] font-semibold text-gray-800">
+                {t('이번 주 돈 처방전', "This Week's Money Rx")}
+              </div>
+              <span className={`text-[12px] text-gray-400 transition-transform ${openSections['moneyRx'] ? 'rotate-90' : ''}`}>▸</span>
+            </button>
+            {openSections['moneyRx'] && (
+              <div className="px-5 pb-5">
+                {/* 해야 할 것 */}
+                <div className="space-y-2 mb-3">
+                  {diagnosis.strengths.slice(0, 2).map((item, i) => (
+                    <label key={i} className="flex items-start gap-2.5 cursor-pointer group">
+                      <input type="checkbox" className="mt-0.5 w-4 h-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500 accent-amber-600" />
+                      <span className="text-[12px] text-gray-700 leading-relaxed group-has-[:checked]:text-gray-400 group-has-[:checked]:line-through transition-colors">
+                        {item}
+                      </span>
+                    </label>
+                  ))}
                 </div>
-              ))}
-            </div>
+
+                {/* 하지 말아야 할 것 */}
+                <div className="pt-2 border-t border-gray-100">
+                  {diagnosis.avoid.slice(0, 1).map((item, i) => (
+                    <div key={i} className="flex items-start gap-2.5">
+                      <span className="mt-0.5 w-4 h-4 rounded border border-red-200 bg-red-50 flex items-center justify-center text-[10px] text-red-500 font-bold shrink-0">✕</span>
+                      <span className="text-[12px] text-red-600 leading-relaxed line-through decoration-red-300">
+                        {item}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
