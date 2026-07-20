@@ -15,11 +15,10 @@ import { getGapja, CG_OH, OH_HJ } from '@/features/fortune/lib/engine';
  *
  * 섹션 구성:
  *   1) 히어로 — 오늘의 기운 요약
- *   2) 나의 사주 — 원국 카드
- *   3) 오늘의 흐름 — 오늘 운세 카드
+ *   2) 나의 사주 — 원국 + 오늘의 흐름 + 올해의 운세 (풀와이드 연속)
+ *   3) 인연 — 천생인연 + 상극인연 + 궁합
  *   4) 재물 · 커리어 — 2열 그리드
- *   5) 인연 — 2열 그리드 (이상형 + 궁합)
- *   6) 가볍게 보는 오늘 — 주역점 카드
+ *   5) 가볍게 보는 오늘 — 주역점 카드
  * ──────────────────────────────────────────────────────────── */
 
 export default function SajuStandalonePage() {
@@ -79,13 +78,13 @@ export default function SajuStandalonePage() {
       {/* ─── 나의 사주 ─── */}
       <SectionDivider label={t('나의 사주', 'My Saju')} />
 
-      <div className="relative z-10 px-3 mt-2">
+      <div className="relative z-10 px-3 mt-2 flex flex-col gap-2.5">
+        {/* 나의 사주 원국 카드 */}
         <Link
           href={localePath('/saju/chart')}
           className="flex gap-4 items-start rounded-[20px] bg-white p-4 transition-all hover:-translate-y-0.5 active:scale-[0.99]"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
         >
-          {/* 좌측 이미지 */}
           <div className="shrink-0 w-[100px] h-[100px] rounded-[14px] overflow-hidden relative">
             <Image
               src="/saju/my-saju.png"
@@ -95,7 +94,6 @@ export default function SajuStandalonePage() {
               sizes="100px"
             />
           </div>
-          {/* 우측 텍스트 */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 mb-1.5">
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: '#EFF6FF', color: '#1D4ED8' }}>
@@ -122,20 +120,22 @@ export default function SajuStandalonePage() {
             </span>
           </div>
         </Link>
-      </div>
 
-      {/* ─── 오늘의 흐름 ─── */}
-      <SectionDivider label={t('오늘의 흐름', "Today's Flow")} />
-
-      <div className="relative z-10 px-3 mt-2">
+        {/* 오늘의 흐름 카드 */}
         <Link
           href={localePath('/today')}
           className="flex gap-4 items-start rounded-[20px] bg-white p-4 transition-all hover:-translate-y-0.5 active:scale-[0.99]"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
         >
-          {/* 좌측 이미지 플레이스홀더 */}
-          <div className="shrink-0 w-[100px] h-[100px] rounded-[14px] bg-gradient-to-br from-amber-50 to-white" />
-          {/* 우측 텍스트 */}
+          <div className="shrink-0 w-[100px] h-[100px] rounded-[14px] overflow-hidden relative">
+            <Image
+              src="/saju/today.png"
+              alt={t('오늘의 운세 이미지', "Today's fortune image")}
+              fill
+              className="object-cover"
+              sizes="100px"
+            />
+          </div>
           <div className="flex-1 min-w-0">
             <p className="text-[11px] font-semibold mb-1" style={{ color: SAJU.inkMute }}>
               {t('오늘의 운세 · 실시간 업데이트', "Today's fortune · Live update")}
@@ -156,6 +156,152 @@ export default function SajuStandalonePage() {
               {t('오늘 운세 자세히 보기', 'See full forecast')} <ArrowRight size={13} strokeWidth={2.5} />
             </span>
           </div>
+        </Link>
+
+        {/* 올해의 운세 카드 */}
+        <Link
+          href={localePath('/saju/yearly')}
+          className="flex gap-4 items-start rounded-[20px] bg-white p-4 transition-all hover:-translate-y-0.5 active:scale-[0.99]"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+        >
+          <div className="shrink-0 w-[100px] h-[100px] rounded-[14px] overflow-hidden relative">
+            <Image
+              src="/saju/yearly.png"
+              alt={t('올해 운세 이미지', "This year's fortune image")}
+              fill
+              className="object-cover"
+              sizes="100px"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: '#FEF3C7', color: '#B45309' }}>
+                {t('2026년', '2026')}
+              </span>
+              <p className="text-[11px] font-semibold" style={{ color: SAJU.inkMute }}>
+                {t('병오년 · 대운 흐름 분석', 'Year of Byeong-o · Luck cycle')}
+              </p>
+            </div>
+            <h3 className="text-[15px] font-bold leading-snug" style={{ color: SAJU.ink }}>
+              {t('올해 나에게 어떤 기회가 올까?', 'What opportunities await this year?')}
+            </h3>
+            <p className="mt-1.5 text-[12px] leading-relaxed line-clamp-2" style={{ color: SAJU.inkSoft }}>
+              {t(
+                '올해의 세운과 대운이 내 사주와 어떻게 만나는지, 월별 흐름까지 한눈에 확인하세요.',
+                'See how this year\'s energy meets your chart — month-by-month outlook included.',
+              )}
+            </p>
+            <span
+              className="inline-flex items-center gap-1 mt-3 text-[12px] font-bold"
+              style={{ color: SAJU.warmDeep }}
+            >
+              {t('올해 운세 보기', "See this year's fortune")} <ArrowRight size={13} strokeWidth={2.5} />
+            </span>
+          </div>
+        </Link>
+      </div>
+
+      {/* ─── 인연 ─── */}
+      <SectionDivider label={t('인연', 'Connections')} />
+
+      <div className="relative z-10 px-3 mt-2 grid grid-cols-2 md:grid-cols-3 gap-2.5 max-w-[900px]">
+        {/* 천생인연 카드 */}
+        <Link
+          href={localePath('/compatibility')}
+          className="rounded-[18px] bg-white p-4 flex flex-col transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+        >
+          <div className="relative w-full aspect-[3/2] rounded-[12px] mb-3 overflow-hidden">
+            <Image
+              src="/saju/compatibility.png"
+              alt={t('천생인연 이미지', 'Destined match image')}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 50vw, 280px"
+            />
+            <span
+              className="absolute top-1.5 right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white"
+              style={{ background: '#E11D48' }}
+            >
+              NEW
+            </span>
+          </div>
+          <h4 className="text-[13px] font-bold mb-1.5" style={{ color: SAJU.ink }}>
+            {t('천생 인연', 'Destined Match')}
+          </h4>
+          <p className="text-[12px] font-semibold leading-snug" style={{ color: SAJU.ink }}>
+            {t('나는 어떤 사람이랑 잘 맞을까?', 'Who am I compatible with?')}
+          </p>
+          <p className="mt-1 text-[11px] leading-relaxed line-clamp-2" style={{ color: SAJU.inkSoft }}>
+            {t(
+              '사주로 보는 나에게 잘 맞는 사람의 성향',
+              'Traits that match your chart',
+            )}
+          </p>
+        </Link>
+
+        {/* 상극 인연 카드 */}
+        <Link
+          href={localePath('/compatibility')}
+          className="rounded-[18px] bg-white p-4 flex flex-col transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+        >
+          <div className="relative w-full aspect-[3/2] rounded-[12px] mb-3 overflow-hidden">
+            <Image
+              src="/saju/avoidance.png"
+              alt={t('상극인연 이미지', 'Avoidance image')}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 50vw, 280px"
+            />
+            <span
+              className="absolute top-1.5 right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white"
+              style={{ background: '#DC2626' }}
+            >
+              {t('주의', 'Caution')}
+            </span>
+          </div>
+          <h4 className="text-[13px] font-bold mb-1.5" style={{ color: SAJU.ink }}>
+            {t('상극 인연', 'Avoidance')}
+          </h4>
+          <p className="text-[12px] font-semibold leading-snug" style={{ color: SAJU.ink }}>
+            {t('내가 피해야 할 사람은 누구일까?', 'Who should I avoid?')}
+          </p>
+          <p className="mt-1 text-[11px] leading-relaxed line-clamp-2" style={{ color: SAJU.inkSoft }}>
+            {t(
+              '충·형·파로 보는 나와 부딪히는 사주 유형',
+              'Chart types that clash with yours',
+            )}
+          </p>
+        </Link>
+
+        {/* 궁합 카드 */}
+        <Link
+          href={localePath('/couple')}
+          className="rounded-[18px] bg-white p-4 flex flex-col transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+        >
+          <div className="relative w-full aspect-[3/2] rounded-[12px] mb-3 overflow-hidden">
+            <Image
+              src="/saju/couple.png"
+              alt={t('궁합 이미지', 'Couple compatibility image')}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 50vw, 200px"
+            />
+          </div>
+          <h4 className="text-[13px] font-bold mb-1.5" style={{ color: SAJU.ink }}>
+            {t('궁합', 'Compatibility')}
+          </h4>
+          <p className="text-[12px] font-semibold leading-snug" style={{ color: SAJU.ink }}>
+            {t('이 사람과 나는 잘 맞을까?', 'Are we a good match?')}
+          </p>
+          <p className="mt-1 text-[11px] leading-relaxed line-clamp-2" style={{ color: SAJU.inkSoft }}>
+            {t(
+              '생년월일만 입력하면 60갑자 기반 궁합 분석',
+              'Enter birthday for 60-cycle reading',
+            )}
+          </p>
         </Link>
       </div>
 
@@ -227,102 +373,6 @@ export default function SajuStandalonePage() {
         </Link>
       </div>
 
-      {/* ─── 인연 ─── */}
-      <SectionDivider label={t('인연', 'Connections')} />
-
-      <div className="relative z-10 px-3 mt-2 grid grid-cols-2 md:grid-cols-3 gap-2.5 max-w-[900px]">
-        {/* 이상형 카드 */}
-        <Link
-          href={localePath('/compatibility')}
-          className="rounded-[18px] bg-white p-4 flex flex-col transition-all hover:-translate-y-0.5 active:scale-[0.98]"
-          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-        >
-          <div className="relative w-full aspect-[3/2] rounded-[12px] mb-3 overflow-hidden">
-            <Image
-              src="/saju/compatibility.png"
-              alt={t('천생인연 이미지', 'Destined match image')}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 50vw, 280px"
-            />
-            <span
-              className="absolute top-1.5 right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white"
-              style={{ background: '#E11D48' }}
-            >
-              NEW
-            </span>
-          </div>
-          <h4 className="text-[13px] font-bold mb-1.5" style={{ color: SAJU.ink }}>
-            {t('천생 인연', 'Destined Match')}
-          </h4>
-          <p className="text-[12px] font-semibold leading-snug" style={{ color: SAJU.ink }}>
-            {t('나는 어떤 사람이랑 잘 맞을까?', 'Who am I compatible with?')}
-          </p>
-          <p className="mt-1 text-[11px] leading-relaxed line-clamp-2" style={{ color: SAJU.inkSoft }}>
-            {t(
-              '사주로 보는 나에게 잘 맞는 사람의 성향',
-              'Traits that match your chart',
-            )}
-          </p>
-        </Link>
-
-        {/* 궁합 카드 */}
-        <Link
-          href={localePath('/couple')}
-          className="rounded-[18px] bg-white p-4 flex flex-col transition-all hover:-translate-y-0.5 active:scale-[0.98]"
-          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-        >
-          <div className="w-full aspect-[3/2] rounded-[12px] mb-3 bg-gradient-to-br from-violet-50 to-white" />
-          <h4 className="text-[13px] font-bold mb-1.5" style={{ color: SAJU.ink }}>
-            {t('궁합', 'Compatibility')}
-          </h4>
-          <p className="text-[12px] font-semibold leading-snug" style={{ color: SAJU.ink }}>
-            {t('이 사람과 나는 잘 맞을까?', 'Are we a good match?')}
-          </p>
-          <p className="mt-1 text-[11px] leading-relaxed line-clamp-2" style={{ color: SAJU.inkSoft }}>
-            {t(
-              '생년월일만 입력하면 60갑자 기반 궁합 분석',
-              'Enter birthday for 60-cycle reading',
-            )}
-          </p>
-        </Link>
-
-        {/* 상극 인연 카드 */}
-        <Link
-          href={localePath('/compatibility')}
-          className="rounded-[18px] bg-white p-4 flex flex-col transition-all hover:-translate-y-0.5 active:scale-[0.98]"
-          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
-        >
-          <div className="relative w-full aspect-[3/2] rounded-[12px] mb-3 overflow-hidden">
-            <Image
-              src="/saju/avoidance.png"
-              alt={t('상극인연 이미지', 'Avoidance image')}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 50vw, 280px"
-            />
-            <span
-              className="absolute top-1.5 right-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white"
-              style={{ background: '#DC2626' }}
-            >
-              {t('주의', 'Caution')}
-            </span>
-          </div>
-          <h4 className="text-[13px] font-bold mb-1.5" style={{ color: SAJU.ink }}>
-            {t('상극 인연', 'Avoidance')}
-          </h4>
-          <p className="text-[12px] font-semibold leading-snug" style={{ color: SAJU.ink }}>
-            {t('내가 피해야 할 사람은 누구일까?', 'Who should I avoid?')}
-          </p>
-          <p className="mt-1 text-[11px] leading-relaxed line-clamp-2" style={{ color: SAJU.inkSoft }}>
-            {t(
-              '충·형·파로 보는 나와 부딪히는 사주 유형',
-              'Chart types that clash with yours',
-            )}
-          </p>
-        </Link>
-      </div>
-
       {/* ─── 가볍게 보는 오늘 ─── */}
       <SectionDivider label={t('가볍게 보는 오늘', 'Quick Reads')} />
 
@@ -332,8 +382,16 @@ export default function SajuStandalonePage() {
           className="flex gap-4 items-center rounded-[20px] bg-white p-4 transition-all hover:-translate-y-0.5 active:scale-[0.99]"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
         >
-          {/* 좌측 이미지 플레이스홀더 */}
-          <div className="shrink-0 w-[64px] h-[64px] rounded-[12px] bg-gradient-to-br from-violet-50 to-white" />
+          {/* 좌측 이미지 */}
+          <div className="shrink-0 w-[64px] h-[64px] rounded-[12px] overflow-hidden relative">
+            <Image
+              src="/saju/jeomsin.png"
+              alt={t('주역점 이미지', 'I Ching image')}
+              fill
+              className="object-cover"
+              sizes="64px"
+            />
+          </div>
           {/* 텍스트 */}
           <div className="flex-1 min-w-0">
             <h4 className="text-[14px] font-bold mb-1" style={{ color: SAJU.ink }}>
