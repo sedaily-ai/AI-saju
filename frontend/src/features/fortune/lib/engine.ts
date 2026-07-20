@@ -63,7 +63,7 @@ const SSN=[['비견','겁재'],['식신','상관'],['편재','정재'],['편관'
 export function sipsung(i: string, t: string): string {
   if(!i||!t) return '';
   const m=OI[CG_OH[i]], x=OI[CG_OH[t]||JJ_OH[t]];
-  if(m===undefined||x===undefined) return '';
+  if(m===undefined||x===undefined) return '';  
   const d=(x-m+5)%5;
   const mY=['乙','丁','己','辛','癸'].includes(i);
   const tY=['乙','丁','己','辛','癸','丑','卯','巳','未','酉','亥'].includes(t);
@@ -337,6 +337,91 @@ export function buildTodayFortune(ps: Pillar[]): TodayFortuneResult | null {
     ss: tSS, us: tUS, ssReading: SS_READING[tSS] || '', usReading: US_READING[tUS] || '',
     hiddenSipsung,
     sinsal, categories,
+  };
+}
+
+// ── 올해의 운세 ──
+export interface YearlyFortuneResult {
+  yearPillar: string; yearPillarHanja: string; yearOh: string;
+  ss: string;                  // 올해 천간의 십성
+  us: string;                  // 올해 지지의 12운성
+  ssReading: string; usReading: string;
+  hiddenSipsung: HiddenSipsung[];  // 올해 지지의 지장간별 십성
+  sinsal: SinsalInfo[];
+  categories: CategoryFortune[];
+  year: number;
+}
+
+// 올해 연운용 십성 해석
+const SS_YEARLY_READING: Record<string, string> = {
+  '비견': '올해는 나와 같은 기운이 작용하는 해입니다. 동료나 친구와의 교류가 활발하고, 자립심과 독립심이 강해집니다. 경쟁 속에서 성장하되 독선을 경계하세요.',
+  '겁재': '올해는 경쟁과 도전의 기운이 흐르는 해입니다. 재물 지출에 주의하고 승부욕을 긍정적으로 활용하세요. 공동 사업보다 단독 판단이 유리할 수 있습니다.',
+  '식신': '올해는 여유와 창의력이 빛나는 해입니다. 취미 활동이 잘 풀리고 표현력이 좋아집니다. 안정적인 수입과 건강이 따르니 마음껏 즐기세요.',
+  '상관': '올해는 표현욕과 재능이 폭발하는 해입니다. 예술·글쓰기에 좋으나 날카로운 말로 갈등이 생길 수 있으니 언행에 주의하세요.',
+  '편재': '올해는 활동적 재물운과 사교의 해입니다. 사업 기회가 오고 인맥이 넓어지지만 과욕을 부리면 손실이 생길 수 있습니다.',
+  '정재': '올해는 안정적인 재물 축적의 해입니다. 성실한 노력이 결실을 맺고 가정 경제가 안정됩니다. 저축과 재테크에 유리한 한 해입니다.',
+  '편관': '올해는 변화와 도전의 해입니다. 갑작스러운 업무나 책임이 주어지지만, 잘 넘기면 큰 성장으로 이어집니다. 건강 관리에 신경 쓰세요.',
+  '정관': '올해는 질서와 인정의 해입니다. 사회적 지위가 올라가고 공식적인 성과가 나타납니다. 규칙을 지키면 좋은 결과가 옵니다.',
+  '편인': '올해는 직관과 영감의 해입니다. 학문이나 연구에 몰입하기 좋고 새로운 시각이 열립니다. 다만 고독감이나 건강 이상에 주의하세요.',
+  '정인': '올해는 학습과 성장의 해입니다. 자격증, 학위 등 배움의 결실이 맺어지고 윗사람의 도움이 있습니다. 내적 성숙의 시간입니다.',
+};
+
+// 올해 연운용 12운성 해석
+const US_YEARLY_READING: Record<string, string> = {
+  '장생': '올해는 새로운 출발의 에너지가 있습니다. 시작한 일이 순조롭게 성장하며 희망적인 기운이 감도는 한 해입니다.',
+  '목욕': '올해는 변화와 불안정의 시기입니다. 감정 기복이 심하고 유혹이 많으니 큰 결정은 신중하게 하세요.',
+  '관대': '올해는 자신감과 사회 활동이 최고조인 해입니다. 적극적으로 나서면 인정받고 기회를 잡을 수 있습니다.',
+  '건록': '올해는 실력이 완전히 발휘되는 해입니다. 독립적으로 일을 추진하면 큰 성과를 거둡니다.',
+  '제왕': '올해는 모든 기운이 정점에 달하는 해입니다. 리더십을 발휘하기 좋으나 정점 이후 하락에 대비하세요.',
+  '쇠': '올해는 기운이 서서히 빠지는 해입니다. 새로운 일보다 기존 일을 정리하고 체력을 관리하세요.',
+  '병': '올해는 쇠약함의 시기입니다. 건강 관리에 집중하고 무리한 계획은 피하세요. 휴식이 최선입니다.',
+  '사': '올해는 정체와 막힘의 시기입니다. 억지로 밀어붙이면 손해가 커지니 때를 기다리세요.',
+  '묘': '올해는 내면을 돌아보는 시기입니다. 과거를 정리하고 다음을 준비하는 잠복기로 활용하세요.',
+  '절': '올해는 단절과 전환의 시기입니다. 낡은 것을 과감히 버리고 새 방향을 모색하세요.',
+  '태': '올해는 새로운 가능성이 잉태되는 시기입니다. 눈에 보이지 않지만 씨앗이 뿌려지고 있습니다.',
+  '양': '올해는 성장을 준비하는 시기입니다. 조용하지만 확실한 발전이 이루어지고 있는 한 해입니다.',
+};
+
+export function buildYearlyFortune(ps: Pillar[]): YearlyFortuneResult | null {
+  const ilgan = ps[1].c; const ilji = ps[1].j;
+  if (!ilgan) return null;
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const yg = getGapja(currentYear, 7, 1); // 연주는 아무 날이나 같은 해면 동일
+  const yCg = yg.yearPillarHanja[0]; const yJj = yg.yearPillarHanja[1];
+  const ySS = sipsung(ilgan, yCg); const yUS = unsung(ilgan, yJj);
+  const yOh = CG_OH[yCg];
+
+  // 올해 지지의 지장간별 십성 (여기·중기·본기)
+  const hidden = JJG[yJj] || [];
+  const weightLabels: ('여기' | '중기' | '본기')[] =
+    hidden.length === 1 ? ['본기']
+    : hidden.length === 2 ? ['여기', '본기']
+    : ['여기', '중기', '본기'];
+  const hiddenSipsung: HiddenSipsung[] = hidden.map((h, i) => ({
+    hanja: h,
+    ss: sipsung(ilgan, h),
+    weight: weightLabels[i],
+  }));
+
+  const sinsal: SinsalInfo[] = [];
+  if (CHEONUL[ilgan]?.includes(yJj)) sinsal.push({ name: '천을귀인', ...SINSAL_DESC['천을귀인'] });
+  if (MUNCHANG[ilgan]===yJj) sinsal.push({ name: '문창귀인', ...SINSAL_DESC['문창귀인'] });
+  if (ilji && YEOKMA[ilji]===yJj) sinsal.push({ name: '역마살', ...SINSAL_DESC['역마살'] });
+  if (ilji && DOHWA[ilji]===yJj) sinsal.push({ name: '도화살', ...SINSAL_DESC['도화살'] });
+  if (ilji && HWAGAE[ilji]===yJj) sinsal.push({ name: '화개살', ...SINSAL_DESC['화개살'] });
+  if (ilji && GEOBSAL[ilji]===yJj) sinsal.push({ name: '겁살', ...SINSAL_DESC['겁살'] });
+  if (ilji && JAESAL[ilji]===yJj) sinsal.push({ name: '재살', ...SINSAL_DESC['재살'] });
+
+  // 카테고리별 운세
+  const categories = buildCategoryFortunes(ySS, yUS, sinsal);
+
+  return {
+    yearPillar: yg.yearPillar, yearPillarHanja: yg.yearPillarHanja, yearOh: yOh,
+    ss: ySS, us: yUS, ssReading: SS_YEARLY_READING[ySS] || '', usReading: US_YEARLY_READING[yUS] || '',
+    hiddenSipsung,
+    sinsal, categories,
+    year: currentYear,
   };
 }
 

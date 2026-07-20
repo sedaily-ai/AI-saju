@@ -160,7 +160,7 @@ export default function SajuStandalonePage() {
 
         {/* 올해의 운세 카드 */}
         <Link
-          href={localePath('/saju/yearly')}
+          href={localePath('/yearly')}
           className="flex gap-4 items-start rounded-[20px] bg-white p-4 transition-all hover:-translate-y-0.5 active:scale-[0.99]"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
         >
@@ -242,7 +242,7 @@ export default function SajuStandalonePage() {
 
         {/* 상극 인연 카드 */}
         <Link
-          href={localePath('/compatibility')}
+          href={localePath('/avoidance')}
           className="rounded-[18px] bg-white p-4 flex flex-col transition-all hover:-translate-y-0.5 active:scale-[0.98]"
           style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
         >
