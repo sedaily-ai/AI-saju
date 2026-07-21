@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import {
   ScrollText, Sun, Calendar, CalendarCheck, Heart, Sparkles,
-  Search, BookOpen, Home, MessageCircle, HelpCircle,
+  Search, BookOpen, Home, MessageCircle,
   type LucideIcon,
 } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
@@ -78,18 +78,18 @@ const PRIMARY_GRID: Tile[] = [
 
 // 카드별 개별 색상
 const TILE_TONE: Record<string, { bg: string; fg: string }> = {
-  '/today':         { bg: '#E0F2F1', fg: '#00796B' },   // 틸 — 오늘 운세
-  '/saju':          { bg: '#E8F5E9', fg: '#2E7D32' },   // 녹색 — 사주
-  '/tojeong':       { bg: '#FFF3E0', fg: '#E65100' },   // 주황 — 토정비결
-  '/pick-date':     { bg: '#EDE7F6', fg: '#5E35B1' },   // 보라 — 지정일
-  '/compatibility': { bg: '#FCE4EC', fg: '#C62828' },   // 핑크 — 궁합
-  '/concern':       { bg: '#FFF8E1', fg: '#F57F17' },   // 골드 — 부적
+  '/today':         { bg: '#ECFDF5', fg: '#059669' },
+  '/saju':          { bg: '#ECFDF5', fg: '#059669' },
+  '/tojeong':       { bg: '#ECFDF5', fg: '#059669' },
+  '/pick-date':     { bg: '#ECFDF5', fg: '#059669' },
+  '/compatibility': { bg: '#ECFDF5', fg: '#059669' },
+  '/concern':       { bg: '#ECFDF5', fg: '#059669' },
 };
 
 const GROUP_TONE: Record<Tile['group'], { bg: string; fg: string }> = {
-  core:    { bg: '#E8F5E9', fg: '#2E7D32' },
-  fortune: { bg: '#FFF3E0', fg: '#E65100' },
-  social:  { bg: '#FCE4EC', fg: '#C62828' },
+  core:    { bg: '#ECFDF5', fg: '#059669' },
+  fortune: { bg: '#ECFDF5', fg: '#059669' },
+  social:  { bg: '#ECFDF5', fg: '#059669' },
 };
 
 
@@ -296,8 +296,8 @@ export default function LandingPage() {
                         fontFamily: SERIF,
                         fontWeight: 900,
                         fontSize: 64,
-                        color: tt.fg,
-                        opacity: 0.07,
+                        color: '#059669',
+                        opacity: 0.06,
                       }}
                     >
                       {kanji}
@@ -305,22 +305,22 @@ export default function LandingPage() {
                     {/* 상단: 아이콘 + 화살표 */}
                     <div className="flex items-start justify-between">
                       <span
-                        className="w-[38px] h-[38px] rounded-[12px] flex items-center justify-center"
-                        style={{ background: tt.bg }}
+                        className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center"
+                        style={{ background: '#ECFDF5' }}
                       >
-                        <Icon size={19} strokeWidth={2.1} style={{ color: tt.fg }} />
+                        <Icon size={18} strokeWidth={2.2} style={{ color: '#059669' }} />
                       </span>
                       <span className="text-gray-300 text-[13px]" aria-hidden>↗</span>
                     </div>
                     {/* 하단: 타이틀 + 설명 */}
                     <div className="relative z-[1]">
                       <h4
-                        className="text-[15px] font-bold leading-tight tracking-tight"
-                        style={{ color: C.ink }}
+                        className="text-[14px] font-bold leading-tight tracking-tight"
+                        style={{ color: '#1a1a1a' }}
                       >
                         {t(ko, en)}
                       </h4>
-                      <p className="mt-0.5 text-[11.5px] leading-relaxed text-gray-400 line-clamp-1">
+                      <p className="mt-0.5 text-[11px] leading-relaxed text-gray-400 line-clamp-1">
                         {t(subKo, subEn)}
                       </p>
                     </div>
@@ -368,22 +368,22 @@ export default function LandingPage() {
             <li>
               <Link
                 href={localePath('/blog')}
-                className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:bg-[#ECFDF5] active:scale-[0.98] h-[130px] overflow-hidden"
+                className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:bg-[#ECFDF5] active:scale-[0.98] group h-[130px] overflow-hidden"
               >
                 <div className="flex items-start justify-between">
                   <span
-                    className="w-[38px] h-[38px] rounded-[12px] flex items-center justify-center"
-                    style={{ background: '#DBF1E8' }}
+                    className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center"
+                    style={{ background: '#ECFDF5' }}
                   >
-                    <BookOpen size={19} strokeWidth={2.1} style={{ color: '#338A6A' }} />
+                    <BookOpen size={18} strokeWidth={2.2} style={{ color: '#059669' }} />
                   </span>
                   <span className="text-gray-300 text-[13px]" aria-hidden>↗</span>
                 </div>
                 <div>
-                  <h4 className="text-[15px] font-bold leading-tight tracking-tight" style={{ color: C.ink }}>
+                  <h4 className="text-[14px] font-bold leading-tight tracking-tight" style={{ color: '#1a1a1a' }}>
                     {t('블로그', 'Blog')}
                   </h4>
-                  <p className="mt-0.5 text-[11.5px] leading-relaxed text-gray-400 line-clamp-1">
+                  <p className="mt-0.5 text-[11px] leading-relaxed text-gray-400 line-clamp-1">
                     {t('데일리 운세·명리 노트', 'Daily horoscope notes')}
                   </p>
                 </div>
@@ -392,22 +392,26 @@ export default function LandingPage() {
             <li>
               <Link
                 href={localePath('/quiz')}
-                className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:bg-[#ECFDF5] active:scale-[0.98] h-[130px] overflow-hidden"
+                className="relative flex flex-col justify-between p-4 rounded-2xl bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:bg-[#ECFDF5] active:scale-[0.98] group h-[130px] overflow-hidden"
               >
                 <div className="flex items-start justify-between">
                   <span
-                    className="w-[38px] h-[38px] rounded-[12px] flex items-center justify-center"
-                    style={{ background: '#EDE7F6' }}
+                    className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center"
+                    style={{ background: '#ECFDF5' }}
                   >
-                    <HelpCircle size={19} strokeWidth={2.1} style={{ color: '#5E35B1' }} />
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                      <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
                   </span>
                   <span className="text-gray-300 text-[13px]" aria-hidden>↗</span>
                 </div>
                 <div>
-                  <h4 className="text-[15px] font-bold leading-tight tracking-tight" style={{ color: C.ink }}>
+                  <h4 className="text-[14px] font-bold leading-tight tracking-tight" style={{ color: '#1a1a1a' }}>
                     {t('운세 퀴즈', 'Quiz')}
                   </h4>
-                  <p className="mt-0.5 text-[11.5px] leading-relaxed text-gray-400 line-clamp-1">
+                  <p className="mt-0.5 text-[11px] leading-relaxed text-gray-400 line-clamp-1">
                     {t('재미로 풀어보는 사주', 'Fun fortune quiz')}
                   </p>
                 </div>
@@ -545,26 +549,6 @@ function SectionCard({
 
 function DailyQuoteCard() {
   const { t, localePath } = useLang();
-  const QUOTES_KO = [
-    '오늘 하루, 작은 변화가 큰 흐름을 바꿔요.',
-    '마음먹은 일은 오늘 시작이 정답이에요.',
-    '멈춰도 괜찮아요. 쉬는 것도 운의 일부.',
-    '좋은 인연은 준비된 마음에 찾아와요.',
-    '흐름을 믿으면 길이 보여요.',
-    '작은 감사가 큰 복을 불러요.',
-    '오늘의 선택이 내일의 운을 만들어요.',
-  ];
-  const QUOTES_EN = [
-    'A small change today shifts the big picture.',
-    'The best time to start is today.',
-    "It's okay to pause. Rest is part of luck.",
-    'Good connections find a prepared heart.',
-    'Trust the flow and the path appears.',
-    'Small gratitude invites great fortune.',
-    "Today's choice shapes tomorrow's luck.",
-  ];
-  const dayIdx = new Date().getDay();
-  const quote = t(QUOTES_KO[dayIdx], QUOTES_EN[dayIdx]);
 
   return (
     <Link
@@ -573,19 +557,19 @@ function DailyQuoteCard() {
     >
       <div className="flex items-start justify-between">
         <span
-          className="w-[38px] h-[38px] rounded-[12px] flex items-center justify-center"
-          style={{ background: '#FFF8E1' }}
+          className="w-[36px] h-[36px] rounded-[10px] flex items-center justify-center"
+          style={{ background: '#ECFDF5' }}
         >
-          <span className="text-[20px]">🥠</span>
+          <span className="text-[18px]">🥠</span>
         </span>
         <span className="text-gray-300 text-[13px]" aria-hidden>↗</span>
       </div>
       <div>
-        <h4 className="text-[15px] font-bold leading-tight tracking-tight" style={{ color: C.ink }}>
+        <h4 className="text-[14px] font-bold leading-tight tracking-tight" style={{ color: '#1a1a1a' }}>
           {t('오늘의 한마디', 'Daily quote')}
         </h4>
-        <p className="mt-0.5 text-[11.5px] leading-relaxed text-gray-400 line-clamp-2">
-          {quote}
+        <p className="mt-0.5 text-[11px] leading-relaxed text-gray-400 line-clamp-1">
+          {t('포춘쿠키 한 장 뽑기', 'Pick a fortune cookie')}
         </p>
       </div>
     </Link>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Search } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
 import { SAJU, SERIF } from '@/shared/ui/sajuTokens';
@@ -26,6 +26,14 @@ export function CharacterGrid() {
   const [myId, setMyId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState(false);
+  const detailRef = useRef<HTMLDivElement>(null);
+
+  const handleSelect = (g: GapjaCharacter) => {
+    setSelected(g);
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 50);
+  };
 
   useEffect(() => {
     setMyId(readMyDayGapjaId());
@@ -53,7 +61,11 @@ export function CharacterGrid() {
         </p>
       </div>
 
-      {selected && <CharacterDetail character={selected} isMine={selected.id === myId} />}
+      {selected && (
+        <div ref={detailRef}>
+          <CharacterDetail character={selected} isMine={selected.id === myId} />
+        </div>
+      )}
 
       {/* 검색 */}
       <div
@@ -94,7 +106,7 @@ export function CharacterGrid() {
               <CharacterTile
                 character={g}
                 isMine={g.id === myId}
-                onClick={() => setSelected(g)}
+                onClick={() => handleSelect(g)}
                 label={t('나', 'Me')}
                 ohLabel={t('기운', 'energy')}
               />
@@ -135,12 +147,12 @@ function CharacterTile({
     <button
       type="button"
       onClick={onClick}
-      className="relative w-full flex flex-col rounded-[22px] bg-white p-4 transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+      className="relative w-full flex flex-col rounded-[22px] bg-white p-4 transition-all hover:-translate-y-0.5 hover:scale-105 active:scale-[0.98]"
       style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
     >
       <div className="flex items-center justify-between mb-3">
         <span
-          className="rounded-full px-2 py-0.5 text-[10px] font-bold"
+          className="rounded-full px-2.5 py-0.5 text-[11px] font-bold"
           style={{ background: tone.bg, color: tone.fg }}
         >
           {character.stem.oh} {ohLabel}
@@ -157,21 +169,21 @@ function CharacterTile({
 
       <div className="flex flex-col items-center text-center">
         <div
-          className="w-full aspect-square rounded-[14px] flex items-center justify-center mb-2.5 overflow-hidden"
+          className="w-20 h-20 rounded-full flex items-center justify-center mb-2.5 overflow-hidden"
           style={{ background: `linear-gradient(135deg, ${tone.bg} 0%, #FFFFFF 100%)`, color: tone.fg }}
         >
-          <CharacterIcon id={character.id} branch={character.branch.hanja} size={48} tone={tone} />
+          <CharacterIcon id={character.id} branch={character.branch.hanja} size={40} tone={tone} />
         </div>
-        <h4 className="text-[14.5px] font-black" style={{ fontFamily: SERIF, color: SAJU.ink }}>
+        <h4 className="text-[16px] font-black" style={{ fontFamily: SERIF, color: SAJU.ink }}>
           {character.stem.ko}{character.branch.ko}
         </h4>
-        <p className="text-[11px] font-bold mt-0.5" style={{ color: tone.fg }}>
+        <p className="text-[12.5px] font-bold mt-0.5" style={{ color: tone.fg }}>
           {character.stem.keyword}
         </p>
       </div>
 
       <p
-        className="mt-2.5 text-[11px] leading-snug text-center"
+        className="mt-2.5 text-[12.5px] leading-snug text-center"
         style={{
           color: SAJU.inkSub,
           display: '-webkit-box',
@@ -230,9 +242,9 @@ function CharacterDetail({ character, isMine }: { character: GapjaCharacter; isM
       className="relative mb-4 rounded-[24px] bg-white overflow-hidden flex"
       style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
     >
-      {/* 좌: 이미지 — 카드 전체 높이를 채우는 정사각형 */}
+      {/* 좌: 이미지 — 정사각형 */}
       <div
-        className="w-[50%] shrink-0 relative overflow-hidden aspect-square"
+        className="w-[36%] shrink-0 relative overflow-hidden"
         style={{ background: tone.bg }}
       >
         {isMine && (
@@ -258,46 +270,38 @@ function CharacterDetail({ character, isMine }: { character: GapjaCharacter; isM
       </div>
 
       {/* 우: 모든 텍스트 정보 */}
-      <div className="flex-1 min-w-0 p-4 flex flex-col justify-center text-left">
-        {/* 오행 태그 */}
-        <span
-          className="self-start rounded-full px-2 py-0.5 text-[10px] font-bold mb-2"
-          style={{ background: tone.bg, color: tone.fg }}
-        >
+      <div className="flex-1 min-w-0 p-4 flex flex-col justify-center text-left tracking-wide" style={{ background: tone.bg }}>
+        {/* 오행 기운 */}
+        <p className="text-[13px] font-black mb-2" style={{ color: tone.fg }}>
           {character.stem.oh} {t('기운', 'energy')}
-        </span>
+        </p>
 
         {/* 이름 */}
-        <h3 className="text-[20px] font-black leading-tight" style={{ color: SAJU.ink, fontFamily: SERIF }}>
+        <h3 className="text-[24px] font-black leading-tight" style={{ color: SAJU.ink, fontFamily: SERIF }}>
           {character.stem.ko}{character.branch.ko}
-          <span className="text-[12px] font-semibold ml-1" style={{ color: SAJU.inkSub }}>
+          <span className="text-[14px] font-semibold ml-1" style={{ color: SAJU.inkSub }}>
             {character.stem.hanja}{character.branch.hanja}
           </span>
         </h3>
 
         {/* 키워드 */}
-        <p className="text-[13px] font-bold mt-1" style={{ color: tone.fg }}>
+        <p className="text-[15px] font-bold mt-1" style={{ color: tone.fg }}>
           {character.stem.keyword}
         </p>
 
-        {/* 띠 + 이모지 */}
-        <p className="text-[12px] mt-1" style={{ color: SAJU.inkSub }}>
-          {character.branch.emoji} {character.branch.zodiacKo}
-        </p>
-
         {/* 한줄 설명 */}
-        <p className="text-[12.5px] leading-relaxed mt-3 mb-3" style={{ color: SAJU.ink }}>
+        <p className="text-[14px] leading-relaxed mt-3 mb-3" style={{ color: SAJU.ink }}>
           &quot;{character.branch.mood}&quot;
         </p>
 
         {/* 강점 */}
         <div className="mb-2.5">
-          <p className="text-[10.5px] font-bold mb-1" style={{ color: tone.fg }}>
+          <p className="text-[12px] font-bold mb-1" style={{ color: tone.fg }}>
             {t('강점', 'Strengths')}
           </p>
           <ul className="space-y-0.5">
             {getStrengths(character, t).map((s, i) => (
-              <li key={i} className="flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: SAJU.inkSoft }}>
+              <li key={i} className="flex items-start gap-1.5 text-[13.5px] leading-snug" style={{ color: SAJU.inkSoft }}>
                 <span className="shrink-0" style={{ color: tone.fg }}>+</span>
                 <span>{s}</span>
               </li>
@@ -307,12 +311,12 @@ function CharacterDetail({ character, isMine }: { character: GapjaCharacter; isM
 
         {/* 약점 */}
         <div>
-          <p className="text-[10.5px] font-bold mb-1" style={{ color: '#9CA3AF' }}>
+          <p className="text-[12px] font-bold mb-1" style={{ color: '#9CA3AF' }}>
             {t('약점', 'Weaknesses')}
           </p>
           <ul className="space-y-0.5">
             {getWeaknesses(character, t).map((w, i) => (
-              <li key={i} className="flex items-start gap-1.5 text-[12px] leading-snug" style={{ color: SAJU.inkSub }}>
+              <li key={i} className="flex items-start gap-1.5 text-[13.5px] leading-snug" style={{ color: SAJU.inkSub }}>
                 <span className="shrink-0">-</span>
                 <span>{w}</span>
               </li>
