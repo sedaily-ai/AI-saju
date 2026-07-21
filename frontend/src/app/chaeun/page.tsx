@@ -323,7 +323,7 @@ export default function ChaeunPage() {
           return (
             <>
               <div className="mb-3 mt-2">
-                <div className="text-[13px] font-semibold text-gray-800">
+                <div className="text-[13px] font-semibold text-amber-700">
                   {t('돈맥 지도', 'Money Flow Map')}
                 </div>
               </div>
@@ -385,7 +385,7 @@ export default function ChaeunPage() {
               className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
             >
               <div>
-                <div className="text-[13px] font-semibold text-gray-800">
+                <div className="text-[13px] font-semibold text-emerald-600">
                   {t('돈을 버는 방식', 'How You Earn')}
                 </div>
                 <div className="text-[11px] text-gray-400 mt-0.5">
@@ -415,7 +415,7 @@ export default function ChaeunPage() {
               className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
             >
               <div>
-                <div className="text-[13px] font-semibold text-gray-800">
+                <div className="text-[13px] font-semibold text-indigo-600">
                   {t('투자 성향', 'Investment Style')}
                 </div>
                 <div className="text-[11px] text-gray-400 mt-0.5">
@@ -445,7 +445,7 @@ export default function ChaeunPage() {
               className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
             >
               <div>
-                <div className="text-[13px] font-semibold text-gray-800">
+                <div className="text-[13px] font-semibold text-purple-600">
                   {t('재물 축적 능력', 'Wealth Accumulation')}
                 </div>
                 <div className="text-[11px] text-gray-400 mt-0.5">
@@ -469,7 +469,7 @@ export default function ChaeunPage() {
         ═══════════════════════════════════════════ */}
         {acts.length > 0 && (<>
           <div className="mb-3 mt-2">
-            <div className="text-[13px] font-semibold text-gray-800">
+            <div className="text-[13px] font-semibold text-teal-600">
               {t('인생 재물 3막', 'Wealth in 3 Acts')}
             </div>
             <div className="text-[11px] text-gray-400 mt-0.5">
@@ -567,7 +567,7 @@ export default function ChaeunPage() {
               onClick={() => toggleSection('moneyRx')}
               className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
             >
-              <div className="text-[13px] font-semibold text-gray-800">
+              <div className="text-[13px] font-semibold text-rose-600">
                 {t('이번 주 돈 처방전', "This Week's Money Rx")}
               </div>
               <span className={`text-[12px] text-gray-400 transition-transform ${openSections['moneyRx'] ? 'rotate-90' : ''}`}>▸</span>

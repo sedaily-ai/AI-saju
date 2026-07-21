@@ -609,7 +609,7 @@ export default function CareerPage() {
                 className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
               >
                 <div>
-                  <div className="text-[13px] font-semibold text-gray-800 dark:text-gray-100">
+                  <div className="text-[13px] font-semibold text-indigo-600 dark:text-indigo-400">
                     {t('내 커리어 기운의 성격', 'Your Career Energy')}
                   </div>
                   <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
@@ -731,7 +731,7 @@ export default function CareerPage() {
                     className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
                   >
                     <div>
-                      <div className="text-[13px] font-semibold text-gray-800 dark:text-gray-100">
+                      <div className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400">
                         {t('나와 잘 맞는 일', 'Work That Fits You')}
                       </div>
                       <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
@@ -768,7 +768,7 @@ export default function CareerPage() {
                     className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
                   >
                     <div>
-                      <div className="text-[13px] font-semibold text-gray-800 dark:text-gray-100">
+                      <div className="text-[13px] font-semibold text-rose-600 dark:text-rose-400">
                         {t('나와 안 맞는 일', 'Work That Drains You')}
                       </div>
                       <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
@@ -851,7 +851,7 @@ export default function CareerPage() {
                     className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
                   >
                     <div>
-                      <div className="text-[13px] font-semibold text-gray-800 dark:text-gray-100">
+                      <div className="text-[13px] font-semibold text-purple-600 dark:text-purple-400">
                         {t('시기별 커리어 흐름', 'Career Flow by Period')}
                       </div>
                       <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
@@ -922,7 +922,7 @@ export default function CareerPage() {
                     className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
                   >
                     <div>
-                      <div className="text-[13px] font-semibold text-gray-800 dark:text-gray-100">
+                      <div className="text-[13px] font-semibold text-teal-600 dark:text-teal-400">
                         {t('올해 월별 커리어 타임라인', 'Monthly Career Timeline')}
                       </div>
                       <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
