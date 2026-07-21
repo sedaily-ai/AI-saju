@@ -9,9 +9,9 @@ import { useLang } from '@/shared/lib/LangContext';
 import {
   calculateSaju, parsePillar, sipsung, unsung, elClass,
   CG_OH, JJ_OH, OH_HJ, JJG,
-  buildChongun, buildTodayFortune, calcDaeun, calcYeonun, calcWolun,
+  buildChongun, buildTodayFortune, buildYearlyFortune, calcDaeun, calcYeonun, calcWolun,
   matchSijin, REGION_OPTIONS, REGION_OPTIONS_EN,
-  type Pillar, type ChongunResult, type TodayFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry,
+  type Pillar, type ChongunResult, type TodayFortuneResult, type YearlyFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry,
 } from '../lib/engine';
 import { SajuTable } from './SajuTable';
 import { FortuneResult } from './FortuneResult';
@@ -25,6 +25,7 @@ interface SajuData {
   gender: string;
   chongun: ChongunResult | null;
   todayFortune: TodayFortuneResult | null;
+  yearlyFortune: YearlyFortuneResult | null;
   daeuns: DaeunEntry[];
   yeonuns: YeonunEntry[];
   woluns: WolunEntry[];
@@ -43,7 +44,7 @@ function setSaved(list: SavedEntry[]) { localStorage.setItem(STORAGE_KEY, JSON.s
 interface FortuneTabProps {
   selectedGroup?: 'NT' | 'NF' | 'ST' | 'SF';
   onMbtiChange?: (group: 'NT' | 'NF' | 'ST' | 'SF') => void;
-  mode?: 'full' | 'today';
+  mode?: 'full' | 'today' | 'yearly';
   /**
    * phase-04 (2026-05-24): 자체 헤더(흰 헤더 블록 + 날짜 + LangToggle/ThemeToggle + 큰 타이틀 +
    * 크레덴셜 + 마스코트 + 회색 wrapper bg) 를 숨김.
@@ -148,13 +149,14 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
       const il = ps[1].c;
       const chongun = buildChongun(ps);
       const todayFortune = buildTodayFortune(ps);
+      const yearlyFortune = buildYearlyFortune(ps);
       const { daeuns } = il ? calcDaeun(s, g, y, m, d) : { daeuns: [] };
       const yeonuns = il ? calcYeonun() : [];
       const woluns = il ? calcWolun() : [];
 
       const newResult = {
         pillars: ps, ilgan: il, year: y, month: m, day: d, gender: g,
-        chongun, todayFortune, daeuns, yeonuns, woluns,
+        chongun, todayFortune, yearlyFortune, daeuns, yeonuns, woluns,
         correctedTime: s.isTimeCorrected && s.correctedTime ? s.correctedTime : undefined,
       };
       setResult(newResult);
@@ -263,6 +265,8 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
             <h2 className="text-[26px] font-extrabold text-gray-900 dark:text-gray-100 tracking-[-0.04em] leading-none mb-4">
               {mode === 'today'
                 ? t('오늘의 사주', "Today's Saju")
+                : mode === 'yearly'
+                ? t('올해의 사주', "This Year's Saju")
                 : t('내 사주', 'My Saju')}
             </h2>
             {/* 크레덴셜 — 모드별 분기 */}
@@ -272,6 +276,12 @@ export function FortuneTab({ selectedGroup, onMbtiChange, mode = 'full', hideOwn
                   <div>{t('오늘 일진과 내 사주의 상호작용을 분석합니다', "Analyzes today's energy interaction with your chart")}</div>
                   <div>{t('십성 · 12운성 · 분야별 운세 한눈에', 'Ten Gods · 12 Stages · Fortune by category at a glance')}</div>
                   <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('매일 달라지는 나의 하루 흐름.', 'Your daily flow, refreshed every day.')}</div>
+                </>
+              ) : mode === 'yearly' ? (
+                <>
+                  <div>{t('올해 세운과 내 사주의 상호작용을 분석합니다', "Analyzes this year's energy interaction with your chart")}</div>
+                  <div>{t('십성 · 12운성 · 분야별 운세 한눈에', 'Ten Gods · 12 Stages · Fortune by category at a glance')}</div>
+                  <div className="text-gray-700 dark:text-gray-100 font-semibold">{t('올해 한 해의 큰 흐름을 읽어드립니다.', 'Your yearly flow at a glance.')}</div>
                 </>
               ) : (
                 <>

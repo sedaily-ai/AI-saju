@@ -10,13 +10,13 @@ import {
 } from '@/features/fortune/lib/engine';
 import {
   buildCareerPeriodNote,
-  buildCareerThemeLine,
   buildMonthCareerSeries,
   computeCurrentPeriodChaeun,
   deriveCareerOverall,
   type WealthPathKey,
 } from '@/features/fortune/lib/engine-chaeun';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
+import { SajuTable } from '@/features/fortune/components/SajuTable';
 import { SaveProfileButton } from '@/features/fortune';
 import { useLang } from '@/shared/lib/LangContext';
 import { PageShell } from '@/shared/ui/PageShell';
@@ -291,6 +291,14 @@ const CAUTIONS_BY_TYPE: Record<CareerType, string[]> = {
   ],
 };
 
+/** 유형별 안 맞는 일 (설명형 줄글) */
+const MISMATCH_BY_TYPE: Record<CareerType, string> = {
+  '조직형': '규칙 없이 즉흥적으로 돌아가는 환경, 매번 새로운 프로젝트를 처음부터 만드는 스타트업 초기 단계, 성과가 숫자로 보이지 않고 개인의 감각·표현으로만 평가되는 일은 에너지 소모가 크고 성취감도 쉽게 오지 않아요. 프리랜서나 1인 크리에이터처럼 스스로 모든 결정을 내려야 하는 구조도 체질과 거리가 있어요.',
+  '전문가형': '반복적인 행정·서류 처리, 위계와 절차를 따르는 것이 핵심인 관리직, 개인의 아웃풋이 드러나지 않는 뒷단 지원 업무는 금세 동기가 떨어져요. 성과를 오래 기다려야 하거나, 본인의 이름이 아닌 조직 이름으로만 일이 귀속되는 환경에서는 점점 에너지가 빠져요.',
+  '학문형': '빠른 실행·즉각적 성과를 요구하는 영업 중심 환경, 깊이보다 속도가 우선인 일, 체계 없이 감으로 움직이는 조직은 체질과 맞지 않아요. 짧은 주기로 결과물을 쏟아내야 하는 콘텐츠 양산형 업무도 점점 소진으로 이어지기 쉬워요.',
+  '유연형': '하나의 역할에 10년 이상 묶이는 구조, 매일 같은 루틴·절차를 반복하는 관리·행정 업무, 변화 없이 꾸준함만 요구되는 환경에서는 몰입도가 빠르게 떨어져요. 승진 트랙이 유일한 보상 수단인 조직에서도 답답함을 느끼기 쉬워요.',
+};
+
 const TIPS_BY_TYPE: Record<CareerType, { inJob: string; transition: string }> = {
   '조직형': {
     inJob: '조직 내 공식 트랙(승진·직책)에 적극 뛰어드는 게 체질과 맞아요. 규정 준수와 위계 정비가 결국 실적으로 돌아옵니다.',
@@ -448,6 +456,9 @@ export default function CareerPage() {
   const [loaded, setLoaded] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [isSajuHost, setIsSajuHost] = useState(false);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+  const toggleSection = (key: string) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
 
   useEffect(() => {
     try {
@@ -585,10 +596,43 @@ export default function CareerPage() {
               );
             })()}
 
-            {/* 커리어 프로파일 */}
-            <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
-              <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('내 커리어 기운의 성격', 'Your Career Energy')}</h3>
-              <p className="text-[11px] text-gray-400 dark:text-gray-300 mb-3">{t('관성(官) · 식상(食傷) · 인성(印) 축으로 본 커리어 체질', 'Career constitution via Authority · Output · Resource axes')}</p>
+            {/* 사주 팔자 테이블 */}
+            <SajuTable pillars={pillars} ilgan={ilgan} />
+
+            {/* ═══════════════════════════════════════════
+                ① 커리어 유형 진단 (토글)
+            ═══════════════════════════════════════════ */}
+            <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-4 overflow-hidden">
+              <button
+                type="button"
+                onClick={() => toggleSection('careerType')}
+                className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+              >
+                <div>
+                  <div className="text-[13px] font-semibold text-indigo-600 dark:text-indigo-400">
+                    {t('내 커리어 기운의 성격', 'Your Career Energy')}
+                  </div>
+                  <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
+                    {t('관성(官) · 식상(食傷) · 인성(印) 축으로 본 커리어 체질', 'Career constitution via Authority · Output · Resource axes')}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span
+                    className="inline-block rounded-full px-2.5 py-0.5 text-[11px] font-bold"
+                    style={{ background: 'var(--tone-info-bg)', color: 'var(--tone-info-fg)' }}
+                  >
+                    {profileType.type}
+                  </span>
+                  <span className={`text-[12px] text-gray-400 transition-transform ${openSections['careerType'] ? 'rotate-90' : ''}`}>▸</span>
+                </div>
+              </button>
+              {openSections['careerType'] && (
+                <div className="px-5 pb-5">
+                  <div className="flex items-center gap-2 mb-3 flex-wrap">
+                    <span className="text-[11px] text-gray-500 dark:text-gray-300 tabular-nums">
+                      {t('관성', 'Authority')} {counts.gwan} · {t('식상', 'Output')} {counts.sik} · {t('인성', 'Resource')} {counts.in_}
+                    </span>
+                  </div>
 
               <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <span
@@ -661,120 +705,92 @@ export default function CareerPage() {
                 );
               })()}
 
-              <p className="text-[12px] text-gray-600 dark:text-gray-100 dark:text-gray-300 leading-relaxed pb-4 mb-4 border-b border-gray-100 dark:border-gray-800">{profileType.desc}</p>
+              <p className="text-[12px] text-gray-600 dark:text-gray-300 leading-[1.9] mb-4">{profileType.desc}</p>
 
-              {/* 강점 */}
-              <div className="mb-3">
-                <div className="text-[11px] font-bold text-gray-900 dark:text-gray-100 mb-1.5">{t('강점', 'Strengths')}</div>
-                <ul className="space-y-1">
-                  {STRENGTHS_BY_TYPE[profileType.type].map((s, i) => (
-                    <li key={i} className="flex items-start gap-2 text-[12px] text-gray-700 dark:text-gray-300 leading-relaxed">
-                      <span className="inline-block w-1 h-1 rounded-full mt-2 shrink-0" style={{ background: '#10B981' }} />
-                      <span>{s}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* 주의할 점 */}
-              <div>
-                <div className="text-[11px] font-bold text-gray-900 dark:text-gray-100 mb-1.5">{t('주의할 점', 'Watch-outs')}</div>
-                <ul className="space-y-1">
-                  {CAUTIONS_BY_TYPE[profileType.type].map((c, i) => (
-                    <li key={i} className="flex items-start gap-2 text-[12px] text-gray-700 dark:text-gray-300 leading-relaxed">
-                      <span className="inline-block w-1 h-1 rounded-full mt-2 shrink-0" style={{ background: '#F43F5E' }} />
-                      <span>{c}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9]">
+                {STRENGTHS_BY_TYPE[profileType.type].join(' ')} {t('다만, ', 'However, ')}{CAUTIONS_BY_TYPE[profileType.type].join(' ')}
+              </p>
+                </div>
+              )}
             </div>
 
-            {/* 빛나는 일의 성격 — 일간 오행 × 커리어 타입 적성 */}
+            {/* ═══════════════════════════════════════════
+                ② 빛나는 일의 성격 (토글)
+            ═══════════════════════════════════════════ */}
             {(() => {
               const ilganOh = CG_OH[ilgan] || '';
               const aptitude = APTITUDE_MATRIX[ilganOh]?.[profileType.type];
               const tips = TIPS_BY_TYPE[profileType.type];
               const traits = TRAITS_BY_TYPE[profileType.type];
               if (!aptitude || !tips || !traits) return null;
-              return (
-                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
-                  <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('내가 빛나는 일의 성격', 'The Kind of Work That Makes You Shine')}</h3>
-                  <p className="text-[11px] text-gray-400 dark:text-gray-300 mb-3">
-                    {t('일간', 'Day Stem')} <b className="text-gray-600 dark:text-gray-100 dark:text-gray-300">{ilganOh}</b> · <b className="text-gray-600 dark:text-gray-100 dark:text-gray-300">{profileType.type}</b> {t('조합', 'combo')}
-                  </p>
-
-                  {/* 본질 */}
-                  <div className="rounded-r-xl p-3 mb-3" style={{ background: 'var(--accent-blue-bg)', borderLeft: '3px solid var(--accent-blue-border)' }}>
-                    <p className="text-[12.5px] text-gray-800 dark:text-gray-200 leading-relaxed">{aptitude.essence}</p>
-                  </div>
-
-                  {/* 어떤 성격이냐면 — 일의 4가지 축 */}
-                  <div className="mb-4">
-                    <div className="text-[11px] font-bold text-gray-500 dark:text-gray-100 dark:text-gray-300 mb-2">{t('어떤 성격이냐면', 'What this looks like')}</div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {traits.map((t) => (
-                        <div
-                          key={t.title}
-                          className="rounded-lg p-2.5"
-                          style={{ background: 'var(--pane-neutral-bg)', border: '1px solid var(--pane-neutral-border)' }}
-                        >
-                          <div className="text-[11.5px] font-bold text-gray-800 dark:text-gray-200 mb-0.5">{t.title}</div>
-                          <div className="text-[10.5px] text-gray-500 dark:text-gray-100 dark:text-gray-300 leading-snug">{t.desc}</div>
-                        </div>
-                      ))}
+              return (<>
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-4 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('fitWork')}
+                    className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+                  >
+                    <div>
+                      <div className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400">
+                        {t('나와 잘 맞는 일', 'Work That Fits You')}
+                      </div>
+                      <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
+                        {t('일간', 'Day Stem')} {ilganOh} · {profileType.type} {t('기반 적성', 'aptitude')}
+                      </div>
                     </div>
-                  </div>
-
-                  {/* 예시 분야 */}
-                  <div className="mb-4">
-                    <p className="text-[10.5px] text-gray-400 dark:text-gray-300 mb-3 leading-snug">
-                      {t('위 ', 'Any work sharing these ')}<b className="text-gray-500 dark:text-gray-100 dark:text-gray-300">{t('4가지 성격', '4 traits')}</b>{t('을 갖춘 일이면 예시 외 다른 분야에서도 잘 작동해요.', ' works well, not just these examples.')}
-                    </p>
-                    <div className="text-[11px] font-bold text-gray-700 dark:text-gray-300 mb-2">{t('이런 분야를 추천해요!', 'Recommended fields:')}</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {aptitude.fields.map((f) => (
-                        <span
-                          key={f}
-                          className="inline-block rounded-full px-2.5 py-1 text-[11px] font-semibold"
-                          style={{ background: 'var(--tone-neutral-bg)', color: 'var(--tone-neutral-fg)' }}
-                        >
-                          {f}
-                        </span>
-                      ))}
+                    <span className={`text-[12px] text-gray-400 transition-transform ${openSections['fitWork'] ? 'rotate-90' : ''}`}>▸</span>
+                  </button>
+                  {openSections['fitWork'] && (
+                    <div className="px-5 pb-5">
+                      <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9] mb-3">
+                        {aptitude.essence} {aptitude.rationale}
+                      </p>
+                      <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9] mb-4">
+                        {t('구체적으로 보면, ', 'Specifically, ')}{traits.map((tr) => `${tr.title}(${tr.desc})`).join(', ')}{t(' 같은 성격의 일이 당신과 잘 맞아요. ', ' — these traits align well with your energy. ')}
+                        {t('추천 분야로는 ', 'Recommended fields include ')}{aptitude.fields.join(', ')}{t('가 있어요.', '.')}
+                      </p>
+                      <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-3">
+                        <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9]">
+                          <b className="text-gray-900 dark:text-gray-100">{t('지금 일하고 있다면', 'If currently working')}</b> — {tips.inJob}
+                        </p>
+                        <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9]">
+                          <b className="text-gray-900 dark:text-gray-100">{t('전환이나 시작을 고민 중이라면', 'If considering a transition')}</b> — {tips.transition}
+                        </p>
+                      </div>
                     </div>
-                    <div className="mt-3 leading-snug">
-                      <div className="text-[11px] font-bold text-gray-700 dark:text-gray-300">{t('왜 이 분야를 추천하냐면', 'Why these fields')}</div>
-                      <p className="text-[11px] text-gray-500 dark:text-gray-100 dark:text-gray-300 mt-0.5">{aptitude.rationale}</p>
-                    </div>
-                  </div>
-
-                  {/* 재직자 vs 전환자 두 관점 */}
-                  <div className="border-t border-gray-100 dark:border-gray-800 pt-3 space-y-3">
-                    <div className="flex items-start gap-2">
-                      <span
-                        className="inline-block rounded-md px-1.5 py-0.5 text-[10px] font-bold shrink-0 mt-0.5"
-                        style={{ background: 'var(--tone-positive-bg)', color: 'var(--tone-positive-fg)' }}
-                      >
-                        {t('재직 중', 'In role')}
-                      </span>
-                      <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-relaxed">{tips.inJob}</p>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span
-                        className="inline-block rounded-md px-1.5 py-0.5 text-[10px] font-bold shrink-0 mt-0.5"
-                        style={{ background: 'var(--tone-caution-bg)', color: 'var(--tone-caution-fg)' }}
-                      >
-                        {t('전환·시작', 'Switching · Starting')}
-                      </span>
-                      <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-relaxed">{tips.transition}</p>
-                    </div>
-                  </div>
+                  )}
                 </div>
-              );
+
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-4 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('unfitWork')}
+                    className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+                  >
+                    <div>
+                      <div className="text-[13px] font-semibold text-rose-600 dark:text-rose-400">
+                        {t('나와 안 맞는 일', 'Work That Drains You')}
+                      </div>
+                      <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
+                        {t('이런 환경에서는 에너지가 빠져요', 'These environments drain your energy')}
+                      </div>
+                    </div>
+                    <span className={`text-[12px] text-gray-400 transition-transform ${openSections['unfitWork'] ? 'rotate-90' : ''}`}>▸</span>
+                  </button>
+                  {openSections['unfitWork'] && (
+                    <div className="px-5 pb-5">
+                      <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9]">
+                        {MISMATCH_BY_TYPE[profileType.type]}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>);
             })()}
 
-            {/* 시기별 커리어 흐름 — 올해(세운) · 이번 달(월운) · 오늘(일진) */}
+            {/* ═══════════════════════════════════════════
+                ③ 시기별 커리어 흐름 (토글)
+            ═══════════════════════════════════════════ */}
             {periodChaeun && (periodChaeun.yeonun || periodChaeun.wolun || periodChaeun.iljin) && (() => {
               const rows: Array<{
                 key: 'yeonun' | 'wolun' | 'iljin';
@@ -782,13 +798,10 @@ export default function CareerPage() {
                 sub: string;
                 ganji: string;
                 ganjiHanja: string;
-                themeLine: string;
                 note: string;
                 categories: WealthPathKey[];
                 score: number;
                 tone: 'good' | 'neutral' | 'caution';
-                toneLabel: string;
-                breakdown: { label: string; points: number; note: string }[];
               }> = [];
               if (periodChaeun.yeonun && careerOverall.yeonun) {
                 rows.push({
@@ -797,13 +810,10 @@ export default function CareerPage() {
                   sub: `${periodChaeun.yeonun.year}`,
                   ganji: periodChaeun.yeonun.ganji,
                   ganjiHanja: periodChaeun.yeonun.ganjiHanja,
-                  themeLine: buildCareerThemeLine(periodChaeun.yeonun.categories),
                   note: buildCareerPeriodNote(periodChaeun.yeonun.categories),
                   categories: periodChaeun.yeonun.categories,
                   score: careerOverall.yeonun.score,
                   tone: careerOverall.yeonun.tone,
-                  toneLabel: careerOverall.yeonun.label,
-                  breakdown: careerOverall.yeonun.breakdown,
                 });
               }
               if (periodChaeun.wolun && careerOverall.wolun) {
@@ -813,13 +823,10 @@ export default function CareerPage() {
                   sub: `${periodChaeun.wolun.month}월`,
                   ganji: periodChaeun.wolun.ganji,
                   ganjiHanja: periodChaeun.wolun.ganjiHanja,
-                  themeLine: buildCareerThemeLine(periodChaeun.wolun.categories),
                   note: buildCareerPeriodNote(periodChaeun.wolun.categories),
                   categories: periodChaeun.wolun.categories,
                   score: careerOverall.wolun.score,
                   tone: careerOverall.wolun.tone,
-                  toneLabel: careerOverall.wolun.label,
-                  breakdown: careerOverall.wolun.breakdown,
                 });
               }
               if (periodChaeun.iljin && careerOverall.iljin) {
@@ -829,104 +836,57 @@ export default function CareerPage() {
                   sub: periodChaeun.iljin.dateLabel,
                   ganji: periodChaeun.iljin.ganji,
                   ganjiHanja: periodChaeun.iljin.ganjiHanja,
-                  themeLine: buildCareerThemeLine(periodChaeun.iljin.categories),
                   note: buildCareerPeriodNote(periodChaeun.iljin.categories),
                   categories: periodChaeun.iljin.categories,
                   score: careerOverall.iljin.score,
                   tone: careerOverall.iljin.tone,
-                  toneLabel: careerOverall.iljin.label,
-                  breakdown: careerOverall.iljin.breakdown,
                 });
               }
 
-              const toneBg = (t: 'good' | 'neutral' | 'caution') =>
-                t === 'good' ? 'var(--tone-positive-bg)' : t === 'neutral' ? 'var(--tone-neutral-bg)' : 'var(--tone-caution-bg)';
-              const toneColor = (t: 'good' | 'neutral' | 'caution') =>
-                t === 'good' ? 'var(--tone-positive-fg)' : t === 'neutral' ? 'var(--tone-neutral-fg)' : 'var(--tone-caution-fg)';
-
               return (
-                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
-                  <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100 mb-1">{t('시기별 커리어 흐름', 'Career Flow by Period')}</h3>
-                  <p className="text-[11px] text-gray-400 dark:text-gray-300 mb-3 leading-snug">
-                    {t('올해(세운) · 이번 달(월운) · 오늘(일진) 간지가 내 일간에 가져오는 커리어 영향', 'Career influence this year · this month · today brings to your Day Stem')}
-                  </p>
-                  <div className="space-y-3">
-                    {rows.map((r, idx) => (
-                      <div
-                        key={r.key}
-                        className={idx === 0 ? '' : 'border-t border-gray-100 dark:border-gray-800 pt-3'}
-                      >
-                        <div className="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
-                          <div className="flex items-baseline gap-1.5 min-w-0 flex-wrap">
-                            <span className="text-[13px] font-bold text-gray-900 dark:text-gray-100">{r.label === '올해' ? t('올해', 'This year') : r.label === '이번 달' ? t('이번 달', 'This month') : r.label === '오늘' ? t('오늘', 'Today') : r.label}</span>
-                            <span className="text-[11px] text-gray-400 dark:text-gray-300">{r.sub}</span>
-                            <span className="text-[11px] text-gray-500 dark:text-gray-100 dark:text-gray-300">
-                              · {r.ganji}({r.ganjiHanja})
-                            </span>
-                          </div>
-                          <span className="text-[13px] font-bold tabular-nums text-gray-900 dark:text-gray-100 shrink-0">
-                            {r.score}
-                            <span className="text-[10px] text-gray-400 dark:text-gray-300 font-normal">/100</span>
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 mb-2 flex-wrap">
-                          <span
-                            className="inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold"
-                            style={{ background: toneBg(r.tone), color: toneColor(r.tone) }}
-                          >
-                            {r.toneLabel}
-                          </span>
-                          {r.themeLine && r.themeLine !== '—' && (
-                            <span className="text-[11px] text-gray-500 dark:text-gray-100 dark:text-gray-300">{r.themeLine}</span>
-                          )}
-                        </div>
-                        {r.note && r.note !== '—' && (
-                          <p className="text-[12px] text-gray-600 dark:text-gray-100 dark:text-gray-300 leading-relaxed mb-2">{r.note}</p>
-                        )}
-                        {(() => {
-                          const bridge = buildBridge(profileType.type, r.categories);
-                          if (!bridge) return null;
-                          return (
-                            <div
-                              className="rounded-r-lg px-3 py-2 mb-2 text-[11.5px] leading-relaxed"
-                              style={{ background: 'var(--accent-orange-bg)', color: 'var(--accent-orange-text)', borderLeft: '3px solid var(--accent-orange-border)' }}
-                            >
-                              <b className="text-orange-700">체질 × 시기</b> · {bridge}
-                            </div>
-                          );
-                        })()}
-                        {r.breakdown.length > 0 && (
-                          <details className="group">
-                            <summary className="text-[10.5px] text-gray-400 dark:text-gray-300 cursor-pointer list-none flex items-center gap-1 hover:text-gray-600 dark:text-gray-100 dark:text-gray-300">
-                              <span className="group-open:rotate-90 transition-transform inline-block">▸</span>
-                              {t('점수 내역 보기', 'Score breakdown')}
-                            </summary>
-                            <div className="mt-1.5 space-y-1 pl-3">
-                              {r.breakdown.map((b, i) => (
-                                <div key={i} className="flex items-baseline gap-2 text-[10.5px]">
-                                  <span className="font-semibold text-gray-700 dark:text-gray-300 min-w-[72px] sm:min-w-[90px] shrink-0">{b.label}</span>
-                                  <span
-                                    className={`font-bold w-[28px] shrink-0 tabular-nums ${
-                                      b.points > 0 ? 'text-emerald-700' : b.points < 0 ? 'text-rose-700' : 'text-slate-500'
-                                    }`}
-                                  >
-                                    {b.points > 0 ? '+' : ''}
-                                    {b.points}
-                                  </span>
-                                  <span className="text-gray-500 dark:text-gray-100 dark:text-gray-300 leading-snug min-w-0 break-keep">{b.note}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </details>
-                        )}
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-4 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('periodFlow')}
+                    className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+                  >
+                    <div>
+                      <div className="text-[13px] font-semibold text-purple-600 dark:text-purple-400">
+                        {t('시기별 커리어 흐름', 'Career Flow by Period')}
                       </div>
-                    ))}
-                  </div>
+                      <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
+                        {t('올해 · 이번 달 · 오늘의 커리어 영향', 'Career influence: this year · month · today')}
+                      </div>
+                    </div>
+                    <span className={`text-[12px] text-gray-400 transition-transform ${openSections['periodFlow'] ? 'rotate-90' : ''}`}>▸</span>
+                  </button>
+                  {openSections['periodFlow'] && (
+                    <div className="px-5 pb-5 space-y-4">
+                    {rows.map((r, idx) => {
+                      const bridge = buildBridge(profileType.type, r.categories);
+                      const periodLabel = r.label === '올해' ? t('올해', 'This year') : r.label === '이번 달' ? t('이번 달', 'This month') : t('오늘', 'Today');
+                      return (
+                        <div key={r.key} className={idx === 0 ? '' : 'border-t border-gray-100 dark:border-gray-800 pt-4'}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[13px] font-bold text-gray-900 dark:text-gray-100">{periodLabel}</span>
+                            <span className="text-[11px] text-gray-400 dark:text-gray-300">{r.sub} · {r.ganji}({r.ganjiHanja})</span>
+                            <span className="text-[11px] font-bold tabular-nums text-gray-500 dark:text-gray-300 ml-auto">{r.score}/100</span>
+                          </div>
+                          <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9]">
+                            {r.note && r.note !== '—' ? r.note : ''}{bridge ? ` ${bridge}` : ''}
+                          </p>
+                        </div>
+                      );
+                    })}
+                    </div>
+                  )}
                 </div>
               );
             })()}
 
-            {/* 올해 월별 커리어 타임라인 차트 */}
+            {/* ═══════════════════════════════════════════
+                ④ 올해 월별 커리어 타임라인 (토글)
+            ═══════════════════════════════════════════ */}
             {monthSeries.length >= 2 && (() => {
               const currentMonth = periodChaeun?.wolun?.month;
               const best = monthSeries.reduce((b, c) => (c.score > b.score ? c : b), monthSeries[0]);
@@ -955,17 +915,28 @@ export default function CareerPage() {
               const dotColor = (tone: 'good' | 'neutral' | 'caution') =>
                 tone === 'good' ? '#10B981' : tone === 'neutral' ? '#94A3B8' : '#F59E0B';
               return (
-                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-4 sm:p-5 mb-4">
-                  <div className="flex items-baseline justify-between gap-2 mb-1">
-                    <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('올해 월별 커리어 타임라인', 'Monthly Career Timeline')}</h3>
-                    <span className="text-[10px] font-bold text-gray-400 dark:text-gray-300 tabular-nums">{min}~{max}</span>
-                  </div>
-                  <p className="text-[11px] text-gray-400 dark:text-gray-300 mb-3 leading-snug">
-                    {t('정점', 'Peak')} <b className="text-emerald-700">{lang === 'en' ? `M${best.month} (${best.score})` : `${best.month}월(${best.score})`}</b>
-                    {best.themeLine && best.themeLine !== '—' && <span> · {best.themeLine}</span>}
-                    <span className="text-gray-300"> / </span>
-                    {t('저점', 'Trough')} <b className="text-rose-600">{lang === 'en' ? `M${worst.month} (${worst.score})` : `${worst.month}월(${worst.score})`}</b>
-                    {worst.themeLine && worst.themeLine !== '—' && <span> · {worst.themeLine}</span>}
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-4 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => toggleSection('timeline')}
+                    className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+                  >
+                    <div>
+                      <div className="text-[13px] font-semibold text-teal-600 dark:text-teal-400">
+                        {t('올해 월별 커리어 타임라인', 'Monthly Career Timeline')}
+                      </div>
+                      <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
+                        {t('정점', 'Peak')} {lang === 'en' ? `M${best.month}` : `${best.month}월`} · {t('저점', 'Trough')} {lang === 'en' ? `M${worst.month}` : `${worst.month}월`}
+                      </div>
+                    </div>
+                    <span className={`text-[12px] text-gray-400 transition-transform ${openSections['timeline'] ? 'rotate-90' : ''}`}>▸</span>
+                  </button>
+                  {openSections['timeline'] && (
+                    <div className="px-5 pb-5">
+                  <p className="text-[12px] text-gray-600 dark:text-gray-300 mb-3 leading-[1.9]">
+                    {lang === 'en'
+                      ? `This year, your career energy peaks in month ${best.month} (score ${best.score}) and dips lowest in month ${worst.month} (score ${worst.score}).`
+                      : `올해 커리어 기운은 ${best.month}월에 가장 높고(${best.score}점), ${worst.month}월에 가장 낮아요(${worst.score}점).`}
                   </p>
                   <svg
                     viewBox={`0 0 ${chartW} ${chartH}`}
@@ -1021,20 +992,13 @@ export default function CareerPage() {
                     })}
                   </svg>
 
-                  <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 space-y-1.5">
-                    <div className="flex items-start gap-2 text-[11px] leading-snug">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: '#10B981' }} />
-                      <span className="text-gray-600 dark:text-gray-100 dark:text-gray-300">
-                        <b className="text-emerald-700">{t(`정점 ${best.month}월`, `Peak M${best.month}`)}</b> — {buildPeakAdvice(best.categories, 'peak', best.month)}
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2 text-[11px] leading-snug">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: '#F59E0B' }} />
-                      <span className="text-gray-600 dark:text-gray-100 dark:text-gray-300">
-                        <b className="text-rose-600">{t(`저점 ${worst.month}월`, `Trough M${worst.month}`)}</b> — {buildPeakAdvice(worst.categories, 'trough', worst.month)}
-                      </span>
-                    </div>
+                  <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9]">
+                      {buildPeakAdvice(best.categories, 'peak', best.month)} {buildPeakAdvice(worst.categories, 'trough', worst.month)}
+                    </p>
                   </div>
+                    </div>
+                  )}
                 </div>
               );
             })()}

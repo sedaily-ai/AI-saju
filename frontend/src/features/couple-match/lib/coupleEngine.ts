@@ -56,6 +56,15 @@ export interface CoupleMatch {
   score: number;
   /** 카테고리별 요약 (한 줄씩) */
   headline: string;
+  /** 캐치한 궁합 유형 태그 */
+  typeName: { ko: string; en: string };
+  /** 하위 카테고리별 점수 (0~10) */
+  categoryScores: {
+    romance: number;      // 연애운 (끌림·감정)
+    communication: number; // 소통
+    conflict: number;      // 갈등 해결
+    stability: number;     // 결혼 안정성
+  };
   /** 근거 리스트 — 플러스/마이너스 모두 */
   reasons: CoupleReason[];
   /** 두 사람 원국 요약 */
@@ -189,13 +198,68 @@ export function computeCoupleMatch(
   else if (score >= 2.5) headline = '맞춰가려면 노력이 필요한 조합';
   else headline = '갈등 요소가 크니 대화가 많이 필요한 조합';
 
+  // === 하위 카테고리 점수 계산 ===
+  // 각 카테고리에 기여하는 근거 코드의 점수를 가중치로 분배
+  const catBase = 5;
+  const stemPts = reasons.find(r => ['stemHap', 'stemSaeng', 'stemGeuk', 'stemSame'].includes(r.code))?.points ?? 0;
+  const branchPts = reasons.find(r => ['branchSamhap', 'branchYukhap', 'branchChung', 'branchSame'].includes(r.code))?.points ?? 0;
+  const fillPts = reasons.find(r => r.code === 'elementFill')?.points ?? 0;
+  const spousePts = reasons.filter(r => r.code === 'spouseMatch').reduce((s, r) => s + r.points, 0);
+  const agePts = reasons.find(r => r.code === 'ageGap')?.points ?? 0;
+
+  // 연애운: 일간 관계(감정 끌림) + 배우자성
+  const romance = Math.max(0, Math.min(10, Math.round((catBase + stemPts * 0.8 + spousePts * 0.4) * 10) / 10));
+  // 소통: 일간 관계(가치관) + 오행 보완
+  const communication = Math.max(0, Math.min(10, Math.round((catBase + stemPts * 0.4 + fillPts * 0.6) * 10) / 10));
+  // 갈등 해결: 일지 관계(생활 밀접도) + 연령차
+  const conflict = Math.max(0, Math.min(10, Math.round((catBase + branchPts * 0.7 + agePts * 0.5) * 10) / 10));
+  // 결혼 안정성: 오행 보완 + 일지 관계 + 배우자성
+  const stability = Math.max(0, Math.min(10, Math.round((catBase + fillPts * 0.5 + branchPts * 0.4 + spousePts * 0.3) * 10) / 10));
+
+  const categoryScores = { romance, communication, conflict, stability };
+
+  // === 궁합 유형 태그 ===
+  const typeName = getTypeTag(score, reasons, aOh, bOh);
+
   return {
     score,
     headline,
+    typeName,
+    categoryScores,
     reasons,
     a: { ilgan: aIlgan, ilji: aIlji, oh: aOh },
     b: { ilgan: bIlgan, ilji: bIlji, oh: bOh },
     strengths,
     cautions,
   };
+}
+
+/** 궁합 유형 캐치 네이밍 */
+function getTypeTag(
+  score: number,
+  reasons: CoupleReason[],
+  aOh: Oh,
+  bOh: Oh,
+): { ko: string; en: string } {
+  const hasStemHap = reasons.some(r => r.code === 'stemHap');
+  const hasBranchHap = reasons.some(r => r.code === 'branchSamhap' || r.code === 'branchYukhap');
+  const hasStemGeuk = reasons.some(r => r.code === 'stemGeuk');
+  const hasBranchChung = reasons.some(r => r.code === 'branchChung');
+  const hasElementFill = reasons.some(r => r.code === 'elementFill');
+  const hasSpouse = reasons.some(r => r.code === 'spouseMatch');
+
+  if (hasStemHap && hasBranchHap) return { ko: '천생연분형', en: 'Destined Pair' };
+  if (hasStemHap && hasSpouse) return { ko: '운명적 끌림형', en: 'Fated Attraction' };
+  if (hasStemHap) return { ko: '불꽃 케미형', en: 'Spark Chemistry' };
+  if (hasBranchHap && hasElementFill) return { ko: '티키타카 안정형', en: 'Steady Harmony' };
+  if (hasBranchHap) return { ko: '일상 밀착형', en: 'Daily Fit' };
+  if (hasElementFill && hasSpouse) return { ko: '퍼즐 완성형', en: 'Puzzle Complete' };
+  if (hasElementFill) return { ko: '서로 채움형', en: 'Mutual Fill' };
+  if (hasStemGeuk && hasBranchChung) return { ko: '극과 극 자극형', en: 'Polar Spark' };
+  if (hasStemGeuk) return { ko: '밀당 긴장형', en: 'Push-Pull' };
+  if (hasBranchChung) return { ko: '충돌 성장형', en: 'Clash & Grow' };
+  if (aOh === bOh) return { ko: '동류 공감형', en: 'Kindred Spirits' };
+  if (score >= 7) return { ko: '자연 조화형', en: 'Natural Balance' };
+  if (score >= 5) return { ko: '노력 보상형', en: 'Effort Pays Off' };
+  return { ko: '대화 필수형', en: 'Talk It Through' };
 }

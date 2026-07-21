@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { isBeforeLichun, getSajuMonth } from '@fullstackfamily/manseryeok';
 import { toPng } from 'html-to-image';
-import { CG_OH, OH_HJ, buildStructureAnalysis, detectDayHapChung, generateDailyInsights, SS_MEANING, US_MEANING, type Pillar, type ChongunResult, type TodayFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry } from '../lib/engine';
+import { CG_OH, OH_HJ, buildStructureAnalysis, detectDayHapChung, generateDailyInsights, SS_MEANING, US_MEANING, type Pillar, type ChongunResult, type TodayFortuneResult, type YearlyFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry } from '../lib/engine';
 import { buildDetailedFortune } from '../lib/buildDetailedFortune';
 import { OHAENG_SETS, V3_TOKENS, type Ohaeng } from '../lib/ohaeng';
 import { SajuTable } from './SajuTable';
@@ -31,12 +31,13 @@ interface Props {
     year: number; month: number; day: number; gender: string;
     chongun: ChongunResult | null;
     todayFortune: TodayFortuneResult | null;
+    yearlyFortune: YearlyFortuneResult | null;
     daeuns: DaeunEntry[]; yeonuns: YeonunEntry[]; woluns: WolunEntry[];
     correctedTime?: { hour: number; minute: number };
   };
   mbtiGroup?: MbtiGroup;
   onMbtiChange?: (g: MbtiGroup) => void;
-  mode?: 'full' | 'today';
+  mode?: 'full' | 'today' | 'yearly';
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -152,6 +153,20 @@ const SS_FLOW: Record<string, string> = {
   '정인': '학문과 지혜의 정인',
 };
 
+// YEARLY 헤드라인용 자연어 수식 (십성)
+const SS_FLOW_YEARLY: Record<string, string> = {
+  '비견': '자립과 경쟁 속 성장의 비견',
+  '겁재': '도전과 지출을 관리하는 겁재',
+  '식신': '창의와 여유가 꽃피는 식신',
+  '상관': '재능이 빛을 발하는 상관',
+  '편재': '활동적 재물 기운의 편재',
+  '정재': '성실한 축적의 정재',
+  '편관': '책임과 변화의 편관',
+  '정관': '명예와 질서의 정관',
+  '편인': '탐구와 영감의 편인',
+  '정인': '배움과 지혜의 정인',
+};
+
 // 십성 → 오늘 흐름이 두드러지는 주 영역 매핑
 const SS_DOMAIN_MAP: Record<string, { primary: string; theme: string }> = {
   '비견': { primary: '관계·활동', theme: '동료·경쟁 기운이 도는 날' },
@@ -164,6 +179,20 @@ const SS_DOMAIN_MAP: Record<string, { primary: string; theme: string }> = {
   '정관': { primary: '직장', theme: '질서와 명예가 드러나는 흐름' },
   '편인': { primary: '학업', theme: '직관과 영감으로 배우는 흐름' },
   '정인': { primary: '학업', theme: '학문과 지혜가 무르익는 흐름' },
+};
+
+// 십성 → 올해 흐름이 두드러지는 주 영역 매핑
+const SS_DOMAIN_MAP_YEARLY: Record<string, { primary: string; theme: string }> = {
+  '비견': { primary: '관계·활동', theme: '동료·경쟁 기운이 도는 한 해' },
+  '겁재': { primary: '관계·지출', theme: '형제·동료 기운과 함께 지출 관리가 중요한 한 해' },
+  '식신': { primary: '학업·여가', theme: '여유와 창의력이 빛나는 흐름' },
+  '상관': { primary: '학업·창의', theme: '재능과 표현력이 폭발하는 흐름' },
+  '편재': { primary: '재물', theme: '활동적으로 움직이는 재물 기운' },
+  '정재': { primary: '재물', theme: '꾸준히 쌓아가는 재물 기운' },
+  '편관': { primary: '직장', theme: '책임과 도전이 주어지는 흐름' },
+  '정관': { primary: '직장', theme: '질서와 명예가 빛나는 흐름' },
+  '편인': { primary: '학업', theme: '직관과 영감으로 성장하는 흐름' },
+  '정인': { primary: '학업', theme: '학문과 지혜가 깊어지는 흐름' },
 };
 
 // TODAY 헤드라인용 자연어 수식 (12운성)
@@ -182,9 +211,25 @@ const US_FLOW: Record<string, string> = {
   '양': '차분히 자라는 양',
 };
 
+// YEARLY 헤드라인용 자연어 수식 (12운성)
+const US_FLOW_YEARLY: Record<string, string> = {
+  '장생': '새 출발의 기운이 가득한 장생',
+  '목욕': '변화와 탈피의 목욕',
+  '관대': '자신감 넘치는 성장의 관대',
+  '건록': '전성기가 시작되는 건록',
+  '제왕': '절정의 에너지가 흐르는 제왕',
+  '쇠': '정리와 안배가 필요한 쇠',
+  '병': '쉬어가며 충전하는 병',
+  '사': '내실을 다지는 사',
+  '묘': '돌아보며 정리하는 묘',
+  '절': '전환을 준비하는 절',
+  '태': '가능성이 잉태되는 태',
+  '양': '조용한 성장의 양',
+};
+
 export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: Props) {
   const { t, lang } = useLang();
-  const { pillars, ilgan, year, month, day, gender, chongun, todayFortune, daeuns, yeonuns, woluns, correctedTime } = data;
+  const { pillars, ilgan, year, month, day, gender, chongun, todayFortune, yearlyFortune, daeuns, yeonuns, woluns, correctedTime } = data;
   const oh = CG_OH[ilgan] || '';
   const now = new Date();
   const currentAge = now.getFullYear() - year;
@@ -309,7 +354,7 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
         </div>
       </div>
 
-      {/* 캐릭터 카드 — 일간·진태양시 아래, 풀이스타일 위 (today 모드에서는 숨김) */}
+      {/* 캐릭터 카드 — 일간·진태양시 아래, 풀이스타일 위 (today/yearly 모드에서는 숨김) */}
       {mode === 'full' && <CharacterCard />}
 
       {/* 상세 사주 해석 — 성격·운·재미 */}
@@ -602,6 +647,195 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
                     </div>
                   );
                 })()}
+              </div>
+            );
+          })}
+        </Section>
+      )}
+
+      {/* ── YEARLY 모드 전용 섹션 ── */}
+
+      {/* YEARLY 카드 */}
+      {mode === 'yearly' && yearlyFortune && (
+        <div
+          className="rounded-[16px] mb-4 relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(145deg, #1B2432 0%, #191F28 60%)',
+            padding: '24px 22px',
+            color: '#fff',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute', top: -40, right: -40,
+              width: 220, height: 220, borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(234,179,8,0.55) 0%, rgba(234,179,8,0.2) 40%, transparent 75%)',
+              filter: 'blur(4px)',
+            }}
+          />
+          <div className="relative">
+            <div
+              style={{
+                fontSize: 11, color: '#8B95A1', fontWeight: 700,
+                letterSpacing: '0.1em', marginBottom: 10,
+              }}
+            >
+              {yearlyFortune.year}
+            </div>
+            <div
+              className="mb-4"
+              style={{ fontSize: 16, fontWeight: 500, lineHeight: 1.65, letterSpacing: '-0.01em' }}
+            >
+              {(() => {
+                const yp = <b>{yearlyFortune.yearPillar}</b>;
+                const ph = ilganPhrase ? <b>{ilganPhrase}</b> : null;
+                const ss = <b>{SS_FLOW_YEARLY[yearlyFortune.ss] || yearlyFortune.ss}</b>;
+                const us = <b>{US_FLOW_YEARLY[yearlyFortune.us] || yearlyFortune.us}</b>;
+                if (mbtiGroup === 'NT') {
+                  return (
+                    <>올해 세운은 {yp}. {ph && <>{ph} 일간 기준 </>}{ss} 작용, 12운성 {us} 구간입니다.</>
+                  );
+                }
+                return (
+                  <>올해는 {yp}년이에요.{ph && <> 당신의 {ph}에게</>} 올해는 {ss}의 해, 그리고 {us}의 한 해랍니다.</>
+                );
+              })()}
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { k: t('세운', 'Year Pillar'), v: yearlyFortune.yearPillar },
+                { k: t('십성', 'Ten God'), v: yearlyFortune.ss },
+                { k: t('운성', 'Stage'), v: yearlyFortune.us },
+              ].map((x, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl"
+                  style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 12px' }}
+                >
+                  <div style={{ fontSize: 10, color: '#8B95A1', marginBottom: 3 }}>{x.k}</div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>{x.v}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 올해의 운세 — 설명 */}
+      {mode === 'yearly' && yearlyFortune && (
+        <Section title={t('올해의 운세', "This Year's Fortune")}>
+          {yearlyFortune.ssReading && <p className="mb-3">{yearlyFortune.ssReading}</p>}
+          <p className={yearlyFortune.sinsal.length ? 'mb-3' : ''}>
+            {t('12운성', '12 Stages')} <strong>{yearlyFortune.us}</strong>
+            <span className="text-[11px] text-gray-400 dark:text-gray-300 ml-1">— {US_MEANING[yearlyFortune.us]}</span>
+            <br />{yearlyFortune.usReading}
+          </p>
+
+          {yearlyFortune.sinsal.length > 0 && (
+            <div className="border-t border-gray-100 dark:border-gray-800 pt-3">
+              {yearlyFortune.sinsal.map((s, i) => (
+                <div key={i} className="mb-2 last:mb-0">
+                  <span className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold mr-1.5 border ${s.good === true ? 'text-green-600 border-green-200' : s.good === false ? 'text-red-500 border-red-200' : 'text-yellow-600 border-yellow-200'}`}>
+                    {s.name}
+                  </span>
+                  <span className="text-[12px] text-gray-500 dark:text-gray-100 dark:text-gray-300">{s.desc}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+      )}
+
+      {/* 올해 지지 속 숨은 기운 */}
+      {mode === 'yearly' && yearlyFortune && yearlyFortune.hiddenSipsung && yearlyFortune.hiddenSipsung.length > 0 && (
+        <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-5 mb-4">
+          <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('지지 속 숨은 기운', 'Hidden Energies in Earthly Branch')}</h3>
+          <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5 mb-4">
+            지지 {yearlyFortune.yearPillarHanja[1]} · 지장간
+          </div>
+          <p className="text-[12px] text-gray-500 dark:text-gray-100 dark:text-gray-300 leading-relaxed mb-4">
+            천간({yearlyFortune.yearPillarHanja[0]})뿐 아니라 지지({yearlyFortune.yearPillarHanja[1]}) 안에도 숨은 기운이 있어요.
+          </p>
+          <div className="space-y-4">
+            {yearlyFortune.hiddenSipsung.map((h, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div
+                  className="shrink-0 w-7 rounded-md bg-gray-100 dark:bg-gray-800 py-1.5 text-center text-[11px] font-semibold text-gray-500 dark:text-gray-100 dark:text-gray-300"
+                  style={{ lineHeight: 1.25 }}
+                >
+                  {h.weight.split('').map((c, idx) => <div key={idx}>{c}</div>)}
+                </div>
+                <div className={`shrink-0 w-7 text-center text-[24px] font-bold ${EL_COLORS[CG_OH[h.hanja] || ''] || 'text-gray-800'}`}>
+                  {h.hanja}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-bold text-gray-900 dark:text-gray-100 mb-0.5">{h.ss}</div>
+                  <div className="text-[12px] text-gray-500 dark:text-gray-100 dark:text-gray-300 leading-snug">{SS_MEANING[h.ss] || ''}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-[11px] text-gray-400 dark:text-gray-300 mt-5 leading-relaxed">
+            <span className="font-semibold text-gray-500 dark:text-gray-100 dark:text-gray-300">본기</span>가 가장 강하고 <span className="font-semibold text-gray-500 dark:text-gray-100 dark:text-gray-300">여기</span>는 약한 보조 기운입니다.
+          </p>
+        </div>
+      )}
+
+      {/* 올해 분야별 운세 */}
+      {mode === 'yearly' && yearlyFortune && yearlyFortune.categories && yearlyFortune.categories.length > 0 && (
+        <Section title={t('분야별 운세', 'Fortune by Category')}>
+          {(() => {
+            const domain = SS_DOMAIN_MAP_YEARLY[yearlyFortune.ss];
+            if (!domain) return null;
+            return (
+              <div
+                className="rounded-r-[10px] mb-4"
+                style={{
+                  padding: '10px 14px',
+                  background: 'var(--accent-blue-bg)',
+                  borderLeft: '3px solid var(--accent-blue-border)',
+                }}
+              >
+                <div style={{ fontSize: 11, color: 'var(--accent-blue-title)', fontWeight: 700, marginBottom: 2 }}>
+                  {t('올해의 흐름', "This Year's Flow")}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--accent-blue-body)', lineHeight: 1.55 }}>
+                  <b>{yearlyFortune.ss}({domain.primary})</b> 중심의 한 해입니다. {domain.theme}이라,
+                  아래 카테고리 중 <b>{domain.primary}</b> 영역이 먼저 두드러지고 나머지는 이 흐름 안에서 해석하시면 됩니다.
+                </div>
+              </div>
+            );
+          })()}
+          {yearlyFortune.categories.map((cat, idx) => {
+            const tone =
+              cat.score >= 80 ? { text: t('매우 유리', 'Very Good'), bg: '#2D7A1F', color: '#fff' } :
+              cat.score >= 65 ? { text: t('유리', 'Good'), bg: 'var(--tone-positive-bg)', color: 'var(--tone-positive-fg)' } :
+              cat.score >= 45 ? { text: t('무난', 'Neutral'), bg: 'var(--tone-neutral-bg)', color: 'var(--tone-neutral-fg)' } :
+              cat.score >= 30 ? { text: t('주의', 'Caution'), bg: 'var(--tone-caution-bg)', color: 'var(--tone-caution-fg)' } :
+                                { text: t('강한 주의', 'Warning'), bg: '#C33A1F', color: '#fff' };
+            return (
+              <div
+                key={cat.label}
+                className={idx > 0 ? 'border-t border-gray-100 dark:border-gray-800 pt-4 mt-4' : ''}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{catLabel(cat.label)}</span>
+                  <span
+                    className="inline-block rounded-full"
+                    style={{
+                      padding: '4px 12px',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      background: tone.bg,
+                      color: tone.color,
+                    }}
+                  >
+                    {tone.text}
+                  </span>
+                </div>
+                <p className="text-[12px] text-gray-600 dark:text-gray-100 dark:text-gray-300 leading-relaxed">
+                  {cat.desc}
+                </p>
               </div>
             );
           })}
