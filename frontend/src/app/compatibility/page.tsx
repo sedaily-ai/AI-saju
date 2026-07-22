@@ -138,6 +138,7 @@ export default function CompatibilityPage() {
         titleAccent={t('연', 'ch')}
         sub={t('오행 보완 · 천간합 · 배우자궁(관성·재성) 가중',
               'Element fill · stem harmony · spouse star weighted')}
+        showSearch={false}
       />
 
       <div className="relative z-10 px-3 pt-2">

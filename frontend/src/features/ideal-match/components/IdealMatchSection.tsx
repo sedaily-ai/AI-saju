@@ -89,6 +89,12 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
   if (!match) return null;
 
+  /** 텍스트에서 첫 문장(마침표·물음표·느낌표 기준)을 추출 */
+  const firstLine = (text: string) => {
+    const m = text.match(/^.+?[.?!。]\s?/);
+    return m ? m[0].trim() : text.slice(0, 40) + '…';
+  };
+
   const primaryOh = match.idealStemOh[0];
   const primaryStem = match.tags[0]?.replace(/\s*일간$/, '') ?? primaryOh;
   const primaryOhLabel = lang === 'en' ? OH_EN[primaryOh] ?? primaryOh : primaryOh;
@@ -144,7 +150,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ② 이 사람 첫인상 */}
       <ToggleSection
         title={t('이 사람 첫인상', 'First Impression')}
-        subtitle={t('카페 문을 열고 들어오는 순간, 눈이 가는 사람', 'The one who catches your eye the moment they walk in')}
+        subtitle={firstLine(match.firstImpression)}
         defaultOpen
       >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -155,7 +161,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ③ 이 사람 속마음 */}
       <ToggleSection
         title={t('이 사람 속마음', 'Behind the Surface')}
-        subtitle={t('겉모습 아래 숨겨둔 진짜 온도', 'The real warmth hidden beneath the surface')}
+        subtitle={firstLine(match.innerSelf)}
       >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
           {match.innerSelf}
@@ -165,7 +171,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ④ 왜 나랑 잘 맞을까 ①: 성격 궁합 */}
       <ToggleSection
         title={t('왜 나랑 잘 맞을까 ①: 성격 궁합', 'Why We Click ①: Personality')}
-        subtitle={t('퍼즐의 빈 조각을 서로 채워주는 관계', 'Two puzzle pieces that complete each other')}
+        subtitle={firstLine(match.chemistryStory)}
         titleClassName="text-[15px] font-bold text-pink-600 dark:text-pink-400 tracking-wide"
       >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -176,7 +182,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ⑤ 왜 나랑 잘 맞을까 ②: 연애할 때 케미 */}
       <ToggleSection
         title={t('왜 나랑 잘 맞을까 ②: 연애할 때 케미', 'Why We Click ②: Dating Chemistry')}
-        subtitle={t('밀당 없이도 심장이 뛰는 이유', 'Why your heart races without playing games')}
+        subtitle={firstLine(match.datingChemistry)}
         titleClassName="text-[15px] font-bold text-pink-600 dark:text-pink-400 tracking-wide"
       >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -187,7 +193,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ⑥ 어디서 만나게 될까 */}
       <ToggleSection
         title={t('어디서 만나게 될까', 'Where Might You Meet?')}
-        subtitle={t('운명은 우연을 가장해 찾아온다', 'Fate arrives disguised as coincidence')}
+        subtitle={firstLine(match.meetingScenario)}
         titleClassName="text-[15px] font-bold text-violet-600 dark:text-violet-400 tracking-wide"
       >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -198,7 +204,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ⑦ 어떻게 가까워질까 */}
       <ToggleSection
         title={t('어떻게 가까워질까', 'How to Get Closer')}
-        subtitle={t('한 걸음씩, 자연스럽게 좁혀지는 거리', 'Step by step, the distance closes naturally')}
+        subtitle={firstLine(match.approachStory)}
         titleClassName="text-[15px] font-bold text-violet-600 dark:text-violet-400 tracking-wide"
       >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -209,7 +215,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ⑧ 이런 순간에 설렐 거예요 */}
       <ToggleSection
         title={t('이런 순간에 설렐 거예요', 'Moments That Will Make Your Heart Flutter')}
-        subtitle={t('평범한 하루에 불꽃이 튀는 장면들', 'Sparks flying in the middle of an ordinary day')}
+        subtitle={match.sparkMoments[0] ? firstLine(match.sparkMoments[0]) : undefined}
         titleClassName="text-[15px] font-bold text-rose-600 dark:text-rose-400 tracking-wide"
       >
         <div className="space-y-3">
@@ -226,7 +232,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ⑨ 주의할 점 + 추천/주의 띠 */}
       <ToggleSection
         title={t('주의할 점', 'Watch Out')}
-        subtitle={t('꽃길에도 돌부리는 있는 법', 'Even a flower path has a few stumbling stones')}
+        subtitle={match.cautions[0] ? firstLine(match.cautions[0].desc) : undefined}
         titleClassName="text-[15px] font-bold text-amber-600 dark:text-amber-400 tracking-wide"
       >
         {match.cautions.length > 0 && (
@@ -274,30 +280,47 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       <a
         href={localePath('/couple/')}
         onClick={() => trackEvent('ideal_match_to_couple', { primary_oh: primaryOh })}
-        className="group block rounded-[18px] overflow-hidden mb-4 no-underline bg-gradient-to-br from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 transition-colors shadow-sm"
+        className="group flex items-center gap-4 rounded-2xl p-4 mb-3 no-underline transition-transform active:scale-[0.99]"
+        style={{ background: '#FFF0F0' }}
       >
-        <div className="px-5 py-5 flex items-center gap-3">
-          <div className="shrink-0 w-12 h-12 rounded-full bg-white/20 backdrop-blur flex items-center justify-center text-[22px]">
-            💞
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-[18px] font-extrabold text-white leading-tight">
-              {t('생각나는 사람이 있나요?', 'Someone on your mind?')}
-            </div>
-            <div className="text-[13px] font-bold text-white/90 leading-snug mt-1.5">
-              {t('실제 궁합도 확인해보세요', 'Check the real couple match')}
-            </div>
-            <div className="text-[11.5px] text-white/75 leading-snug mt-1">
-              {t(
-                '상대 생년월일을 넣으면 두 사주 간 일간 관계·일지 합충까지 비교해드려요',
-                'Enter both birth dates to compare day stems and branches directly'
-              )}
-            </div>
-          </div>
-          <div className="shrink-0 text-white text-[24px] font-bold group-hover:translate-x-0.5 transition-transform">
-            →
-          </div>
+        <span
+          className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+          style={{ background: '#F3A296', color: '#7E2618' }}
+        >
+          💞
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[14.5px] font-bold leading-tight tracking-tight" style={{ color: '#1A1A1A' }}>
+            {t('생각나는 사람이 있나요?', 'Someone on your mind?')}
+          </p>
+          <p className="text-[12.5px] mt-1" style={{ color: '#4F4F58' }}>
+            {t('실제 궁합도 확인해보세요', 'Check the real couple match')}
+          </p>
         </div>
+        <span className="text-[20px] shrink-0 group-hover:translate-x-0.5 transition-transform" style={{ color: '#A0A0A8' }} aria-hidden>›</span>
+      </a>
+
+      {/* === 채팅 CTA 배너 === */}
+      <a
+        href={localePath('/chat')}
+        className="group flex items-center gap-4 rounded-2xl p-4 mb-4 no-underline transition-transform active:scale-[0.99]"
+        style={{ background: '#E8F8F0' }}
+      >
+        <span
+          className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+          style={{ background: '#86D4B5', color: '#1B5B45' }}
+        >
+          💬
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[14.5px] font-bold leading-tight tracking-tight" style={{ color: '#1A1A1A' }}>
+            {t('더 궁금한 게 있나요?', 'Want to know more?')}
+          </p>
+          <p className="text-[12.5px] mt-1" style={{ color: '#4F4F58' }}>
+            {t('채팅하러 가기', 'Chat with Saju AI')}
+          </p>
+        </div>
+        <span className="text-[20px] shrink-0 group-hover:translate-x-0.5 transition-transform" style={{ color: '#A0A0A8' }} aria-hidden>›</span>
       </a>
 
     </>
