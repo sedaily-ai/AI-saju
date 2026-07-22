@@ -1,11 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { trackEvent } from '@/shared/lib/trackEvent';
 import { useLang } from '@/shared/lib/LangContext';
 import type { Pillar } from '@/features/fortune/lib/engine';
 import { computeIdealMatch, type Gender, type MatchMode } from '../lib/matchEngine';
-import { ShareCard } from './ShareCard';
 import { ReasonChip, REASON_EXPLAIN } from './ReasonChip';
 import { CompatibleAnimalsSection } from './CompatibleAnimalsSection';
 import { ToggleSection } from './ToggleSection';
@@ -82,7 +81,6 @@ const EL_BADGE_SOLID: Record<string, string> = {
 export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
   const { t, lang, localePath } = useLang();
   const mode: MatchMode = 'spouse';
-  const [shareOpen, setShareOpen] = useState(false);
 
   const match = useMemo(
     () => computeIdealMatch(pillars, gender || '', birthYear, mode),
@@ -114,20 +112,6 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
 
   return (
     <>
-      {/* === 공유 버튼 === */}
-      <div className="flex items-center justify-end mb-2">
-        <button
-          type="button"
-          onClick={() => {
-            setShareOpen(true);
-            trackEvent('ideal_match_share_open');
-          }}
-          className="shrink-0 h-8 px-3 rounded-full bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-[11.5px] font-bold border-none cursor-pointer hover:opacity-90 transition-opacity"
-        >
-          {t('공유', 'Share')}
-        </button>
-      </div>
-
       {/* 역산 방식 안내 */}
       <p className="text-[10px] text-gray-400 dark:text-gray-500 mb-3 leading-snug px-1 italic">
         {t(
@@ -135,56 +119,16 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
           'We reverse-engineer an ideal partner from your chart alone — no partner data. The score shows how well this recommendation fills the gaps in your chart.'
         )}
       </p>
-      {/* === Hero 파트너 카드 (당신의 이상형) === */}
-      <div className={`relative overflow-hidden rounded-[20px] mb-3 bg-gradient-to-br ${EL_HERO_BG[primaryOh] ?? 'from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-900'} shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800`}>
-        <div className="px-5 pt-5 pb-4">
-          <div className="flex items-start justify-between gap-3 mb-3">
-            <div>
-              <div className="text-[10.5px] font-bold tracking-[0.14em] text-gray-500 dark:text-gray-300 uppercase mb-1">
-                {t('당신의 이상형', 'Your Ideal Match')}
-              </div>
-              <div className="text-[20px] font-extrabold text-gray-900 dark:text-gray-100 leading-[1.25] tracking-[-0.02em]">
-                {lang === 'en'
-                  ? `A partner with ${primaryOhLabel} energy fits you well.`
-                  : match.summary}
-              </div>
-            </div>
-            <div className="shrink-0 flex flex-col items-center">
-              <div className="text-[11px] font-semibold text-gray-500 dark:text-gray-300">{t('적합도', 'Fit')}</div>
-              <div className="text-[28px] font-black text-gray-900 dark:text-gray-50 leading-none mt-0.5">
-                {match.score.toFixed(1)}
-              </div>
-              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">/ 10</div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 mb-4">
-            <div className={`w-11 h-11 rounded-[12px] flex items-center justify-center text-[18px] font-bold shrink-0 ${EL_BADGE_SOLID[primaryOh] ?? 'bg-gray-700 text-white'}`}>
-              {primaryStem}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[11px] text-gray-500 dark:text-gray-400 font-medium">{t('추천 일간', 'Suggested Day Stem')}</div>
-              <div className="text-[13px] font-semibold text-gray-800 dark:text-gray-100 truncate">
-                {primaryStem} · {t(`${primaryOh} 기운`, `${primaryOhLabel} energy`)}
-              </div>
-            </div>
-          </div>
-
-          {/* 근거 칩 (클릭 시 설명 툴팁) */}
-          {match.scoreReasons.length > 0 && (
-            <div className="flex flex-wrap gap-1.5">
-              {match.scoreReasons.map((r, i) => (
-                <ReasonChip
-                  key={i}
-                  code={r.code}
-                  label={r.label}
-                  labelEn={reasonLabelEn(r.code, r.label)}
-                  points={r.points}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+      {/* === 당신과 잘 어울리는 파트너 === */}
+      <div className="mb-4">
+        <h2 className="text-[18px] font-extrabold text-gray-900 dark:text-gray-50 tracking-[-0.02em] mb-1.5">
+          {t('당신과 잘 어울리는 파트너', 'A Partner That Suits You')}
+        </h2>
+        <p className="text-[14px] text-gray-600 dark:text-gray-300 leading-[1.7]">
+          {lang === 'en'
+            ? `A partner with ${primaryOhLabel} energy fits you well.`
+            : match.summary}
+        </p>
       </div>
 
       {/* === 잘 어울리는 동물 카드 그리드 === */}
@@ -198,14 +142,21 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* === 상세 해석: 9개 분리 카드 === */}
 
       {/* ② 이 사람 첫인상 */}
-      <ToggleSection title={t('이 사람 첫인상', 'First Impression')} defaultOpen>
+      <ToggleSection
+        title={t('이 사람 첫인상', 'First Impression')}
+        subtitle={t('카페 문을 열고 들어오는 순간, 눈이 가는 사람', 'The one who catches your eye the moment they walk in')}
+        defaultOpen
+      >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
           {match.firstImpression}
         </p>
       </ToggleSection>
 
       {/* ③ 이 사람 속마음 */}
-      <ToggleSection title={t('이 사람 속마음', 'Behind the Surface')}>
+      <ToggleSection
+        title={t('이 사람 속마음', 'Behind the Surface')}
+        subtitle={t('겉모습 아래 숨겨둔 진짜 온도', 'The real warmth hidden beneath the surface')}
+      >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
           {match.innerSelf}
         </p>
@@ -214,6 +165,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ④ 왜 나랑 잘 맞을까 ①: 성격 궁합 */}
       <ToggleSection
         title={t('왜 나랑 잘 맞을까 ①: 성격 궁합', 'Why We Click ①: Personality')}
+        subtitle={t('퍼즐의 빈 조각을 서로 채워주는 관계', 'Two puzzle pieces that complete each other')}
         titleClassName="text-[15px] font-bold text-pink-600 dark:text-pink-400 tracking-wide"
       >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -224,6 +176,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ⑤ 왜 나랑 잘 맞을까 ②: 연애할 때 케미 */}
       <ToggleSection
         title={t('왜 나랑 잘 맞을까 ②: 연애할 때 케미', 'Why We Click ②: Dating Chemistry')}
+        subtitle={t('밀당 없이도 심장이 뛰는 이유', 'Why your heart races without playing games')}
         titleClassName="text-[15px] font-bold text-pink-600 dark:text-pink-400 tracking-wide"
       >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -234,6 +187,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ⑥ 어디서 만나게 될까 */}
       <ToggleSection
         title={t('어디서 만나게 될까', 'Where Might You Meet?')}
+        subtitle={t('운명은 우연을 가장해 찾아온다', 'Fate arrives disguised as coincidence')}
         titleClassName="text-[15px] font-bold text-violet-600 dark:text-violet-400 tracking-wide"
       >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -244,6 +198,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ⑦ 어떻게 가까워질까 */}
       <ToggleSection
         title={t('어떻게 가까워질까', 'How to Get Closer')}
+        subtitle={t('한 걸음씩, 자연스럽게 좁혀지는 거리', 'Step by step, the distance closes naturally')}
         titleClassName="text-[15px] font-bold text-violet-600 dark:text-violet-400 tracking-wide"
       >
         <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
@@ -254,6 +209,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ⑧ 이런 순간에 설렐 거예요 */}
       <ToggleSection
         title={t('이런 순간에 설렐 거예요', 'Moments That Will Make Your Heart Flutter')}
+        subtitle={t('평범한 하루에 불꽃이 튀는 장면들', 'Sparks flying in the middle of an ordinary day')}
         titleClassName="text-[15px] font-bold text-rose-600 dark:text-rose-400 tracking-wide"
       >
         <div className="space-y-3">
@@ -270,6 +226,7 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
       {/* ⑨ 주의할 점 + 추천/주의 띠 */}
       <ToggleSection
         title={t('주의할 점', 'Watch Out')}
+        subtitle={t('꽃길에도 돌부리는 있는 법', 'Even a flower path has a few stumbling stones')}
         titleClassName="text-[15px] font-bold text-amber-600 dark:text-amber-400 tracking-wide"
       >
         {match.cautions.length > 0 && (
@@ -343,15 +300,6 @@ export function IdealMatchSection({ pillars, gender, birthYear }: Props) {
         </div>
       </a>
 
-      {shareOpen && (
-        <ShareCard
-          match={match}
-          mode={mode}
-          primaryStem={primaryStem}
-          primaryOh={primaryOh}
-          onClose={() => setShareOpen(false)}
-        />
-      )}
     </>
   );
 }

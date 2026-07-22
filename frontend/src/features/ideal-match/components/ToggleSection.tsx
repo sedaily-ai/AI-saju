@@ -4,12 +4,13 @@ import { useState, useRef, useEffect, type ReactNode } from 'react';
 
 interface ToggleSectionProps {
   title: string;
+  subtitle?: string;
   titleClassName?: string;
   children: ReactNode;
   defaultOpen?: boolean;
 }
 
-export function ToggleSection({ title, titleClassName, children, defaultOpen = false }: ToggleSectionProps) {
+export function ToggleSection({ title, subtitle, titleClassName, children, defaultOpen = false }: ToggleSectionProps) {
   const [open, setOpen] = useState(defaultOpen);
   const contentRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number | undefined>(defaultOpen ? undefined : 0);
@@ -38,9 +39,16 @@ export function ToggleSection({ title, titleClassName, children, defaultOpen = f
         className="w-full flex items-center justify-between px-5 py-4 bg-transparent border-none cursor-pointer text-left"
         aria-expanded={open}
       >
-        <span className={titleClassName ?? 'text-[15px] font-bold text-gray-500 dark:text-gray-400 tracking-wide'}>
-          {title}
-        </span>
+        <div className="flex-1 min-w-0">
+          <span className={titleClassName ?? 'text-[15px] font-bold text-gray-500 dark:text-gray-400 tracking-wide'}>
+            {title}
+          </span>
+          {subtitle && !open && (
+            <p className="text-[12.5px] text-gray-400 dark:text-gray-500 mt-1 leading-snug truncate italic">
+              {subtitle}
+            </p>
+          )}
+        </div>
         <svg
           className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
           fill="none"
