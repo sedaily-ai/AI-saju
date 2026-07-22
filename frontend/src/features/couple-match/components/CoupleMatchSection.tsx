@@ -87,6 +87,12 @@ export function CoupleMatchSection({ a, b, onReset }: Props) {
   );
   if (!match || !insights) return null;
 
+  /** 텍스트에서 첫 문장(마침표·물음표·느낌표 기준)을 추출 */
+  const firstLine = (text: string) => {
+    const m = text.match(/^.+?[.?!。]\s?/);
+    return m ? m[0].trim() : text.slice(0, 40) + '…';
+  };
+
   const ohLabel = (oh: string) => (lang === 'en' ? OH_EN[oh] ?? oh : oh);
   const scoreColor =
     match.score >= 8 ? 'text-pink-600 dark:text-pink-400'
@@ -170,7 +176,8 @@ export function CoupleMatchSection({ a, b, onReset }: Props) {
 
       {/* 1. 종합 해설 — 기본 열림, 서술형 문단 중심 */}
       <ToggleSection
-        title={t('💬 종합 해설', '💬 Overall Reading')}
+        title={t('종합 해설', 'Overall Reading')}
+        subtitle={firstLine(lang === 'en' ? insights.narrative.en : insights.narrative.ko)}
         defaultOpen={true}
       >
         <div className="space-y-3">
@@ -189,7 +196,8 @@ export function CoupleMatchSection({ a, b, onReset }: Props) {
       {/* 2. 잘 맞는 점 — 기본 열림, 서술형 */}
       {match.strengths.length > 0 && (
         <ToggleSection
-          title={t('✓ 잘 맞는 점', '✓ Strengths')}
+          title={t('잘 맞는 점', 'Strengths')}
+          subtitle={firstLine(match.strengths[0])}
           titleClassName="text-[15px] font-bold text-green-700 dark:text-green-400 tracking-wide"
           defaultOpen={true}
         >
@@ -215,7 +223,8 @@ export function CoupleMatchSection({ a, b, onReset }: Props) {
       {/* 3. 주의할 점 — 기본 열림, 서술형 */}
       {match.cautions.length > 0 && (
         <ToggleSection
-          title={t('⚠ 주의할 점', '⚠ Watch out')}
+          title={t('주의할 점', 'Watch out')}
+          subtitle={firstLine(match.cautions[0])}
           titleClassName="text-[15px] font-bold text-amber-700 dark:text-amber-400 tracking-wide"
           defaultOpen={true}
         >
@@ -241,7 +250,8 @@ export function CoupleMatchSection({ a, b, onReset }: Props) {
       {/* 4. 근거 자세히 보기 — 기본 접힘, 태그 미리보기 */}
       {insights.reasonDetails.length > 0 && (
         <ToggleSection
-          title={`${t('📖 근거 자세히 보기', '📖 See the reasoning')} · ${match.reasons.slice(0, 3).map(r => r.label.split(' ')[0]).join(' · ')}`}
+          title={`${t('근거 자세히 보기', 'See the reasoning')} · ${match.reasons.slice(0, 3).map(r => r.label.split(' ')[0]).join(' · ')}`}
+          subtitle={insights.reasonDetails[0] ? firstLine(lang === 'en' ? insights.reasonDetails[0].en : insights.reasonDetails[0].ko) : undefined}
           defaultOpen={false}
         >
           <div className="space-y-4">
@@ -286,7 +296,8 @@ export function CoupleMatchSection({ a, b, onReset }: Props) {
       {/* 5. 관계 팁 — 기본 접힘, 서술형 실천 조언 */}
       {insights.tips.length > 0 && (
         <ToggleSection
-          title={t('💡 이 관계를 위한 팁', '💡 Tips for this pairing')}
+          title={t('이 관계를 위한 팁', 'Tips for this pairing')}
+          subtitle={insights.tips[0] ? firstLine(lang === 'en' ? insights.tips[0].en : insights.tips[0].ko) : undefined}
           titleClassName="text-[15px] font-bold text-pink-700 dark:text-pink-300 tracking-wide"
           defaultOpen={false}
         >

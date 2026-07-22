@@ -121,10 +121,11 @@ export default function AvoidancePage() {
       />
 
       <PageHeader
-        title={t('상극 인연', 'Avoidance')}
-        titleAccent={t('극', 'ce')}
+        title={t('상극인연', 'Avoidance')}
+        titleAccent={t('인연', 'ce')}
         sub={t('충·형·파·상극으로 보는 피해야 할 사주 유형',
               'Clash · punishment · break · element opposition')}
+        showSearch={false}
       />
 
       <div className="relative z-10 px-3 pt-2">

@@ -153,6 +153,90 @@ const SS_FLOW: Record<string, string> = {
   '정인': '학문과 지혜의 정인',
 };
 
+// 오늘의 총운세 — 비유적 한줄 요약 (십성 기반)
+const SS_SUMMARY: Record<string, string> = {
+  '비견': '어깨 나란히, 함께 달리는 하루',
+  '겁재': '마음 놓고 기대어도 괜찮은 하루',
+  '식신': '여유로운 강물처럼 흘러가는 하루',
+  '상관': '재능에 날개가 돋는 하루',
+  '편재': '바람처럼 활기가 도는 하루',
+  '정재': '씨앗 하나가 뿌리내리는 하루',
+  '편관': '파도를 헤치며 나아가는 하루',
+  '정관': '세상이 가지런해지는 하루',
+  '편인': '번개처럼 영감이 내리는 하루',
+  '정인': '책 한 권이 마음에 쌓이는 하루',
+};
+const SS_SUMMARY_EN: Record<string, string> = {
+  '비견': 'A day of running side by side',
+  '겁재': 'A day to lean on someone steady',
+  '식신': 'A day flowing like a gentle river',
+  '상관': 'A day your talents take flight',
+  '편재': 'A day breezing with energy',
+  '정재': 'A day of quiet, rooted growth',
+  '편관': 'A day of pushing through waves',
+  '정관': 'A day things fall into place',
+  '편인': 'A day struck by lightning insight',
+  '정인': 'A day wisdom settles in the heart',
+};
+
+// 분야별 운세 — 비유적 한줄 요약 (카테고리 × 점수대)
+const CAT_SUMMARY: Record<string, Record<string, string>> = {
+  '재물운': { high: '지갑이 두툼해지는 흐름', mid: '물 흐르듯 드나드는 재물', low: '주머니를 꼭 쥐어야 할 때' },
+  '건강운': { high: '생기가 온몸에 차오르는 날', mid: '무리하지 않으면 괜찮은 날', low: '몸이 쉬고 싶다 말하는 날' },
+  '연애운': { high: '설렘이 바람에 실려오는 날', mid: '잔잔한 호수 같은 인연', low: '마음의 문을 닫아두는 날' },
+  '직장운': { high: '어떤 무대든 빛나는 하루', mid: '묵묵히 쌓아가는 하루', low: '갑옷을 입고 버텨야 할 하루' },
+  '학업운': { high: '스펀지처럼 빨아들이는 날', mid: '한 줄 한 줄 새겨지는 날', low: '머리가 안개 속인 날' },
+};
+const CAT_SUMMARY_EN: Record<string, Record<string, string>> = {
+  '재물운': { high: 'Wealth flowing in like a tide', mid: 'Money ebbing and flowing gently', low: 'A day to hold your wallet tight' },
+  '건강운': { high: 'Vitality blooming from within', mid: 'Steady as long as you rest well', low: 'Your body whispers: take a break' },
+  '연애운': { high: 'Romance carried in on the breeze', mid: 'A calm lake of connection', low: 'A day the heart stays guarded' },
+  '직장운': { high: 'Shining on any stage today', mid: 'Quietly building brick by brick', low: 'Armor up and hold the line' },
+  '학업운': { high: 'Absorbing like a sponge', mid: 'Every line etching into memory', low: 'Mind lost in the fog today' },
+};
+
+// 올해 총운세 — 비유적 한줄 요약 (십성 기반)
+const SS_SUMMARY_YEARLY: Record<string, string> = {
+  '비견': '나란히 걷는 이가 많아지는 한 해',
+  '겁재': '힘을 모아 돌파하는 한 해',
+  '식신': '무르익은 과일이 떨어지듯 풍요로운 해',
+  '상관': '숨겨둔 재능이 꽃피는 한 해',
+  '편재': '바람을 타고 넓은 세상으로 나가는 해',
+  '정재': '한 알 한 알 곳간이 차오르는 해',
+  '편관': '큰 산을 하나 넘는 해',
+  '정관': '왕관이 어울리기 시작하는 해',
+  '편인': '직감이 나침반이 되는 해',
+  '정인': '뿌리가 깊어지는 한 해',
+};
+const SS_SUMMARY_YEARLY_EN: Record<string, string> = {
+  '비견': 'A year more companions walk beside you',
+  '겁재': 'A year to gather strength and break through',
+  '식신': 'A year of ripe fruit falling into your hands',
+  '상관': 'A year hidden talents bloom',
+  '편재': 'A year riding the wind into wider horizons',
+  '정재': 'A year the storehouse fills grain by grain',
+  '편관': 'A year of climbing one great mountain',
+  '정관': 'A year the crown starts to fit',
+  '편인': 'A year intuition becomes your compass',
+  '정인': 'A year roots grow ever deeper',
+};
+
+// 올해 분야별 운세 — 비유적 한줄 요약 (카테고리 × 점수대)
+const CAT_SUMMARY_YEARLY: Record<string, Record<string, string>> = {
+  '재물운': { high: '곳간이 넘치는 한 해', mid: '들어오고 나가며 균형 잡히는 해', low: '허리띠를 졸라매야 할 해' },
+  '건강운': { high: '몸과 마음 모두 활짝 피는 해', mid: '무리만 않으면 무탈한 해', low: '몸이 쉼표를 요구하는 해' },
+  '연애운': { high: '인연의 실이 붉게 빛나는 해', mid: '잔잔히 흐르는 물 같은 인연', low: '마음의 정원을 가꾸는 해' },
+  '직장운': { high: '무대가 넓어지는 해', mid: '벽돌 한 장씩 성을 쌓는 해', low: '인내가 갑옷이 되는 해' },
+  '학업운': { high: '배움이 날개가 되는 해', mid: '한 겹씩 지식이 쌓이는 해', low: '안개 속을 걷는 듯한 해' },
+};
+const CAT_SUMMARY_YEARLY_EN: Record<string, Record<string, string>> = {
+  '재물운': { high: 'A year the storehouse overflows', mid: 'Income and outgo find balance', low: 'A year to tighten the belt' },
+  '건강운': { high: 'Body and mind in full bloom', mid: 'Smooth sailing if you don\'t overdo it', low: 'A year the body asks for rest' },
+  '연애운': { high: 'The red thread of fate glowing bright', mid: 'A gentle stream of connection', low: 'A year to tend your inner garden' },
+  '직장운': { high: 'A year the stage expands', mid: 'Building a castle brick by brick', low: 'A year patience becomes armor' },
+  '학업운': { high: 'A year learning becomes wings', mid: 'Knowledge layering one coat at a time', low: 'Walking through fog all year' },
+};
+
 // YEARLY 헤드라인용 자연어 수식 (십성)
 const SS_FLOW_YEARLY: Record<string, string> = {
   '비견': '자립과 경쟁 속 성장의 비견',
@@ -371,475 +455,294 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
         />
       )}
 
-      {/* ── TODAY 모드 전용 섹션 ── */}
+      {/* ── TODAY 모드 전용 섹션 — /saju/chart 디자인시스템 적용 ── */}
 
-      {/* TODAY 카드 */}
       {mode === 'today' && todayFortune && (
-        <div
-          className="rounded-[16px] mb-4 relative overflow-hidden"
-          style={{
-            background: 'linear-gradient(145deg, #1B2432 0%, #191F28 60%)',
-            padding: '24px 22px',
-            color: '#fff',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute', top: -40, right: -40,
-              width: 220, height: 220, borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(49,130,246,0.55) 0%, rgba(49,130,246,0.2) 40%, transparent 75%)',
-              filter: 'blur(4px)',
-            }}
-          />
-          <div className="relative">
-            <div
-              style={{
-                fontSize: 11, color: '#8B95A1', fontWeight: 700,
-                letterSpacing: '0.1em', marginBottom: 10,
-              }}
-            >
-              TODAY
+        <div className="mt-4 mb-4 space-y-5">
+          {/* ═══ 오늘의 총운세 (日) — 하나의 토글, 줄글 설명 ═══ */}
+          <div>
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <span className="text-[12px] font-bold text-blue-400 dark:text-blue-500 tracking-wider">日</span>
+              <h3 className="text-[16px] font-bold text-blue-700 dark:text-blue-300">
+                {t('오늘의 총운세', "Today's Overall Fortune")}
+              </h3>
             </div>
-            <div
-              className="mb-4"
-              style={{ fontSize: 16, fontWeight: 500, lineHeight: 1.65, letterSpacing: '-0.01em' }}
-            >
-              {(() => {
-                const dp = <b>{todayFortune.dayPillar}</b>;
-                const ph = ilganPhrase ? <b>{ilganPhrase}</b> : null;
-                const ss = <b>{SS_FLOW[todayFortune.ss] || todayFortune.ss}</b>;
-                const us = <b>{US_FLOW[todayFortune.us] || todayFortune.us}</b>;
-                if (mbtiGroup === 'NT') {
-                  return (
-                    <>오늘 일진은 {dp}. {ph && <>{ph} 일간 기준 </>}{ss} 작용, 12운성 {us} 구간입니다.</>
-                  );
-                }
-                return (
-                  <>오늘은 {dp}일이에요.{ph && <> 당신의 {ph}에게</>} 오늘은 {ss}의 날, 그리고 {us}의 하루랍니다.</>
-                );
-              })()}
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { k: t('일진', 'Day Pillar'), v: todayFortune.dayPillar },
-                { k: t('십성', 'Ten God'), v: todayFortune.ss },
-                { k: t('운성', 'Stage'), v: todayFortune.us },
-              ].map((x, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl"
-                  style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 12px' }}
-                >
-                  <div style={{ fontSize: 10, color: '#8B95A1', marginBottom: 3 }}>{x.k}</div>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>{x.v}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 오늘의 운세 — 설명 */}
-      {mode === 'today' && todayFortune && (
-        <Section title={t('오늘의 운세', "Today's Fortune")}>
-          {ssReadingText && <p className="mb-3">{ssReadingText}</p>}
-          <p className={todayFortune.sinsal.length || dailyInsights.complements.length || dayHapChung.length ? 'mb-3' : ''}>
-            {t('12운성', '12 Stages')} <strong>{todayFortune.us}</strong>
-            <span className="text-[11px] text-gray-400 dark:text-gray-300 ml-1">— {US_MEANING[todayFortune.us]}</span>
-            <br />{usReadingText}
-          </p>
-
-          {dailyInsights.complements.length > 0 && (
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-3 mb-3">
-              <div className="text-[11px] font-semibold text-gray-600 dark:text-gray-100 dark:text-gray-300 mb-1.5">{t('원국 부족 기운 보충', 'Supplement for Lacking Elements')}</div>
-              <div className="space-y-1.5">
-                {dailyInsights.complements.map((c, i) => (
-                  <div key={i} className="flex items-start gap-2 text-[12px]">
-                    <span className={`inline-block shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold border ${EL_BADGE[c.lackingOh] || 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/40'} ${EL_COLORS[c.lackingOh] || 'text-blue-700 dark:text-blue-300'}`}>
-                      {c.lackingOh} 보충
-                    </span>
-                    <span className="text-gray-600 dark:text-gray-100 dark:text-gray-300 leading-snug">{c.desc}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {dayHapChung.length > 0 && (
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-3 mb-3">
-              <div className="text-[11px] font-semibold text-gray-600 dark:text-gray-100 dark:text-gray-300 mb-1.5">{t('오늘 기운과 내 사주의 만남', "Today's Energy Meets Your Chart")}</div>
-              <div className="space-y-2">
-                {dayHapChung.map((hc, i) => {
-                  const boxCls = hc.good === true
-                    ? 'border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40'
-                    : hc.good === false
-                      ? 'border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40'
-                      : 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900';
-                  const badgeCls = hc.good === true
-                    ? 'border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 bg-white dark:bg-gray-900'
-                    : hc.good === false
-                      ? 'border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 bg-white dark:bg-gray-900'
-                      : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-900';
-                  const label = hc.type === '충' ? '충돌' : hc.type === '삼합' ? '삼합' : '친화';
-                  return (
-                    <div key={i} className={`p-2.5 rounded-lg border ${boxCls}`}>
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold border ${badgeCls}`}>
-                          {label} · {hc.with}
-                        </span>
-                        <span className="text-[11px] text-gray-400 dark:text-gray-300">{hc.chars}</span>
-                      </div>
-                      <div className="text-[12px] font-semibold text-gray-800 dark:text-gray-100 mb-0.5">{hc.headline}</div>
-                      <p className="text-[11px] text-gray-600 dark:text-gray-200 leading-snug">{hc.meaning}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {todayFortune.sinsal.length > 0 && (
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-3">
-              {todayFortune.sinsal.map((s, i) => (
-                <div key={i} className="mb-2 last:mb-0">
-                  <span className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold mr-1.5 border ${s.good === true ? 'text-green-600 border-green-200' : s.good === false ? 'text-red-500 border-red-200' : 'text-yellow-600 border-yellow-200'}`}>
-                    {s.name}
-                  </span>
-                  <span className="text-[12px] text-gray-500 dark:text-gray-100 dark:text-gray-300">{s.desc}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </Section>
-      )}
-
-      {/* 지지 속 숨은 기운 */}
-      {mode === 'today' && todayFortune && todayFortune.hiddenSipsung && todayFortune.hiddenSipsung.length > 0 && (
-        <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-5 mb-4">
-          <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('지지 속 숨은 기운', 'Hidden Energies in Earthly Branch')}</h3>
-          <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5 mb-4">
-            지지 {todayFortune.dayPillarHanja[1]} · 지장간
-          </div>
-          <p className="text-[12px] text-gray-500 dark:text-gray-100 dark:text-gray-300 leading-relaxed mb-4">
-            천간({todayFortune.dayPillarHanja[0]})뿐 아니라 지지({todayFortune.dayPillarHanja[1]}) 안에도 숨은 기운이 있어요.
-          </p>
-          <div className="space-y-4">
-            {todayFortune.hiddenSipsung.map((h, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div
-                  className="shrink-0 w-7 rounded-md bg-gray-100 dark:bg-gray-800 py-1.5 text-center text-[11px] font-semibold text-gray-500 dark:text-gray-100 dark:text-gray-300"
-                  style={{ lineHeight: 1.25 }}
-                >
-                  {h.weight.split('').map((c, idx) => <div key={idx}>{c}</div>)}
-                </div>
-                <div className={`shrink-0 w-7 text-center text-[24px] font-bold ${EL_COLORS[CG_OH[h.hanja] || ''] || 'text-gray-800'}`}>
-                  {h.hanja}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[13px] font-bold text-gray-900 dark:text-gray-100 mb-0.5">{h.ss}</div>
-                  <div className="text-[12px] text-gray-500 dark:text-gray-100 dark:text-gray-300 leading-snug">{SS_MEANING[h.ss] || ''}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="text-[11px] text-gray-400 dark:text-gray-300 mt-5 leading-relaxed">
-            <span className="font-semibold text-gray-500 dark:text-gray-100 dark:text-gray-300">본기</span>가 가장 강하고 <span className="font-semibold text-gray-500 dark:text-gray-100 dark:text-gray-300">여기</span>는 약한 보조 기운입니다.
-          </p>
-        </div>
-      )}
-
-      {/* 분야별 운세 */}
-      {mode === 'today' && todayFortune && todayFortune.categories && todayFortune.categories.length > 0 && (
-        <Section title={t('분야별 운세', 'Fortune by Category')}>
-          {(() => {
-            const domain = SS_DOMAIN_MAP[todayFortune.ss];
-            if (!domain) return null;
-            return (
-              <div
-                className="rounded-r-[10px] mb-4"
-                style={{
-                  padding: '10px 14px',
-                  background: 'var(--accent-blue-bg)',
-                  borderLeft: '3px solid var(--accent-blue-border)',
-                }}
+            <div className="space-y-2">
+              <CollapsibleSection
+                title={t('오늘 하루 읽기', "Reading Today")}
+                subtitle={lang === 'en' ? (SS_SUMMARY_EN[todayFortune.ss] || 'Reading today\'s energy') : (SS_SUMMARY[todayFortune.ss] || '오늘 기운을 읽어드립니다')}
+                titleClassName="text-blue-600 dark:text-blue-400"
+                defaultOpen
               >
-                <div style={{ fontSize: 11, color: 'var(--accent-blue-title)', fontWeight: 700, marginBottom: 2 }}>
-                  {t('오늘의 흐름', "Today's Flow")}
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--accent-blue-body)', lineHeight: 1.55 }}>
-                  <b>{todayFortune.ss}({domain.primary})</b> 중심의 하루입니다. {domain.theme}이라,
-                  아래 카테고리 중 <b>{domain.primary}</b> 영역이 먼저 두드러지고 나머지는 이 흐름 안에서 해석하시면 됩니다.
-                </div>
-              </div>
-            );
-          })()}
-          {todayFortune.categories.map((cat, idx) => {
-            const tone =
-              cat.score >= 80 ? { text: t('매우 유리', 'Very Good'), bg: '#2D7A1F', color: '#fff' } :
-              cat.score >= 65 ? { text: t('유리', 'Good'), bg: 'var(--tone-positive-bg)', color: 'var(--tone-positive-fg)' } :
-              cat.score >= 45 ? { text: t('무난', 'Neutral'), bg: 'var(--tone-neutral-bg)', color: 'var(--tone-neutral-fg)' } :
-              cat.score >= 30 ? { text: t('주의', 'Caution'), bg: 'var(--tone-caution-bg)', color: 'var(--tone-caution-fg)' } :
-                                { text: t('강한 주의', 'Warning'), bg: '#C33A1F', color: '#fff' };
-            return (
-              <div
-                key={cat.label}
-                className={idx > 0 ? 'border-t border-gray-100 dark:border-gray-800 pt-4 mt-4' : ''}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{catLabel(cat.label)}</span>
-                  <span
-                    className="inline-block rounded-full"
-                    style={{
-                      padding: '4px 12px',
-                      fontSize: 11,
-                      fontWeight: 700,
-                      background: tone.bg,
-                      color: tone.color,
-                    }}
-                  >
-                    {tone.text}
-                  </span>
-                </div>
-                <p className="text-[12px] text-gray-600 dark:text-gray-100 dark:text-gray-300 leading-relaxed">
-                  {getCategoryDesc(cat.label, todayFortune.ss, cat.desc)}
-                </p>
-                {(() => {
-                  const notes = categoryNoteMap[cat.label] || [];
-                  const visible = notes.filter(n => {
-                    if (n.tone === 'positive') return cat.score >= 45;
-                    if (n.tone === 'negative') return cat.score < 65;
-                    return true;
-                  });
-                  if (visible.length === 0) return null;
-                  const isMild = cat.score >= 45 && cat.score < 65;
-                  return (
-                    <div className="mt-2.5 space-y-1.5">
-                      {visible.map((n, i) => {
-                        const isMildNegative = n.tone === 'negative' && isMild;
-                        const nc = n.tone === 'positive'
-                          ? { bg: 'var(--tone-positive-bg)', color: 'var(--tone-positive-fg)', icon: '✓' }
-                          : n.tone === 'negative'
-                            ? (isMildNegative
-                                ? { bg: 'var(--tone-caution-bg)', color: 'var(--tone-caution-fg)', icon: 'i' }
-                                : { bg: 'var(--tone-negative-bg)', color: 'var(--tone-negative-fg)', icon: '!' })
-                            : { bg: 'var(--tone-neutral-bg)', color: 'var(--tone-neutral-fg)', icon: '·' };
-                        const lbl = n.tone === 'positive'
-                          ? t('오늘 플러스', 'Today Plus')
-                          : n.tone === 'negative'
-                            ? (isMild ? t('오늘 참고', 'Today Note') : t('오늘 주의', 'Today Caution'))
-                            : t('오늘', 'Today');
+                {/* 줄글 설명 */}
+                <div className="text-[14px] text-gray-700 dark:text-gray-300 leading-[1.85] space-y-3">
+                  {ssReadingText && <p>{ssReadingText}</p>}
+                  <p>
+                    {t('12운성', '12 Stages')} <strong>{todayFortune.us}</strong>
+                    <span className="text-[11px] text-gray-400 dark:text-gray-400 ml-1">— {US_MEANING[todayFortune.us]}</span>
+                    {usReadingText && <><br />{usReadingText}</>}
+                  </p>
+
+                  {dayHapChung.length > 0 && (
+                    <div className="space-y-2 pt-2">
+                      {dayHapChung.map((hc, i) => {
+                        const boxCls = hc.good === true
+                          ? 'border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/40'
+                          : hc.good === false
+                            ? 'border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40'
+                            : 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900';
+                        const badgeCls = hc.good === true
+                          ? 'border-green-300 dark:border-green-700 text-green-700 dark:text-green-300 bg-white dark:bg-gray-900'
+                          : hc.good === false
+                            ? 'border-red-300 dark:border-red-700 text-red-700 dark:text-red-300 bg-white dark:bg-gray-900'
+                            : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-900';
+                        const label = hc.type === '충' ? '충돌' : hc.type === '삼합' ? '삼합' : '친화';
                         return (
-                          <div
-                            key={i}
-                            className="rounded-[10px]"
-                            style={{
-                              padding: '10px 12px',
-                              fontSize: 12,
-                              background: nc.bg,
-                              color: nc.color,
-                              lineHeight: 1.5,
-                            }}
-                          >
-                            <span style={{ fontWeight: 600 }}>{nc.icon} {lbl}:</span> {n.note}
+                          <div key={i} className={`p-2.5 rounded-lg border ${boxCls}`}>
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold border ${badgeCls}`}>
+                                {label} · {hc.with}
+                              </span>
+                              <span className="text-[11px] text-gray-400 dark:text-gray-300">{hc.chars}</span>
+                            </div>
+                            <div className="text-[12px] font-semibold text-gray-800 dark:text-gray-100 mb-0.5">{hc.headline}</div>
+                            <p className="text-[11px] text-gray-600 dark:text-gray-200 leading-snug">{hc.meaning}</p>
                           </div>
                         );
                       })}
                     </div>
-                  );
-                })()}
-              </div>
-            );
-          })}
-        </Section>
-      )}
+                  )}
 
-      {/* ── YEARLY 모드 전용 섹션 ── */}
+                  {dailyInsights.complements.length > 0 && (
+                    <div className="space-y-1.5 pt-2">
+                      <div className="text-[12px] font-semibold text-gray-600 dark:text-gray-300 mb-1">{t('원국 부족 기운 보충', 'Supplement for Lacking Elements')}</div>
+                      {dailyInsights.complements.map((c, i) => (
+                        <div key={i} className="flex items-start gap-2 text-[12px]">
+                          <span className={`inline-block shrink-0 px-1.5 py-0.5 rounded text-[10px] font-semibold border ${EL_BADGE[c.lackingOh] || 'border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/40'} ${EL_COLORS[c.lackingOh] || 'text-blue-700 dark:text-blue-300'}`}>
+                            {c.lackingOh} {t('보충', 'supplement')}
+                          </span>
+                          <span className="text-gray-600 dark:text-gray-300 leading-snug">{c.desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
-      {/* YEARLY 카드 */}
-      {mode === 'yearly' && yearlyFortune && (
-        <div
-          className="rounded-[16px] mb-4 relative overflow-hidden"
-          style={{
-            background: 'linear-gradient(145deg, #1B2432 0%, #191F28 60%)',
-            padding: '24px 22px',
-            color: '#fff',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute', top: -40, right: -40,
-              width: 220, height: 220, borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(234,179,8,0.55) 0%, rgba(234,179,8,0.2) 40%, transparent 75%)',
-              filter: 'blur(4px)',
-            }}
-          />
-          <div className="relative">
-            <div
-              style={{
-                fontSize: 11, color: '#8B95A1', fontWeight: 700,
-                letterSpacing: '0.1em', marginBottom: 10,
-              }}
-            >
-              {yearlyFortune.year}
+                  {todayFortune.sinsal.length > 0 && (
+                    <div className="pt-2">
+                      {todayFortune.sinsal.map((s, i) => (
+                        <div key={i} className="mb-2 last:mb-0">
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold mr-1.5 border ${s.good === true ? 'text-green-600 border-green-200' : s.good === false ? 'text-red-500 border-red-200' : 'text-yellow-600 border-yellow-200'}`}>
+                            {s.name}
+                          </span>
+                          <span className="text-[12px] text-gray-500 dark:text-gray-300">{s.desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CollapsibleSection>
             </div>
-            <div
-              className="mb-4"
-              style={{ fontSize: 16, fontWeight: 500, lineHeight: 1.65, letterSpacing: '-0.01em' }}
-            >
-              {(() => {
-                const yp = <b>{yearlyFortune.yearPillar}</b>;
-                const ph = ilganPhrase ? <b>{ilganPhrase}</b> : null;
-                const ss = <b>{SS_FLOW_YEARLY[yearlyFortune.ss] || yearlyFortune.ss}</b>;
-                const us = <b>{US_FLOW_YEARLY[yearlyFortune.us] || yearlyFortune.us}</b>;
-                if (mbtiGroup === 'NT') {
-                  return (
-                    <>올해 세운은 {yp}. {ph && <>{ph} 일간 기준 </>}{ss} 작용, 12운성 {us} 구간입니다.</>
-                  );
-                }
+          </div>
+
+
+          {/* 분야별 운세 — CollapsibleSection 패턴 적용 */}
+          {todayFortune.categories && todayFortune.categories.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <span className="text-[12px] font-bold text-teal-400 dark:text-teal-500 tracking-wider">運</span>
+              <h3 className="text-[16px] font-bold text-teal-700 dark:text-teal-300">
+                {t('분야별 운세', 'Fortune by Category')}
+              </h3>
+            </div>
+            {(() => {
+              const domain = SS_DOMAIN_MAP[todayFortune.ss];
+              if (!domain) return null;
+              return (
+                <div
+                  className="rounded-r-[10px] mb-3 mx-1"
+                  style={{
+                    padding: '10px 14px',
+                    background: 'var(--accent-blue-bg)',
+                    borderLeft: '3px solid var(--accent-blue-border)',
+                  }}
+                >
+                  <div style={{ fontSize: 11, color: 'var(--accent-blue-title)', fontWeight: 700, marginBottom: 2 }}>
+                    {t('오늘의 흐름', "Today's Flow")}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--accent-blue-body)', lineHeight: 1.55 }}>
+                    <b>{todayFortune.ss}({domain.primary})</b> {t('중심의 하루입니다.', 'is the focus of today.')} {domain.theme}{t('이라, ', '. ')}
+                    {t('아래 카테고리 중', 'Among the categories below,')} <b>{domain.primary}</b> {t('영역이 먼저 두드러지고 나머지는 이 흐름 안에서 해석하시면 됩니다.', 'stands out first; interpret the rest within this flow.')}
+                  </div>
+                </div>
+              );
+            })()}
+            <div className="space-y-2">
+              {todayFortune.categories.map((cat) => {
+                const tone =
+                  cat.score >= 80 ? { text: t('매우 유리', 'Very Good'), bg: '#2D7A1F', color: '#fff' } :
+                  cat.score >= 65 ? { text: t('유리', 'Good'), bg: 'var(--tone-positive-bg)', color: 'var(--tone-positive-fg)' } :
+                  cat.score >= 45 ? { text: t('무난', 'Neutral'), bg: 'var(--tone-neutral-bg)', color: 'var(--tone-neutral-fg)' } :
+                  cat.score >= 30 ? { text: t('주의', 'Caution'), bg: 'var(--tone-caution-bg)', color: 'var(--tone-caution-fg)' } :
+                                    { text: t('강한 주의', 'Warning'), bg: '#C33A1F', color: '#fff' };
+                const notes = categoryNoteMap[cat.label] || [];
+                const visible = notes.filter(n => {
+                  if (n.tone === 'positive') return cat.score >= 45;
+                  if (n.tone === 'negative') return cat.score < 65;
+                  return true;
+                });
+                const isMild = cat.score >= 45 && cat.score < 65;
                 return (
-                  <>올해는 {yp}년이에요.{ph && <> 당신의 {ph}에게</>} 올해는 {ss}의 해, 그리고 {us}의 한 해랍니다.</>
-                );
-              })()}
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { k: t('세운', 'Year Pillar'), v: yearlyFortune.yearPillar },
-                { k: t('십성', 'Ten God'), v: yearlyFortune.ss },
-                { k: t('운성', 'Stage'), v: yearlyFortune.us },
-              ].map((x, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl"
-                  style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 12px' }}
-                >
-                  <div style={{ fontSize: 10, color: '#8B95A1', marginBottom: 3 }}>{x.k}</div>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: '#fff' }}>{x.v}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 올해의 운세 — 설명 */}
-      {mode === 'yearly' && yearlyFortune && (
-        <Section title={t('올해의 운세', "This Year's Fortune")}>
-          {yearlyFortune.ssReading && <p className="mb-3">{yearlyFortune.ssReading}</p>}
-          <p className={yearlyFortune.sinsal.length ? 'mb-3' : ''}>
-            {t('12운성', '12 Stages')} <strong>{yearlyFortune.us}</strong>
-            <span className="text-[11px] text-gray-400 dark:text-gray-300 ml-1">— {US_MEANING[yearlyFortune.us]}</span>
-            <br />{yearlyFortune.usReading}
-          </p>
-
-          {yearlyFortune.sinsal.length > 0 && (
-            <div className="border-t border-gray-100 dark:border-gray-800 pt-3">
-              {yearlyFortune.sinsal.map((s, i) => (
-                <div key={i} className="mb-2 last:mb-0">
-                  <span className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold mr-1.5 border ${s.good === true ? 'text-green-600 border-green-200' : s.good === false ? 'text-red-500 border-red-200' : 'text-yellow-600 border-yellow-200'}`}>
-                    {s.name}
-                  </span>
-                  <span className="text-[12px] text-gray-500 dark:text-gray-100 dark:text-gray-300">{s.desc}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </Section>
-      )}
-
-      {/* 올해 지지 속 숨은 기운 */}
-      {mode === 'yearly' && yearlyFortune && yearlyFortune.hiddenSipsung && yearlyFortune.hiddenSipsung.length > 0 && (
-        <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-xl p-5 mb-4">
-          <h3 className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{t('지지 속 숨은 기운', 'Hidden Energies in Earthly Branch')}</h3>
-          <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5 mb-4">
-            지지 {yearlyFortune.yearPillarHanja[1]} · 지장간
-          </div>
-          <p className="text-[12px] text-gray-500 dark:text-gray-100 dark:text-gray-300 leading-relaxed mb-4">
-            천간({yearlyFortune.yearPillarHanja[0]})뿐 아니라 지지({yearlyFortune.yearPillarHanja[1]}) 안에도 숨은 기운이 있어요.
-          </p>
-          <div className="space-y-4">
-            {yearlyFortune.hiddenSipsung.map((h, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div
-                  className="shrink-0 w-7 rounded-md bg-gray-100 dark:bg-gray-800 py-1.5 text-center text-[11px] font-semibold text-gray-500 dark:text-gray-100 dark:text-gray-300"
-                  style={{ lineHeight: 1.25 }}
-                >
-                  {h.weight.split('').map((c, idx) => <div key={idx}>{c}</div>)}
-                </div>
-                <div className={`shrink-0 w-7 text-center text-[24px] font-bold ${EL_COLORS[CG_OH[h.hanja] || ''] || 'text-gray-800'}`}>
-                  {h.hanja}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[13px] font-bold text-gray-900 dark:text-gray-100 mb-0.5">{h.ss}</div>
-                  <div className="text-[12px] text-gray-500 dark:text-gray-100 dark:text-gray-300 leading-snug">{SS_MEANING[h.ss] || ''}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="text-[11px] text-gray-400 dark:text-gray-300 mt-5 leading-relaxed">
-            <span className="font-semibold text-gray-500 dark:text-gray-100 dark:text-gray-300">본기</span>가 가장 강하고 <span className="font-semibold text-gray-500 dark:text-gray-100 dark:text-gray-300">여기</span>는 약한 보조 기운입니다.
-          </p>
-        </div>
-      )}
-
-      {/* 올해 분야별 운세 */}
-      {mode === 'yearly' && yearlyFortune && yearlyFortune.categories && yearlyFortune.categories.length > 0 && (
-        <Section title={t('분야별 운세', 'Fortune by Category')}>
-          {(() => {
-            const domain = SS_DOMAIN_MAP_YEARLY[yearlyFortune.ss];
-            if (!domain) return null;
-            return (
-              <div
-                className="rounded-r-[10px] mb-4"
-                style={{
-                  padding: '10px 14px',
-                  background: 'var(--accent-blue-bg)',
-                  borderLeft: '3px solid var(--accent-blue-border)',
-                }}
-              >
-                <div style={{ fontSize: 11, color: 'var(--accent-blue-title)', fontWeight: 700, marginBottom: 2 }}>
-                  {t('올해의 흐름', "This Year's Flow")}
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--accent-blue-body)', lineHeight: 1.55 }}>
-                  <b>{yearlyFortune.ss}({domain.primary})</b> 중심의 한 해입니다. {domain.theme}이라,
-                  아래 카테고리 중 <b>{domain.primary}</b> 영역이 먼저 두드러지고 나머지는 이 흐름 안에서 해석하시면 됩니다.
-                </div>
-              </div>
-            );
-          })()}
-          {yearlyFortune.categories.map((cat, idx) => {
-            const tone =
-              cat.score >= 80 ? { text: t('매우 유리', 'Very Good'), bg: '#2D7A1F', color: '#fff' } :
-              cat.score >= 65 ? { text: t('유리', 'Good'), bg: 'var(--tone-positive-bg)', color: 'var(--tone-positive-fg)' } :
-              cat.score >= 45 ? { text: t('무난', 'Neutral'), bg: 'var(--tone-neutral-bg)', color: 'var(--tone-neutral-fg)' } :
-              cat.score >= 30 ? { text: t('주의', 'Caution'), bg: 'var(--tone-caution-bg)', color: 'var(--tone-caution-fg)' } :
-                                { text: t('강한 주의', 'Warning'), bg: '#C33A1F', color: '#fff' };
-            return (
-              <div
-                key={cat.label}
-                className={idx > 0 ? 'border-t border-gray-100 dark:border-gray-800 pt-4 mt-4' : ''}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[14px] font-bold text-gray-900 dark:text-gray-100">{catLabel(cat.label)}</span>
-                  <span
-                    className="inline-block rounded-full"
-                    style={{
-                      padding: '4px 12px',
-                      fontSize: 11,
-                      fontWeight: 700,
-                      background: tone.bg,
-                      color: tone.color,
-                    }}
+                  <CollapsibleSection
+                    key={cat.label}
+                    title={catLabel(cat.label)}
+                    subtitle={(() => {
+                      const tier = cat.score >= 65 ? 'high' : cat.score >= 40 ? 'mid' : 'low';
+                      const summaryMap = lang === 'en' ? CAT_SUMMARY_EN : CAT_SUMMARY;
+                      return summaryMap[cat.label]?.[tier] || getCategoryDesc(cat.label, todayFortune.ss, cat.desc).slice(0, 35);
+                    })()}
+                    titleClassName="text-teal-600 dark:text-teal-400"
+                    defaultOpen={cat.score >= 65 || cat.score < 30}
                   >
-                    {tone.text}
-                  </span>
+                    <p className="text-[13px] text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {getCategoryDesc(cat.label, todayFortune.ss, cat.desc)}
+                    </p>
+                    {visible.length > 0 && (
+                      <div className="mt-2.5 space-y-1.5">
+                        {visible.map((n, i) => {
+                          const isMildNegative = n.tone === 'negative' && isMild;
+                          const nc = n.tone === 'positive'
+                            ? { bg: 'var(--tone-positive-bg)', color: 'var(--tone-positive-fg)', icon: '✓' }
+                            : n.tone === 'negative'
+                              ? (isMildNegative
+                                  ? { bg: 'var(--tone-caution-bg)', color: 'var(--tone-caution-fg)', icon: 'i' }
+                                  : { bg: 'var(--tone-negative-bg)', color: 'var(--tone-negative-fg)', icon: '!' })
+                              : { bg: 'var(--tone-neutral-bg)', color: 'var(--tone-neutral-fg)', icon: '·' };
+                          const lbl = n.tone === 'positive'
+                            ? t('오늘 플러스', 'Today Plus')
+                            : n.tone === 'negative'
+                              ? (isMild ? t('오늘 참고', 'Today Note') : t('오늘 주의', 'Today Caution'))
+                              : t('오늘', 'Today');
+                          return (
+                            <div
+                              key={i}
+                              className="rounded-[10px]"
+                              style={{ padding: '10px 12px', fontSize: 12, background: nc.bg, color: nc.color, lineHeight: 1.5 }}
+                            >
+                              <span style={{ fontWeight: 600 }}>{nc.icon} {lbl}:</span> {n.note}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </CollapsibleSection>
+                );
+              })}
+            </div>
+          </div>
+          )}
+
+        </div>
+      )}
+
+      {/* ── YEARLY 모드 전용 섹션 — /saju/chart 디자인시스템 적용 ── */}
+
+      {mode === 'yearly' && yearlyFortune && (
+        <div className="mt-4 mb-4 space-y-5">
+          {/* ═══ 올해의 총운세 (年) — 하나의 토글, 줄글 설명 ═══ */}
+          <div>
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <span className="text-[12px] font-bold text-amber-400 dark:text-amber-500 tracking-wider">年</span>
+              <h3 className="text-[16px] font-bold text-amber-700 dark:text-amber-300">
+                {t('올해의 총운세', "This Year's Overall Fortune")}
+              </h3>
+            </div>
+            <div className="space-y-2">
+              <CollapsibleSection
+                title={t('올해 흐름 읽기', "Reading This Year")}
+                subtitle={lang === 'en' ? (SS_SUMMARY_YEARLY_EN[yearlyFortune.ss] || 'Reading this year\'s energy') : (SS_SUMMARY_YEARLY[yearlyFortune.ss] || '올해 기운을 읽어드립니다')}
+                titleClassName="text-amber-600 dark:text-amber-400"
+                defaultOpen
+              >
+                {/* 줄글 설명 */}
+                <div className="text-[14px] text-gray-700 dark:text-gray-300 leading-[1.85] space-y-3">
+                  {yearlyFortune.ssReading && <p>{yearlyFortune.ssReading}</p>}
+                  <p>
+                    {t('12운성', '12 Stages')} <strong>{yearlyFortune.us}</strong>
+                    <span className="text-[11px] text-gray-400 dark:text-gray-400 ml-1">— {US_MEANING[yearlyFortune.us]}</span>
+                    {yearlyFortune.usReading && <><br />{yearlyFortune.usReading}</>}
+                  </p>
+
+                  {yearlyFortune.sinsal.length > 0 && (
+                    <div className="pt-2">
+                      {yearlyFortune.sinsal.map((s, i) => (
+                        <div key={i} className="mb-2 last:mb-0">
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[11px] font-semibold mr-1.5 border ${s.good === true ? 'text-green-600 border-green-200' : s.good === false ? 'text-red-500 border-red-200' : 'text-yellow-600 border-yellow-200'}`}>
+                            {s.name}
+                          </span>
+                          <span className="text-[12px] text-gray-500 dark:text-gray-300">{s.desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <p className="text-[12px] text-gray-600 dark:text-gray-100 dark:text-gray-300 leading-relaxed">
-                  {cat.desc}
-                </p>
-              </div>
-            );
-          })}
-        </Section>
+              </CollapsibleSection>
+            </div>
+          </div>
+
+          {/* ═══ 분야별 운세 (運) ═══ */}
+          {yearlyFortune.categories && yearlyFortune.categories.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <span className="text-[12px] font-bold text-teal-400 dark:text-teal-500 tracking-wider">運</span>
+              <h3 className="text-[16px] font-bold text-teal-700 dark:text-teal-300">
+                {t('분야별 운세', 'Fortune by Category')}
+              </h3>
+            </div>
+            {(() => {
+              const domain = SS_DOMAIN_MAP_YEARLY[yearlyFortune.ss];
+              if (!domain) return null;
+              return (
+                <div
+                  className="rounded-r-[10px] mb-3 mx-1"
+                  style={{
+                    padding: '10px 14px',
+                    background: 'var(--accent-blue-bg)',
+                    borderLeft: '3px solid var(--accent-blue-border)',
+                  }}
+                >
+                  <div style={{ fontSize: 11, color: 'var(--accent-blue-title)', fontWeight: 700, marginBottom: 2 }}>
+                    {t('올해의 흐름', "This Year's Flow")}
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--accent-blue-body)', lineHeight: 1.55 }}>
+                    <b>{yearlyFortune.ss}({domain.primary})</b> {t('중심의 한 해입니다.', 'is the focus of this year.')} {domain.theme}{t('이라, ', '. ')}
+                    {t('아래 카테고리 중', 'Among the categories below,')} <b>{domain.primary}</b> {t('영역이 먼저 두드러지고 나머지는 이 흐름 안에서 해석하시면 됩니다.', 'stands out first; interpret the rest within this flow.')}
+                  </div>
+                </div>
+              );
+            })()}
+            <div className="space-y-2">
+              {yearlyFortune.categories.map((cat) => {
+                const tier = cat.score >= 65 ? 'high' : cat.score >= 40 ? 'mid' : 'low';
+                const summaryMap = lang === 'en' ? CAT_SUMMARY_YEARLY_EN : CAT_SUMMARY_YEARLY;
+                return (
+                  <CollapsibleSection
+                    key={cat.label}
+                    title={catLabel(cat.label)}
+                    subtitle={summaryMap[cat.label]?.[tier] || cat.desc.slice(0, 35)}
+                    titleClassName="text-teal-600 dark:text-teal-400"
+                    defaultOpen={cat.score >= 65 || cat.score < 30}
+                  >
+                    <p className="text-[13px] text-gray-700 dark:text-gray-300 leading-relaxed">
+                      {cat.desc}
+                    </p>
+                  </CollapsibleSection>
+                );
+              })}
+            </div>
+          </div>
+          )}
+
+        </div>
       )}
 
       {/* 대운·세운·월운 — 필터 탭 + 흐름 그래프 하나로 통합 */}
