@@ -94,7 +94,7 @@ function getCheckInTip(choice: CheckInChoice, diagType: string, currentRating: s
 }
 
 export default function ChaeunPage() {
-  const { t, lang } = useLang();
+  const { t, lang, localePath } = useLang();
   const [saju, setSaju] = useState<CurrentSaju | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
@@ -268,48 +268,37 @@ export default function ChaeunPage() {
         {/* 사주 팔자 — 테두리 없이 바로 노출 */}
         <SajuTable pillars={pillars} ilgan={ilgan} />
 
-        {/* ═══════════════════════════════════════════
-            ① 재물 유형 카드 — 강조형 (compatibility 스타일)
-        ═══════════════════════════════════════════ */}
+        {/* 재물 유형 한 줄 요약 */}
         {diagnosis && (
-          <div className="relative overflow-hidden rounded-[20px] bg-gradient-to-br from-amber-50 to-orange-50 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-amber-100 p-5 mb-4 mt-6">
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <div>
-                <div className="text-[10.5px] font-bold tracking-[0.12em] text-gray-500 uppercase mb-1">
-                  {t('당신의 재물유형', 'Your Wealth Type')}
-                </div>
-                <div className="text-[20px] font-extrabold text-gray-900 leading-[1.3]">
-                  {diagnosis.headline}
-                </div>
-              </div>
-              <div className="shrink-0 flex flex-col items-center">
-                <div className="text-[11px] font-semibold text-gray-500">{t('재운력', 'Power')}</div>
-                <div className="text-[28px] font-black text-gray-900 leading-none mt-0.5">{todayScore}</div>
-                <div className="text-[10px] text-gray-400 mt-0.5">/ 100</div>
-              </div>
+          <div className="mt-6 mb-4 text-center">
+            <div className="text-[10.5px] font-bold tracking-[0.12em] text-gray-400 dark:text-gray-500 uppercase mb-1">
+              {t('나의 재물유형', 'My Wealth Type')}
             </div>
-            <div className="flex items-center gap-2 mb-4">
-              <div
-                className="w-11 h-11 rounded-[12px] flex items-center justify-center text-[18px] font-bold text-white"
-                style={{ background: '#D97706' }}
-              >
-                {ilgan || '—'}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[11px] text-gray-500 font-medium">{t('재물 유형', 'Type')}</div>
-                <div className="text-[13px] font-semibold text-gray-800">{diagnosis.type}</div>
-              </div>
+            <div className="text-[18px] font-extrabold text-gray-900 dark:text-gray-100 leading-[1.3] tracking-[-0.01em]">
+              {diagnosis.headline}
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {diagnosis.strengths.slice(0, 3).map((s, i) => {
-                const keyword = s.split(/[,·—]/)[0].trim().slice(0, 14);
-                return (
-                  <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/70 text-amber-800 border border-amber-200">
-                    <span className="text-amber-500">#</span>{keyword}
-                  </span>
-                );
-              })}
+            <div className="mt-1.5 inline-flex items-center px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-900">
+              <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300">
+                {diagnosis.type}
+              </span>
             </div>
+            {diagnosis.strengths.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-1.5 mt-3">
+                {diagnosis.strengths.slice(0, 3).map((s, i) => {
+                  const keyword = s.split(/[,·—]/)[0].trim().slice(0, 14);
+                  const colors = [
+                    'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800',
+                    'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800',
+                    'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-800',
+                  ];
+                  return (
+                    <span key={i} className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10.5px] font-semibold border ${colors[i % colors.length]}`}>
+                      #{keyword}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
@@ -323,33 +312,36 @@ export default function ChaeunPage() {
           return (
             <>
               <div className="mb-3 mt-2">
-                <div className="text-[13px] font-semibold text-amber-700">
+                <div className="text-[15px] font-bold text-amber-700 dark:text-amber-400 tracking-wide">
                   {t('돈맥 지도', 'Money Flow Map')}
                 </div>
               </div>
 
               {/* 요약 2칸 — 가장 강한 흐름 / 지금은 주의 */}
               <div className="grid grid-cols-2 gap-2.5 mb-3">
-                <div className="rounded-[14px] bg-green-50 border border-green-200 p-3.5">
-                  <div className="text-[10px] font-semibold text-green-700 mb-1">{t('가장 강한 흐름', 'Strongest flow')}</div>
-                  <div className="text-[14px] font-extrabold text-green-900 mb-0.5">{dom.label}</div>
-                  <div className="text-[11px] text-green-700 leading-snug">{dom.desc.split('(')[0].trim().slice(0, 20)}</div>
+                <div className="rounded-[14px] bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 p-3.5">
+                  <div className="text-[11px] font-semibold text-green-700 dark:text-green-400 mb-1">{t('가장 강한 흐름', 'Strongest flow')}</div>
+                  <div className="text-[15px] font-extrabold text-green-900 dark:text-green-100 mb-0.5">{dom.label}</div>
+                  <div className="text-[12.5px] text-green-700 dark:text-green-400 leading-snug">{dom.desc.split('(')[0].trim().slice(0, 20)}</div>
                 </div>
-                <div className="rounded-[14px] bg-amber-50 border border-amber-200 p-3.5">
-                  <div className="text-[10px] font-semibold text-amber-700 mb-1">{t('지금은 주의', 'Watch out')}</div>
-                  <div className="text-[14px] font-extrabold text-amber-900 mb-0.5">{weakest.label}</div>
-                  <div className="text-[11px] text-amber-700 leading-snug">{t('큰 지출·투자는 신중히', 'Be careful with big spending')}</div>
+                <div className="rounded-[14px] bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 p-3.5">
+                  <div className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 mb-1">{t('지금은 주의', 'Watch out')}</div>
+                  <div className="text-[15px] font-extrabold text-amber-900 dark:text-amber-100 mb-0.5">{weakest.label}</div>
+                  <div className="text-[12.5px] text-amber-700 dark:text-amber-400 leading-snug">{t('큰 지출·투자는 신중히', 'Be careful with big spending')}</div>
                 </div>
               </div>
 
               {/* 토글 카드 — 막대그래프 */}
-              <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+              <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
                 <button
                   type="button"
                   onClick={() => toggleSection('moneymap')}
-                  className="w-full flex items-center justify-center p-3.5 cursor-pointer bg-transparent border-none text-[12px] text-gray-500 font-medium"
+                  className="w-full flex items-center justify-between px-5 py-4 cursor-pointer bg-transparent border-none text-left"
                 >
-                  {openSections['moneymap'] ? t('접기', 'Collapse') : t('펼치기', 'Expand')}
+                  <span className="text-[15px] font-bold text-gray-500 dark:text-gray-400 tracking-wide">
+                    {t('돈맥 상세 분석', 'Flow Detail')}
+                  </span>
+                  <svg className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${openSections['moneymap'] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                 </button>
                 {openSections['moneymap'] && (
                   <div className="px-5 pb-5 space-y-4">
@@ -358,10 +350,10 @@ export default function ChaeunPage() {
                       return (
                         <div key={p.key}>
                           <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[12px] font-semibold text-gray-800">{p.key} · {p.label}</span>
-                            <span className="text-[12px] font-bold text-gray-700 tabular-nums">{p.strength}</span>
+                            <span className="text-[13px] font-semibold text-gray-800 dark:text-gray-200">{p.key} · {p.label}</span>
+                            <span className="text-[13px] font-bold text-gray-700 dark:text-gray-300 tabular-nums">{p.strength}</span>
                           </div>
-                          <div className="h-[6px] rounded-full bg-gray-100 overflow-hidden">
+                          <div className="h-[6px] rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
                             <div className="h-full rounded-full transition-all" style={{ width: `${barPct}%`, background: '#3182F6' }} />
                           </div>
                         </div>
@@ -378,25 +370,27 @@ export default function ChaeunPage() {
             ④-b 돈을 버는 방식 — attitude (토글)
         ═══════════════════════════════════════════ */}
         {diagnosis && diagnosis.attitude.length > 0 && (
-          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+          <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
             <button
               type="button"
               onClick={() => toggleSection('attitude')}
-              className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+              className="w-full flex items-center justify-between px-5 py-4 cursor-pointer bg-transparent border-none text-left"
             >
-              <div>
-                <div className="text-[13px] font-semibold text-emerald-600">
+              <div className="flex-1 min-w-0">
+                <span className="text-[15px] font-bold text-emerald-600 dark:text-emerald-400 tracking-wide">
                   {t('돈을 버는 방식', 'How You Earn')}
-                </div>
-                <div className="text-[11px] text-gray-400 mt-0.5">
-                  {t('당신에게 맞는 수익 창출 스타일', 'Your natural earning style')}
-                </div>
+                </span>
+                {!openSections['attitude'] && (
+                  <p className="text-[12.5px] text-gray-400 dark:text-gray-500 mt-1 leading-snug truncate italic">
+                    {t('당신에게 맞는 수익 창출 스타일', 'Your natural earning style')}
+                  </p>
+                )}
               </div>
-              <span className={`text-[12px] text-gray-400 transition-transform ${openSections['attitude'] ? 'rotate-90' : ''}`}>▸</span>
+              <svg className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${openSections['attitude'] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
             </button>
             {openSections['attitude'] && (
               <div className="px-5 pb-5">
-                <p className="text-[12px] text-gray-700 leading-[1.8]">
+                <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
                   {diagnosis.attitudeProse}
                 </p>
               </div>
@@ -408,25 +402,27 @@ export default function ChaeunPage() {
             ④-c 투자 성향 — investmentStyle (토글)
         ═══════════════════════════════════════════ */}
         {diagnosis && diagnosis.investmentStyle.length > 0 && (
-          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+          <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
             <button
               type="button"
               onClick={() => toggleSection('invest')}
-              className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+              className="w-full flex items-center justify-between px-5 py-4 cursor-pointer bg-transparent border-none text-left"
             >
-              <div>
-                <div className="text-[13px] font-semibold text-indigo-600">
+              <div className="flex-1 min-w-0">
+                <span className="text-[15px] font-bold text-indigo-600 dark:text-indigo-400 tracking-wide">
                   {t('투자 성향', 'Investment Style')}
-                </div>
-                <div className="text-[11px] text-gray-400 mt-0.5">
-                  {t('사주가 말해주는 투자 체질', 'Your Saju-based investment profile')}
-                </div>
+                </span>
+                {!openSections['invest'] && (
+                  <p className="text-[12.5px] text-gray-400 dark:text-gray-500 mt-1 leading-snug truncate italic">
+                    {t('사주가 말해주는 투자 체질', 'Your Saju-based investment profile')}
+                  </p>
+                )}
               </div>
-              <span className={`text-[12px] text-gray-400 transition-transform ${openSections['invest'] ? 'rotate-90' : ''}`}>▸</span>
+              <svg className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${openSections['invest'] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
             </button>
             {openSections['invest'] && (
               <div className="px-5 pb-5">
-                <p className="text-[12px] text-gray-700 leading-[1.8]">
+                <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
                   {diagnosis.investmentProse}
                 </p>
               </div>
@@ -438,25 +434,27 @@ export default function ChaeunPage() {
             ④-d 재물 축적 능력 — strengths + cautions (토글)
         ═══════════════════════════════════════════ */}
         {diagnosis && (diagnosis.strengths.length > 0 || diagnosis.cautions.length > 0) && (
-          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+          <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
             <button
               type="button"
               onClick={() => toggleSection('accumulate')}
-              className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+              className="w-full flex items-center justify-between px-5 py-4 cursor-pointer bg-transparent border-none text-left"
             >
-              <div>
-                <div className="text-[13px] font-semibold text-purple-600">
+              <div className="flex-1 min-w-0">
+                <span className="text-[15px] font-bold text-purple-600 dark:text-purple-400 tracking-wide">
                   {t('재물 축적 능력', 'Wealth Accumulation')}
-                </div>
-                <div className="text-[11px] text-gray-400 mt-0.5">
-                  {t('강점과 주의점으로 보는 축적 역량', 'Strengths & cautions for building wealth')}
-                </div>
+                </span>
+                {!openSections['accumulate'] && (
+                  <p className="text-[12.5px] text-gray-400 dark:text-gray-500 mt-1 leading-snug truncate italic">
+                    {t('강점과 주의점으로 보는 축적 역량', 'Strengths & cautions for building wealth')}
+                  </p>
+                )}
               </div>
-              <span className={`text-[12px] text-gray-400 transition-transform ${openSections['accumulate'] ? 'rotate-90' : ''}`}>▸</span>
+              <svg className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${openSections['accumulate'] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
             </button>
             {openSections['accumulate'] && (
               <div className="px-5 pb-5">
-                <p className="text-[12px] text-gray-700 leading-[1.8]">
+                <p className="text-[14px] text-gray-700 dark:text-gray-200 leading-[1.8]">
                   {diagnosis.accumulationProse}
                 </p>
               </div>
@@ -469,10 +467,10 @@ export default function ChaeunPage() {
         ═══════════════════════════════════════════ */}
         {acts.length > 0 && (<>
           <div className="mb-3 mt-2">
-            <div className="text-[13px] font-semibold text-teal-600">
+            <div className="text-[15px] font-bold text-teal-600 dark:text-teal-400 tracking-wide">
               {t('인생 재물 3막', 'Wealth in 3 Acts')}
             </div>
-            <div className="text-[11px] text-gray-400 mt-0.5">
+            <div className="text-[12.5px] text-gray-400 dark:text-gray-500 mt-1">
               {t('대운 흐름을 3개 시기로 나눠 봤어요', 'Your major cycles grouped into 3 life phases')}
             </div>
           </div>
@@ -483,16 +481,16 @@ export default function ChaeunPage() {
               r === 'strong' ? '#2D7A1F' : r === 'caution' ? '#C33A1F' : '#64748B';
 
             return (
-              <div key={actIdx} className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-3 overflow-hidden">
+              <div key={actIdx} className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
                 <button
                   type="button"
                   onClick={() => setExpandedAct(isOpen ? null : actIdx)}
-                  className={`w-full flex items-center justify-between p-4 cursor-pointer border-none text-left transition-colors ${
-                    act.isCurrent ? 'bg-amber-50' : 'bg-transparent'
+                  className={`w-full flex items-center justify-between px-5 py-4 cursor-pointer border-none text-left transition-colors ${
+                    act.isCurrent ? 'bg-amber-50 dark:bg-amber-950/30' : 'bg-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-bold text-gray-900">
+                    <span className="text-[15px] font-bold text-gray-900 dark:text-gray-100">
                       {t(act.label, act.labelEn)}
                     </span>
                     {act.isCurrent && (
@@ -502,10 +500,10 @@ export default function ChaeunPage() {
                     )}
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-gray-400">
+                    <span className="text-[12.5px] text-gray-400 dark:text-gray-500">
                       {act.segments[0]?.age}~{act.segments[act.segments.length - 1]?.age + 9}{t('세', '')}
                     </span>
-                    <span className={`text-[10px] text-gray-400 transition-transform ${isOpen ? 'rotate-90' : ''}`}>▸</span>
+                    <svg className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </div>
                 </button>
 
@@ -561,16 +559,18 @@ export default function ChaeunPage() {
             ⑥ 이번 주 돈 처방전 — 토글
         ═══════════════════════════════════════════ */}
         {diagnosis && (
-          <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] mb-4 overflow-hidden">
+          <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
             <button
               type="button"
               onClick={() => toggleSection('moneyRx')}
-              className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+              className="w-full flex items-center justify-between px-5 py-4 cursor-pointer bg-transparent border-none text-left"
             >
-              <div className="text-[13px] font-semibold text-rose-600">
-                {t('이번 주 돈 처방전', "This Week's Money Rx")}
+              <div className="flex-1 min-w-0">
+                <span className="text-[15px] font-bold text-rose-600 dark:text-rose-400 tracking-wide">
+                  {t('이번 주 돈 처방전', "This Week's Money Rx")}
+                </span>
               </div>
-              <span className={`text-[12px] text-gray-400 transition-transform ${openSections['moneyRx'] ? 'rotate-90' : ''}`}>▸</span>
+              <svg className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${openSections['moneyRx'] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
             </button>
             {openSections['moneyRx'] && (
               <div className="px-5 pb-5">
@@ -579,7 +579,7 @@ export default function ChaeunPage() {
                   {diagnosis.strengths.slice(0, 2).map((item, i) => (
                     <label key={i} className="flex items-start gap-2.5 cursor-pointer group">
                       <input type="checkbox" className="mt-0.5 w-4 h-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500 accent-amber-600" />
-                      <span className="text-[12px] text-gray-700 leading-relaxed group-has-[:checked]:text-gray-400 group-has-[:checked]:line-through transition-colors">
+                      <span className="text-[14px] text-gray-700 dark:text-gray-200 leading-relaxed group-has-[:checked]:text-gray-400 group-has-[:checked]:line-through transition-colors">
                         {item}
                       </span>
                     </label>
@@ -587,11 +587,11 @@ export default function ChaeunPage() {
                 </div>
 
                 {/* 하지 말아야 할 것 */}
-                <div className="pt-2 border-t border-gray-100">
+                <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
                   {diagnosis.avoid.slice(0, 1).map((item, i) => (
                     <div key={i} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 w-4 h-4 rounded border border-red-200 bg-red-50 flex items-center justify-center text-[10px] text-red-500 font-bold shrink-0">✕</span>
-                      <span className="text-[12px] text-red-600 leading-relaxed line-through decoration-red-300">
+                      <span className="mt-0.5 w-4 h-4 rounded border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30 flex items-center justify-center text-[10px] text-red-500 font-bold shrink-0">✕</span>
+                      <span className="text-[14px] text-red-600 dark:text-red-400 leading-relaxed line-through decoration-red-300">
                         {item}
                       </span>
                     </div>
@@ -607,23 +607,48 @@ export default function ChaeunPage() {
         {/* ═══════════════════════════════════════════
             푸터 — 럭키 컬러/아이템 한 줄
         ═══════════════════════════════════════════ */}
-        <div className="bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 rounded-[16px] p-4 mb-4">
+        <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] p-4 mb-3">
           <div className="flex items-center gap-3">
             <div className="w-5 h-5 rounded-full border-2" style={{
               borderColor: EL_SOLID[ilganOh] || '#D97706',
               background: EL_BG[ilganOh] || '#FEF9C3',
             }} />
             <div>
-              <span className="text-[11px] font-bold text-gray-700">
+              <span className="text-[13px] font-bold text-gray-700 dark:text-gray-200">
                 {t('럭키 컬러', 'Lucky Color')}: {t(lucky.color, lucky.colorEn)}
               </span>
-              <span className="text-[11px] text-gray-400 ml-2">
+              <span className="text-[13px] text-gray-400 dark:text-gray-500 ml-2">
                 {t('아이템', 'Item')}: {t(lucky.item, lucky.itemEn)}
               </span>
             </div>
           </div>
         </div>
         </>)}
+      </div>
+
+      {/* === 채팅 CTA 배너 === */}
+      <div className="relative z-10 px-3 mb-4">
+        <a
+          href={localePath('/chat')}
+          className="group flex items-center gap-4 rounded-2xl p-4 no-underline transition-transform active:scale-[0.99]"
+          style={{ background: '#E8F8F0' }}
+        >
+          <span
+            className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+            style={{ background: '#86D4B5', color: '#1B5B45' }}
+          >
+            💬
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[14.5px] font-bold leading-tight tracking-tight" style={{ color: '#1A1A1A' }}>
+              {t('더 궁금한 게 있나요?', 'Want to know more?')}
+            </p>
+            <p className="text-[12.5px] mt-1" style={{ color: '#4F4F58' }}>
+              {t('채팅하러 가기', 'Chat with Saju AI')}
+            </p>
+          </div>
+          <span className="text-[20px] shrink-0 group-hover:translate-x-0.5 transition-transform" style={{ color: '#A0A0A8' }} aria-hidden>›</span>
+        </a>
       </div>
 
       <BottomNav />
