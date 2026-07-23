@@ -17,7 +17,6 @@ import {
 } from '@/features/fortune/lib/engine-chaeun';
 import { SajuInputPanel, type SajuCalcResult } from '@/features/fortune/components/SajuInputPanel';
 import { SajuTable } from '@/features/fortune/components/SajuTable';
-import { SaveProfileButton } from '@/features/fortune';
 import { useLang } from '@/shared/lib/LangContext';
 import { PageShell } from '@/shared/ui/PageShell';
 import { PageHeader } from '@/shared/ui/PageHeader';
@@ -455,7 +454,6 @@ export default function CareerPage() {
   const [saju, setSaju] = useState<CurrentSaju | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
-  const [isSajuHost, setIsSajuHost] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const toggleSection = (key: string) => setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
@@ -466,9 +464,6 @@ export default function CareerPage() {
       if (raw) setSaju(JSON.parse(raw));
     } catch {}
     setLoaded(true);
-    if (typeof window !== 'undefined') {
-      setIsSajuHost(window.location.hostname === 'saju.sedaily.ai');
-    }
   }, []);
 
   const pillars = saju?.pillars ?? [];
@@ -599,22 +594,63 @@ export default function CareerPage() {
             {/* 사주 팔자 테이블 */}
             <SajuTable pillars={pillars} ilgan={ilgan} />
 
+            {/* 커리어 유형 한 줄 요약 */}
+            {(() => {
+              const ilganOh = CG_OH[ilgan] || '';
+              const aptitude = APTITUDE_MATRIX[ilganOh]?.[profileType.type];
+              const keywords = aptitude?.fields ?? [];
+              return (
+                <div className="mt-6 mb-4 text-center">
+                  <div className="text-[10.5px] font-bold tracking-[0.12em] text-gray-400 dark:text-gray-500 uppercase mb-1">
+                    {t('나의 커리어 유형', 'My Career Type')}
+                  </div>
+                  <div className="text-[18px] font-extrabold text-gray-900 dark:text-gray-100 leading-[1.3] tracking-[-0.01em]">
+                    {profileType.type}
+                  </div>
+                  <div className="mt-1.5 inline-flex items-center px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-900">
+                    <span className="text-[11px] font-bold text-indigo-700 dark:text-indigo-300">
+                      {aptitude?.essence ?? profileType.desc}
+                    </span>
+                  </div>
+                  {keywords.length > 0 && (
+                    <div className="flex flex-wrap justify-center gap-1.5 mt-3">
+                      {keywords.slice(0, 4).map((kw, i) => {
+                        const colors = [
+                          'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800',
+                          'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800',
+                          'bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-800',
+                          'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800',
+                        ];
+                        return (
+                          <span key={i} className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10.5px] font-semibold border ${colors[i % colors.length]}`}>
+                            #{kw}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             {/* ═══════════════════════════════════════════
                 ① 커리어 유형 진단 (토글)
             ═══════════════════════════════════════════ */}
-            <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-4 overflow-hidden">
+            <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
               <button
                 type="button"
                 onClick={() => toggleSection('careerType')}
-                className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+                className="w-full flex items-center justify-between px-5 py-4 cursor-pointer bg-transparent border-none text-left"
               >
-                <div>
-                  <div className="text-[13px] font-semibold text-indigo-600 dark:text-indigo-400">
+                <div className="flex-1 min-w-0">
+                  <span className="text-[15px] font-bold text-indigo-600 dark:text-indigo-400 tracking-wide">
                     {t('내 커리어 기운의 성격', 'Your Career Energy')}
-                  </div>
-                  <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
-                    {t('관성(官) · 식상(食傷) · 인성(印) 축으로 본 커리어 체질', 'Career constitution via Authority · Output · Resource axes')}
-                  </div>
+                  </span>
+                  {!openSections['careerType'] && (
+                    <p className="text-[12.5px] text-gray-400 dark:text-gray-500 mt-1 leading-snug truncate italic">
+                      {t('관성(官) · 식상(食傷) · 인성(印) 축으로 본 커리어 체질', 'Career constitution via Authority · Output · Resource axes')}
+                    </p>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <span
@@ -623,7 +659,7 @@ export default function CareerPage() {
                   >
                     {profileType.type}
                   </span>
-                  <span className={`text-[12px] text-gray-400 transition-transform ${openSections['careerType'] ? 'rotate-90' : ''}`}>▸</span>
+                  <svg className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${openSections['careerType'] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                 </div>
               </button>
               {openSections['careerType'] && (
@@ -705,9 +741,9 @@ export default function CareerPage() {
                 );
               })()}
 
-              <p className="text-[12px] text-gray-600 dark:text-gray-300 leading-[1.9] mb-4">{profileType.desc}</p>
+              <p className="text-[14px] text-gray-600 dark:text-gray-300 leading-[1.9] mb-4">{profileType.desc}</p>
 
-              <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9]">
+              <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-[1.9]">
                 {STRENGTHS_BY_TYPE[profileType.type].join(' ')} {t('다만, ', 'However, ')}{CAUTIONS_BY_TYPE[profileType.type].join(' ')}
               </p>
                 </div>
@@ -724,36 +760,38 @@ export default function CareerPage() {
               const traits = TRAITS_BY_TYPE[profileType.type];
               if (!aptitude || !tips || !traits) return null;
               return (<>
-                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-4 overflow-hidden">
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
                   <button
                     type="button"
                     onClick={() => toggleSection('fitWork')}
-                    className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+                    className="w-full flex items-center justify-between px-5 py-4 cursor-pointer bg-transparent border-none text-left"
                   >
-                    <div>
-                      <div className="text-[13px] font-semibold text-emerald-600 dark:text-emerald-400">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[15px] font-bold text-emerald-600 dark:text-emerald-400 tracking-wide">
                         {t('나와 잘 맞는 일', 'Work That Fits You')}
-                      </div>
-                      <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
-                        {t('일간', 'Day Stem')} {ilganOh} · {profileType.type} {t('기반 적성', 'aptitude')}
-                      </div>
+                      </span>
+                      {!openSections['fitWork'] && (
+                        <p className="text-[12.5px] text-gray-400 dark:text-gray-500 mt-1 leading-snug truncate italic">
+                          {t('일간', 'Day Stem')} {ilganOh} · {profileType.type} {t('기반 적성', 'aptitude')}
+                        </p>
+                      )}
                     </div>
-                    <span className={`text-[12px] text-gray-400 transition-transform ${openSections['fitWork'] ? 'rotate-90' : ''}`}>▸</span>
+                    <svg className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${openSections['fitWork'] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </button>
                   {openSections['fitWork'] && (
                     <div className="px-5 pb-5">
-                      <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9] mb-3">
+                      <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-[1.9] mb-3">
                         {aptitude.essence} {aptitude.rationale}
                       </p>
-                      <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9] mb-4">
+                      <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-[1.9] mb-4">
                         {t('구체적으로 보면, ', 'Specifically, ')}{traits.map((tr) => `${tr.title}(${tr.desc})`).join(', ')}{t(' 같은 성격의 일이 당신과 잘 맞아요. ', ' — these traits align well with your energy. ')}
                         {t('추천 분야로는 ', 'Recommended fields include ')}{aptitude.fields.join(', ')}{t('가 있어요.', '.')}
                       </p>
                       <div className="border-t border-gray-100 dark:border-gray-800 pt-4 space-y-3">
-                        <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9]">
+                        <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-[1.9]">
                           <b className="text-gray-900 dark:text-gray-100">{t('지금 일하고 있다면', 'If currently working')}</b> — {tips.inJob}
                         </p>
-                        <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9]">
+                        <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-[1.9]">
                           <b className="text-gray-900 dark:text-gray-100">{t('전환이나 시작을 고민 중이라면', 'If considering a transition')}</b> — {tips.transition}
                         </p>
                       </div>
@@ -761,25 +799,27 @@ export default function CareerPage() {
                   )}
                 </div>
 
-                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-4 overflow-hidden">
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
                   <button
                     type="button"
                     onClick={() => toggleSection('unfitWork')}
-                    className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+                    className="w-full flex items-center justify-between px-5 py-4 cursor-pointer bg-transparent border-none text-left"
                   >
-                    <div>
-                      <div className="text-[13px] font-semibold text-rose-600 dark:text-rose-400">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[15px] font-bold text-rose-600 dark:text-rose-400 tracking-wide">
                         {t('나와 안 맞는 일', 'Work That Drains You')}
-                      </div>
-                      <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
-                        {t('이런 환경에서는 에너지가 빠져요', 'These environments drain your energy')}
-                      </div>
+                      </span>
+                      {!openSections['unfitWork'] && (
+                        <p className="text-[12.5px] text-gray-400 dark:text-gray-500 mt-1 leading-snug truncate italic">
+                          {t('이런 환경에서는 에너지가 빠져요', 'These environments drain your energy')}
+                        </p>
+                      )}
                     </div>
-                    <span className={`text-[12px] text-gray-400 transition-transform ${openSections['unfitWork'] ? 'rotate-90' : ''}`}>▸</span>
+                    <svg className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${openSections['unfitWork'] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </button>
                   {openSections['unfitWork'] && (
                     <div className="px-5 pb-5">
-                      <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9]">
+                      <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-[1.9]">
                         {MISMATCH_BY_TYPE[profileType.type]}
                       </p>
                     </div>
@@ -844,21 +884,23 @@ export default function CareerPage() {
               }
 
               return (
-                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-4 overflow-hidden">
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
                   <button
                     type="button"
                     onClick={() => toggleSection('periodFlow')}
-                    className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+                    className="w-full flex items-center justify-between px-5 py-4 cursor-pointer bg-transparent border-none text-left"
                   >
-                    <div>
-                      <div className="text-[13px] font-semibold text-purple-600 dark:text-purple-400">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[15px] font-bold text-purple-600 dark:text-purple-400 tracking-wide">
                         {t('시기별 커리어 흐름', 'Career Flow by Period')}
-                      </div>
-                      <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
-                        {t('올해 · 이번 달 · 오늘의 커리어 영향', 'Career influence: this year · month · today')}
-                      </div>
+                      </span>
+                      {!openSections['periodFlow'] && (
+                        <p className="text-[12.5px] text-gray-400 dark:text-gray-500 mt-1 leading-snug truncate italic">
+                          {t('올해 · 이번 달 · 오늘의 커리어 영향', 'Career influence: this year · month · today')}
+                        </p>
+                      )}
                     </div>
-                    <span className={`text-[12px] text-gray-400 transition-transform ${openSections['periodFlow'] ? 'rotate-90' : ''}`}>▸</span>
+                    <svg className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${openSections['periodFlow'] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </button>
                   {openSections['periodFlow'] && (
                     <div className="px-5 pb-5 space-y-4">
@@ -872,7 +914,7 @@ export default function CareerPage() {
                             <span className="text-[11px] text-gray-400 dark:text-gray-300">{r.sub} · {r.ganji}({r.ganjiHanja})</span>
                             <span className="text-[11px] font-bold tabular-nums text-gray-500 dark:text-gray-300 ml-auto">{r.score}/100</span>
                           </div>
-                          <p className="text-[12px] text-gray-700 dark:text-gray-300 leading-[1.9]">
+                          <p className="text-[14px] text-gray-700 dark:text-gray-300 leading-[1.9]">
                             {r.note && r.note !== '—' ? r.note : ''}{bridge ? ` ${bridge}` : ''}
                           </p>
                         </div>
@@ -915,25 +957,27 @@ export default function CareerPage() {
               const dotColor = (tone: 'good' | 'neutral' | 'caution') =>
                 tone === 'good' ? '#10B981' : tone === 'neutral' ? '#94A3B8' : '#F59E0B';
               return (
-                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-4 overflow-hidden">
+                <div className="bg-white dark:bg-gray-900 shadow-[0_1px_4px_rgba(0,0,0,0.06)] border border-gray-100 dark:border-gray-800 rounded-[16px] mb-3 overflow-hidden">
                   <button
                     type="button"
                     onClick={() => toggleSection('timeline')}
-                    className="w-full flex items-center justify-between p-5 cursor-pointer bg-transparent border-none text-left"
+                    className="w-full flex items-center justify-between px-5 py-4 cursor-pointer bg-transparent border-none text-left"
                   >
-                    <div>
-                      <div className="text-[13px] font-semibold text-teal-600 dark:text-teal-400">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[15px] font-bold text-teal-600 dark:text-teal-400 tracking-wide">
                         {t('올해 월별 커리어 타임라인', 'Monthly Career Timeline')}
-                      </div>
-                      <div className="text-[11px] text-gray-400 dark:text-gray-300 mt-0.5">
-                        {t('정점', 'Peak')} {lang === 'en' ? `M${best.month}` : `${best.month}월`} · {t('저점', 'Trough')} {lang === 'en' ? `M${worst.month}` : `${worst.month}월`}
-                      </div>
+                      </span>
+                      {!openSections['timeline'] && (
+                        <p className="text-[12.5px] text-gray-400 dark:text-gray-500 mt-1 leading-snug truncate italic">
+                          {t('정점', 'Peak')} {lang === 'en' ? `M${best.month}` : `${best.month}월`} · {t('저점', 'Trough')} {lang === 'en' ? `M${worst.month}` : `${worst.month}월`}
+                        </p>
+                      )}
                     </div>
-                    <span className={`text-[12px] text-gray-400 transition-transform ${openSections['timeline'] ? 'rotate-90' : ''}`}>▸</span>
+                    <svg className={`w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200 ${openSections['timeline'] ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </button>
                   {openSections['timeline'] && (
                     <div className="px-5 pb-5">
-                  <p className="text-[12px] text-gray-600 dark:text-gray-300 mb-3 leading-[1.9]">
+                  <p className="text-[14px] text-gray-600 dark:text-gray-300 mb-3 leading-[1.9]">
                     {lang === 'en'
                       ? `This year, your career energy peaks in month ${best.month} (score ${best.score}) and dips lowest in month ${worst.month} (score ${worst.score}).`
                       : `올해 커리어 기운은 ${best.month}월에 가장 높고(${best.score}점), ${worst.month}월에 가장 낮아요(${worst.score}점).`}
@@ -1003,34 +1047,33 @@ export default function CareerPage() {
               );
             })()}
 
-            <SaveProfileButton
-              profile={{
-                year: saju.year,
-                month: saju.month,
-                day: saju.day,
-                gender: saju.gender,
-                timeInput: saju.timeInput,
-                region: saju.region,
-                ilgan: saju.ilgan,
-                ilganKo: saju.pillars[1]?.ck || '',
-              }}
-            />
-
-            <button
-              type="button"
-              onClick={() => {
-                if (isSajuHost) { window.location.href = localePath('/'); }
-                else { goToMain('fortune'); }
-              }}
-              className="w-full mt-3 py-3 text-[13px] font-semibold transition-colors flex items-center justify-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer border-none bg-transparent"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-              {t('메인으로 돌아가기', 'Back to Home')}
-            </button>
-          </>
+            </>
         )}
+      </div>
+
+      {/* === 채팅 CTA 배너 === */}
+      <div className="relative z-10 px-3 mb-4">
+        <a
+          href={localePath('/chat')}
+          className="group flex items-center gap-4 rounded-2xl p-4 no-underline transition-transform active:scale-[0.99]"
+          style={{ background: '#E8F8F0' }}
+        >
+          <span
+            className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0"
+            style={{ background: '#86D4B5', color: '#1B5B45' }}
+          >
+            💬
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[14.5px] font-bold leading-tight tracking-tight" style={{ color: '#1A1A1A' }}>
+              {t('더 궁금한 게 있나요?', 'Want to know more?')}
+            </p>
+            <p className="text-[12.5px] mt-1" style={{ color: '#4F4F58' }}>
+              {t('채팅하러 가기', 'Chat with Saju AI')}
+            </p>
+          </div>
+          <span className="text-[20px] shrink-0 group-hover:translate-x-0.5 transition-transform" style={{ color: '#A0A0A8' }} aria-hidden>›</span>
+        </a>
       </div>
 
       <BottomNav />
