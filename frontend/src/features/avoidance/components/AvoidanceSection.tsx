@@ -59,7 +59,7 @@ export function AvoidanceSection({ pillars, birthYear }: Props) {
 
       {/* === 안 맞는 동물 카드 그리드 === */}
       {result.avoidZodiacs.length > 0 && (
-        <IncompatibleAnimalsSection avoidZodiacs={result.avoidZodiacs} />
+        <IncompatibleAnimalsSection avoidZodiacs={result.avoidZodiacs} avoidOh={avoidOh} />
       )}
 
       {/* === 상세 해석 카드 === */}

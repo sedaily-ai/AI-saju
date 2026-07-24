@@ -1,10 +1,12 @@
 'use client';
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { toPng } from 'html-to-image';
 import { useLang } from '@/shared/lib/LangContext';
-import { ZodiacIcon } from '@/shared/ui/ZodiacIcon';
-import { BRANCHES, OH_TONE, type Oh } from '@/shared/lib/gapja';
+import { BRANCHES, OH_TONE, findGapjaByOhAndZodiac, type Oh, type GapjaCharacter } from '@/shared/lib/gapja';
+import cheonganDB from '@/features/fortune/lib/cheongan_db.json';
+
+const CHEONGAN_DATA = cheonganDB.CHEONGAN as Record<string, { 한글: string; 음양: string; 오행: string; 상징: string; 성향: string; 키워드: string[] }>;
 
 /** 띠 한글(쥐, 소 등) → BranchInfo */
 function findBranch(zodiacKo: string) {
@@ -19,29 +21,13 @@ const ZODIAC_EN: Record<string, string> = {
   '원숭이': 'Monkey', '닭': 'Rooster', '개': 'Dog', '돼지': 'Pig',
 };
 
-/** 동물별 강점 태그 (간단 2~3개) */
-const ZODIAC_TRAITS: Record<string, { ko: string[]; en: string[] }> = {
-  '쥐': { ko: ['눈치 빠름', '적응력 높음', '사교적'], en: ['Quick-witted', 'Adaptable', 'Sociable'] },
-  '소': { ko: ['성실함', '인내심 강함', '신뢰감'], en: ['Diligent', 'Patient', 'Trustworthy'] },
-  '호랑이': { ko: ['리더십', '자신감', '결단력'], en: ['Leadership', 'Confident', 'Decisive'] },
-  '토끼': { ko: ['감수성 풍부', '부드러운 매력', '공감 능력'], en: ['Sensitive', 'Gentle charm', 'Empathetic'] },
-  '용': { ko: ['카리스마', '추진력', '큰 그림'], en: ['Charismatic', 'Driven', 'Big picture'] },
-  '뱀': { ko: ['지적 매력', '차분함', '분석력'], en: ['Intellectual', 'Calm', 'Analytical'] },
-  '말': { ko: ['활동적', '솔직함', '열정적'], en: ['Active', 'Honest', 'Passionate'] },
-  '양': { ko: ['온화함', '배려심', '예술 감성'], en: ['Gentle', 'Caring', 'Artistic'] },
-  '원숭이': { ko: ['재치', '순발력', '유머감각'], en: ['Witty', 'Quick', 'Humorous'] },
-  '닭': { ko: ['꼼꼼함', '자기관리', '정직함'], en: ['Detail-oriented', 'Self-disciplined', 'Honest'] },
-  '개': { ko: ['의리', '한결같음', '충성심'], en: ['Loyal', 'Consistent', 'Faithful'] },
-  '돼지': { ko: ['너그러움', '낙천적', '정이 많음'], en: ['Generous', 'Optimistic', 'Warm-hearted'] },
-};
-
 interface Props {
   idealZodiacs: string[];
   primaryOh: string;
 }
 
-/** 개별 동물 미니 카드 (이미지 저장 가능) */
-function AnimalCard({
+/** 개별 갑자 캐릭터 카드 */
+function CharacterCard({
   zodiac,
   primaryOh,
   lang,
@@ -54,16 +40,35 @@ function AnimalCard({
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
+  const [hasImg, setHasImg] = useState(false);
   const tone = OH_TONE[primaryOh as Oh] ?? OH_TONE['목'];
 
   const branch = findBranch(zodiac);
   if (!branch) return null;
 
+  // 오행 + 띠로 60갑자 캐릭터 매핑
+  const character = findGapjaByOhAndZodiac(primaryOh as Oh, branch.zodiacKo);
+  const gapjaId = character?.id || '';
+  const imgSrc = gapjaId ? `/characters/${gapjaId}.png` : '';
+
+  const stemInfo = character ? CHEONGAN_DATA[character.stem.hanja] : null;
+  const characterName = stemInfo && character
+    ? `${character.stem.ko}${character.branch.ko}(${character.id}) · ${stemInfo.상징.split(',')[0].trim()}`
+    : gapjaId;
+  const personality = stemInfo?.성향?.split('.')[0] || branch.mood;
+
   const zodiacLabel = lang === 'en'
     ? (ZODIAC_EN[zodiac] ?? zodiac)
     : branch.zodiacKo;
-  const moodLabel = branch.mood;
-  const traits = ZODIAC_TRAITS[zodiac];
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (!imgSrc) return;
+    const img = new Image();
+    img.onload = () => setHasImg(true);
+    img.onerror = () => setHasImg(false);
+    img.src = imgSrc;
+  }, [imgSrc]);
 
   const handleSave = useCallback(async () => {
     if (!cardRef.current || saving) return;
@@ -75,19 +80,18 @@ function AnimalCard({
         backgroundColor: '#FFFFFF',
       });
       const link = document.createElement('a');
-      link.download = `compatible-${zodiac}-${Date.now()}.png`;
+      link.download = `compatible-${gapjaId || zodiac}-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      console.error('animal card export failed', err);
+      console.error('character card export failed', err);
     } finally {
       setSaving(false);
     }
-  }, [saving, zodiac]);
+  }, [saving, gapjaId, zodiac]);
 
   return (
     <div className="flex flex-col items-center flex-1 min-w-0">
-      {/* 캡처 대상 — 9:16 모바일 비율 */}
       <div
         ref={cardRef}
         className="w-full rounded-[16px] overflow-hidden"
@@ -98,64 +102,62 @@ function AnimalCard({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
-          padding: '20px 10px 16px',
           border: '1px solid #F3F4F6',
+          position: 'relative',
         }}
       >
-        {/* 동물 아이콘 */}
+        {/* 캐릭터 이미지 — 카드 상단 가득 채움 */}
         <div
           style={{
-            width: 64,
-            height: 64,
-            borderRadius: 16,
+            width: '100%',
+            flex: 1,
             background: `linear-gradient(145deg, ${tone.bg} 0%, #FFFFFF 100%)`,
-            boxShadow: `0 2px 8px ${tone.bg}80`,
-            color: tone.fg,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: 10,
+            overflow: 'hidden',
           }}
         >
-          <ZodiacIcon branch={branch.hanja} size={38} />
+          {hasImg ? (
+            <img
+              src={imgSrc}
+              alt={`${gapjaId} ${t('캐릭터', 'character')}`}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <div style={{ fontSize: 36, fontWeight: 700, color: tone.fg }}>
+              {gapjaId || branch.emoji}
+            </div>
+          )}
         </div>
 
-        {/* 이름 */}
-        <div style={{ fontSize: 14, fontWeight: 900, color: '#1A1A1A', textAlign: 'center', marginBottom: 3 }}>
-          {zodiacLabel}
-        </div>
-
-        {/* 설명 */}
-        <div style={{ fontSize: 10, color: '#9CA3AF', textAlign: 'center', lineHeight: 1.5, marginBottom: 12, padding: '0 2px' }}>
-          {moodLabel}
-        </div>
-
-        {/* 칩 */}
-        {traits && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, justifyContent: 'center' }}>
-            {(lang === 'en' ? traits.en : traits.ko).map((trait) => (
-              <span
-                key={trait}
-                style={{
-                  background: '#F9FAFB',
-                  color: '#374151',
-                  fontSize: 9.5,
-                  fontWeight: 600,
-                  padding: '3px 7px',
-                  borderRadius: 6,
-                  border: '1px solid #E5E7EB',
-                }}
-              >
-                {trait}
-              </span>
-            ))}
+        {/* 하단 정보 */}
+        <div style={{ width: '100%', padding: '10px 8px 12px', textAlign: 'center' }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#1A1A1A', marginBottom: 2 }}>
+            {characterName || zodiacLabel}
           </div>
-        )}
-
-        {/* 풋터 */}
-        <div style={{ marginTop: 'auto', paddingTop: 10, fontSize: 8, color: '#D1D5DB', fontWeight: 500 }}>
-          saju.sedaily.ai
+          <div style={{ fontSize: 9, color: '#9CA3AF', lineHeight: 1.4, marginBottom: 6 }}>
+            {personality}
+          </div>
+          {stemInfo?.키워드 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, justifyContent: 'center' }}>
+              {stemInfo.키워드.slice(0, 3).map((kw, i) => (
+                <span
+                  key={i}
+                  style={{
+                    background: `${tone.fg}10`,
+                    color: tone.fg,
+                    fontSize: 8.5,
+                    fontWeight: 600,
+                    padding: '2px 6px',
+                    borderRadius: 5,
+                  }}
+                >
+                  #{kw}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -174,17 +176,15 @@ function AnimalCard({
 
 export function CompatibleAnimalsSection({ idealZodiacs, primaryOh }: Props) {
   const { t, lang } = useLang();
-  const tone = OH_TONE[primaryOh as Oh] ?? OH_TONE['목'];
 
   if (idealZodiacs.length === 0) return null;
 
   return (
     <div className="mb-4">
       <div className="px-1 pt-2 pb-3">
-        {/* 동물 카드 3열 */}
         <div className="flex gap-2.5 justify-center">
-          {idealZodiacs.map((zodiac) => (
-            <AnimalCard
+          {idealZodiacs.slice(0, 2).map((zodiac) => (
+            <CharacterCard
               key={zodiac}
               zodiac={zodiac}
               primaryOh={primaryOh}

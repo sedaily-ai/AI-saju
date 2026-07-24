@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { isBeforeLichun, getSajuMonth } from '@fullstackfamily/manseryeok';
 import { toPng } from 'html-to-image';
 import { CG_OH, OH_HJ, buildStructureAnalysis, detectDayHapChung, generateDailyInsights, SS_MEANING, US_MEANING, type Pillar, type ChongunResult, type TodayFortuneResult, type YearlyFortuneResult, type DaeunEntry, type YeonunEntry, type WolunEntry } from '../lib/engine';
+import cheonganDB from '../lib/cheongan_db.json';
 import { buildDetailedFortune } from '../lib/buildDetailedFortune';
 import { OHAENG_SETS, V3_TOKENS, type Ohaeng } from '../lib/ohaeng';
 import { SajuTable } from './SajuTable';
@@ -439,7 +440,7 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
       </div>
 
       {/* 캐릭터 카드 — 일간·진태양시 아래, 풀이스타일 위 (today/yearly 모드에서는 숨김) */}
-      {mode === 'full' && <CharacterCard />}
+      {mode === 'full' && <CharacterCard dayPillar={pillars[1]} ilgan={ilgan} />}
 
       {/* 상세 사주 해석 — 성격·운·재미 */}
       {mode === 'full' && (
@@ -1233,11 +1234,58 @@ function DetailedFortuneSection({ pillars, ilgan, chongun, daeuns, yeonuns, wolu
   );
 }
 
-/** 사주 캐릭터 카드 — 이미지 저장 가능 */
-function CharacterCard() {
+/** 오행별 캐릭터 카드 배경색 */
+const OH_CARD_BG: Record<string, { gradient: string; accent: string; lightBg: string }> = {
+  '목': { gradient: 'linear-gradient(145deg, #E8FFF4 0%, #F0FDF9 100%)', accent: '#059669', lightBg: '#F0FDF4' },
+  '화': { gradient: 'linear-gradient(145deg, #FFF0F0 0%, #FEF2F2 100%)', accent: '#DC2626', lightBg: '#FEF2F2' },
+  '토': { gradient: 'linear-gradient(145deg, #FFF9E6 0%, #FFFBEB 100%)', accent: '#A16207', lightBg: '#FFFBEB' },
+  '금': { gradient: 'linear-gradient(145deg, #F5F5F5 0%, #FAFAFA 100%)', accent: '#525252', lightBg: '#F5F5F5' },
+  '수': { gradient: 'linear-gradient(145deg, #EBF5FF 0%, #EFF6FF 100%)', accent: '#1D4ED8', lightBg: '#EFF6FF' },
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CHEONGAN_DATA = cheonganDB.CHEONGAN as Record<string, { 한글: string; 음양: string; 오행: string; 상징: string; 성향: string; 키워드: string[] }>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ILGAN_DETAIL_DATA = cheonganDB.ILGAN_DETAIL as Record<string, { 강점?: string[]; 약점?: string[]; 특성_총평?: string }>;
+
+/** 사주 캐릭터 카드 — 앞면: 캐릭터 이미지, 뒷면: 특징 (클릭으로 플립) */
+function CharacterCard({ dayPillar, ilgan }: { dayPillar: Pillar; ilgan: string }) {
   const { t } = useLang();
   const cardRef = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  const [hasImg, setHasImg] = useState(false);
+
+  // 일주 갑자 ID (천간+지지 한자, e.g. "甲子")
+  const gapjaId = dayPillar.c && dayPillar.j ? `${dayPillar.c}${dayPillar.j}` : '';
+  const imgSrc = gapjaId ? `/characters/${gapjaId}.png` : '';
+
+  // 일간 데이터
+  const stemInfo = CHEONGAN_DATA[dayPillar.c];
+  const detailInfo = ILGAN_DETAIL_DATA[dayPillar.c];
+  const ilganOh = stemInfo?.오행 || '금';
+  const theme = OH_CARD_BG[ilganOh] || OH_CARD_BG['금'];
+
+  // 캐릭터 이름: "갑자(甲子) · 큰 나무"
+  const characterName = stemInfo
+    ? `${dayPillar.ck}${dayPillar.jk}(${dayPillar.c}${dayPillar.j}) · ${stemInfo.상징.split(',')[0].trim()}`
+    : gapjaId;
+
+  // 성향 요약 (첫 문장)
+  const personality = stemInfo?.성향?.split('.')[0] || '';
+
+  // 장점/단점 (ILGAN_DETAIL에서 상위 3개)
+  const strengths = (detailInfo?.강점 || []).slice(0, 3);
+  const weaknesses = (detailInfo?.약점 || []).slice(0, 3);
+
+  // 이미지 존재 여부 확인
+  useEffect(() => {
+    if (!imgSrc) return;
+    const img = new Image();
+    img.onload = () => setHasImg(true);
+    img.onerror = () => setHasImg(false);
+    img.src = imgSrc;
+  }, [imgSrc]);
 
   const handleSave = async () => {
     if (!cardRef.current || saving) return;
@@ -1246,10 +1294,10 @@ function CharacterCard() {
       const dataUrl = await toPng(cardRef.current, {
         pixelRatio: 2,
         cacheBust: true,
-        backgroundColor: '#F0FDF9',
+        backgroundColor: '#FFFFFF',
       });
       const link = document.createElement('a');
-      link.download = `my-saju-character-${Date.now()}.png`;
+      link.download = `my-saju-character-${gapjaId || 'card'}-${Date.now()}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -1267,10 +1315,10 @@ function CharacterCard() {
       const dataUrl = await toPng(cardRef.current, {
         pixelRatio: 2,
         cacheBust: true,
-        backgroundColor: '#F0FDF9',
+        backgroundColor: '#FFFFFF',
       });
       const blob = await (await fetch(dataUrl)).blob();
-      const file = new File([blob], 'my-saju-character.png', { type: 'image/png' });
+      const file = new File([blob], `my-saju-character-${gapjaId}.png`, { type: 'image/png' });
       const canShare = typeof navigator !== 'undefined' && 'share' in navigator
         && 'canShare' in navigator
         && (navigator as Navigator & { canShare: (d: ShareData) => boolean }).canShare({ files: [file] });
@@ -1278,7 +1326,7 @@ function CharacterCard() {
         await (navigator as Navigator & { share: (d: ShareData) => Promise<void> }).share({
           files: [file],
           title: t('나의 사주 캐릭터', 'My Saju Character'),
-          text: t('나는 하얀 양이래요! 🐏', "I'm a White Sheep! 🐏"),
+          text: t(`나는 ${characterName}이래요!`, `I'm ${characterName}!`),
         });
       } else {
         await handleSave();
@@ -1292,156 +1340,133 @@ function CharacterCard() {
     }
   };
 
+  const cardW = 280;
+  const cardH = 360;
+
   return (
     <div className="mb-4 flex flex-col items-center">
-      {/* 캡처 대상 카드 */}
+      {/* 제목: 카드 위에 표시 */}
+      <div style={{ fontSize: 16, fontWeight: 900, color: '#1A1A1A', textAlign: 'center', lineHeight: 1.4, fontFamily: '"Noto Serif KR", serif', marginBottom: 12 }}>
+        {t('당신은 ', 'You are ')}
+        <span style={{ color: theme.accent }}>{characterName}</span>
+        {t('입니다', '')}
+      </div>
+
+      {/* 플립 카드 컨테이너 */}
       <div
-        ref={cardRef}
-        style={{
-          width: 280,
-          background: '#FFFFFF',
-          borderRadius: 24,
-          padding: '24px 20px 20px',
-          position: 'relative',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-          boxShadow: '0 2px 24px rgba(0,0,0,0.06)',
-        }}
+        style={{ width: cardW, height: cardH, perspective: 1000 }}
+        onClick={() => setFlipped(f => !f)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setFlipped(f => !f); }}
+        aria-label={t('카드를 뒤집으려면 클릭하세요', 'Click to flip the card')}
       >
-        {/* 캐릭터 이미지 — 연초록 배경 박스 */}
         <div
-          style={{
-            width: 120,
-            height: 120,
-            borderRadius: 16,
-            background: 'linear-gradient(145deg, #E8FFF4 0%, #F0FDF9 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 16,
-            boxShadow: '0 2px 8px rgba(52,211,153,0.1)',
-          }}
-        >
-          <img
-            src="/characters/white-sheep.png"
-            alt={t('하얀 양 캐릭터', 'White Sheep Character')}
-            width={100}
-            height={100}
-            style={{ objectFit: 'contain' }}
-          />
-        </div>
-
-        {/* 메인 텍스트 */}
-        <div
-          style={{
-            fontSize: 18,
-            fontWeight: 900,
-            color: '#1A1A1A',
-            textAlign: 'center',
-            lineHeight: 1.3,
-            marginBottom: 6,
-            fontFamily: '"Noto Serif KR", serif',
-          }}
-        >
-          {t('당신은 ', 'You are ')}<span style={{ fontWeight: 900 }}>{t('하얀 양', 'a White Sheep')}</span>{t('입니다!', '!')}
-        </div>
-
-        {/* 부제 */}
-        <div
-          style={{
-            fontSize: 11,
-            color: '#9CA3AF',
-            textAlign: 'center',
-            lineHeight: 1.5,
-            marginBottom: 18,
-          }}
-        >
-          {t(
-            '순수하고 따뜻한 마음으로 주변에 편안함을 주는 사람',
-            'A warm soul who brings comfort to those around',
-          )}
-        </div>
-
-        {/* 장점 박스 */}
-        <div
+          ref={cardRef}
           style={{
             width: '100%',
-            background: '#F0FDF4',
-            borderRadius: 14,
-            padding: '12px 14px',
-            marginBottom: 10,
+            height: '100%',
+            position: 'relative',
+            transformStyle: 'preserve-3d',
+            transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
           }}
         >
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#059669', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ color: '#059669' }}>✦</span> {t('장점', 'Strengths')}
+          {/* ===== 앞면: 캐릭터 이미지 가득 ===== */}
+          <div
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              borderRadius: 24,
+              background: theme.gradient,
+              boxShadow: '0 2px 24px rgba(0,0,0,0.06)',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {hasImg ? (
+              <img
+                src={imgSrc}
+                alt={`${gapjaId} ${t('캐릭터', 'character')}`}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 24 }}
+              />
+            ) : (
+              <div style={{ fontSize: 72, lineHeight: 1, fontWeight: 700, color: theme.accent }}>
+                {dayPillar.c}{dayPillar.j}
+              </div>
+            )}
+            {/* 하단 힌트 오버레이 */}
+            <div style={{ position: 'absolute', bottom: 12, left: 0, right: 0, textAlign: 'center', fontSize: 10, color: '#FFFFFF', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>
+              {t('탭하여 특징 보기 →', 'Tap to see details →')}
+            </div>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {[
-              { ko: '온화하고 배려심 깊음', en: 'Warm & caring' },
-              { ko: '협동심과 공동체 의식', en: 'Team spirit' },
-              { ko: '성실하고 꾸준함', en: 'Diligent & steady' },
-            ].map((item) => (
-              <span
-                key={item.ko}
-                style={{
-                  background: '#FFFFFF',
-                  color: '#1F2937',
-                  fontSize: 10.5,
-                  fontWeight: 600,
-                  padding: '5px 10px',
-                  borderRadius: 7,
-                  border: '1px solid #E5E7EB',
-                }}
-              >
-                {t(item.ko, item.en)}
-              </span>
-            ))}
-          </div>
-        </div>
 
-        {/* 단점 박스 */}
-        <div
-          style={{
-            width: '100%',
-            background: '#FFF5F5',
-            borderRadius: 14,
-            padding: '12px 14px',
-            marginBottom: 18,
-          }}
-        >
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#EF4444', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ color: '#EF4444' }}>✦</span> {t('단점', 'Weaknesses')}
+          {/* ===== 뒷면: 특징/장단점 ===== */}
+          <div
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)',
+              borderRadius: 24,
+              background: '#FFFFFF',
+              boxShadow: '0 2px 24px rgba(0,0,0,0.06)',
+              display: 'flex',
+              flexDirection: 'column',
+              padding: '20px 18px',
+              overflow: 'hidden',
+            }}
+          >
+            <div style={{ textAlign: 'center', marginBottom: 12 }}>
+              <div style={{ fontSize: 14, fontWeight: 800, color: theme.accent, fontFamily: '"Noto Serif KR", serif' }}>
+                {characterName}
+              </div>
+              <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 4, lineHeight: 1.4 }}>
+                {personality}
+              </div>
+            </div>
+            {strengths.length > 0 && (
+              <div style={{ background: theme.lightBg, borderRadius: 12, padding: '10px 12px', marginBottom: 8 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: theme.accent, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span>✦</span> {t('장점', 'Strengths')}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {strengths.map((item, i) => (
+                    <span key={i} style={{ color: '#1F2937', fontSize: 10.5, fontWeight: 500, lineHeight: 1.4 }}>· {item}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {weaknesses.length > 0 && (
+              <div style={{ background: '#FFF5F5', borderRadius: 12, padding: '10px 12px', marginBottom: 8 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#EF4444', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span>✦</span> {t('단점', 'Weaknesses')}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {weaknesses.map((item, i) => (
+                    <span key={i} style={{ color: '#1F2937', fontSize: 10.5, fontWeight: 500, lineHeight: 1.4 }}>· {item}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {stemInfo?.키워드 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, justifyContent: 'center', marginTop: 'auto' }}>
+                {stemInfo.키워드.map((kw, i) => (
+                  <span key={i} style={{ fontSize: 9.5, fontWeight: 600, color: theme.accent, background: `${theme.accent}10`, padding: '3px 8px', borderRadius: 6 }}>#{kw}</span>
+                ))}
+              </div>
+            )}
+            <div style={{ fontSize: 10, color: '#B0B0B0', textAlign: 'center', marginTop: 8 }}>
+              {t('← 탭하여 캐릭터 보기', '← Tap to see character')}
+            </div>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {[
-              { ko: '우유부단함', en: 'Indecisive' },
-              { ko: '소극적 리더십', en: 'Passive leadership' },
-              { ko: '거절을 잘 못함', en: "Can't say no" },
-            ].map((item) => (
-              <span
-                key={item.ko}
-                style={{
-                  background: '#FFFFFF',
-                  color: '#1F2937',
-                  fontSize: 10.5,
-                  fontWeight: 600,
-                  padding: '5px 10px',
-                  borderRadius: 7,
-                  border: '1px solid #E5E7EB',
-                }}
-              >
-                {t(item.ko, item.en)}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* 브랜드 풋터 */}
-        <div style={{ fontSize: 9, color: '#C0C0C0', fontWeight: 500, letterSpacing: '0.02em' }}>
-          saju.sedaily.ai
         </div>
       </div>
 
@@ -1449,7 +1474,7 @@ function CharacterCard() {
       <div className="flex gap-2 mt-3 w-[280px]">
         <button
           type="button"
-          onClick={handleShare}
+          onClick={(e) => { e.stopPropagation(); handleShare(); }}
           disabled={saving}
           className="flex-1 h-9 rounded-full text-[11.5px] font-bold transition-colors disabled:opacity-50"
           style={{ background: '#FFFFFF', color: '#1A1A1A', border: '1px solid #E5E7EB' }}
@@ -1458,10 +1483,10 @@ function CharacterCard() {
         </button>
         <button
           type="button"
-          onClick={handleSave}
+          onClick={(e) => { e.stopPropagation(); handleSave(); }}
           disabled={saving}
           className="flex-1 h-9 rounded-full text-[11.5px] font-bold transition-colors disabled:opacity-50"
-          style={{ background: '#059669', color: '#FFFFFF' }}
+          style={{ background: theme.accent, color: '#FFFFFF' }}
         >
           {t('이미지 저장', 'Save image')}
         </button>
@@ -1469,3 +1494,4 @@ function CharacterCard() {
     </div>
   );
 }
+
