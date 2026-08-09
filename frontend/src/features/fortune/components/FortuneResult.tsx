@@ -9,6 +9,7 @@ import { SajuTable } from './SajuTable';
 import { UnFlowSection } from './UnFlowSection';
 
 import { useLang } from '@/shared/lib/LangContext';
+import { withBasePath } from '@/shared/lib/basePath';
 
 type MbtiGroup = 'NT' | 'NF' | 'ST' | 'SF';
 
@@ -335,7 +336,7 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
     const wolji = pillars[2].j;
     if (!ilji || !wolji) return;
     const key = `${ilgan}_${ilji}_${wolji}`;
-    fetch(lang === 'en' ? '/saju-cache/chongun-en.json' : '/saju-cache/chongun.json')
+    fetch(withBasePath(lang === 'en' ? '/saju-cache/chongun-en.json' : '/saju-cache/chongun.json'))
       .then(r => r.ok ? r.json() : null)
       .then(all => { if (all && all[key]) setChongunCache(all[key]); })
       .catch(() => setChongunCache(null));
@@ -344,7 +345,7 @@ export function FortuneResult({ data, mbtiGroup, onMbtiChange, mode = 'full' }: 
   // 오늘의 운세 파트별 리라이팅 JSON (today 모드에서만 로드)
   useEffect(() => {
     if (mode !== 'today') return;
-    fetch(lang === 'en' ? '/saju-cache/today-parts-en.json' : '/saju-cache/today-parts.json')
+    fetch(withBasePath(lang === 'en' ? '/saju-cache/today-parts-en.json' : '/saju-cache/today-parts.json'))
       .then(r => r.ok ? r.json() : null)
       .then(d => setTodayParts(d))
       .catch(() => setTodayParts(null));
