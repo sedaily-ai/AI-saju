@@ -6,6 +6,7 @@ import { Spinner } from '@/shared/ui/Spinner';
 import { PageShell } from '@/shared/ui/PageShell';
 import { PageHeader } from '@/shared/ui/PageHeader';
 import { BottomNav } from '@/shared/ui/BottomNav';
+import { withBasePath } from '@/shared/lib/basePath';
 
 interface IndexEntry {
   slug: string;
@@ -212,7 +213,7 @@ export default function BlogPage() {
     let cancelled = false;
     setIndexLoading(true);
     setIndexError(false);
-    fetch(`/blog-content/index.json?v=${Date.now()}`)
+    fetch(withBasePath(`/blog-content/index.json?v=${Date.now()}`))
       .then((r) => {
         if (!r.ok) throw new Error('index fetch failed');
         return r.json();
@@ -241,7 +242,7 @@ export default function BlogPage() {
     setPostLoading(true);
     setPostError(false);
     setPost(null);
-    fetch(`/blog-content/posts/${encodeURIComponent(slug)}.json?v=${Date.now()}`)
+    fetch(withBasePath(`/blog-content/posts/${encodeURIComponent(slug)}.json?v=${Date.now()}`))
       .then((r) => {
         if (!r.ok) throw new Error('post fetch failed');
         return r.json();

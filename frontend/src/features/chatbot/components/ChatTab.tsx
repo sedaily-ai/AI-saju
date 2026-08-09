@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Sparkles } from 'lucide-react';
 import { useLang } from '@/shared/lib/LangContext';
 import { SAJU } from '@/shared/ui/sajuTokens';
+import { withBasePath } from '@/shared/lib/basePath';
 import { ChatBubble } from './ChatBubble';
 import { QuickReplies } from './QuickReplies';
 import { EraFactCard } from './EraFactCard';
@@ -679,7 +680,7 @@ export function ChatTab() {
               {t('프리미엄 시작하기', 'Start Premium')}
             </button>
           )}
-          <a href="/saju/" className="block text-[13px] underline mb-4" style={{ color: SAJU.inkSub }}>
+          <a href={withBasePath('/saju/')} className="block text-[13px] underline mb-4" style={{ color: SAJU.inkSub }}>
             {t('사주 전체 풀이 먼저 보기', 'See the full saju reading first')}
           </a>
           <button
